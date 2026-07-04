@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mikkel — Training</title>
+<!-- PWA / iOS home-screen app -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0e1116">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Training">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+  :root{
+    --bg:#0e1116; --card:#171c24; --card2:#1f2630; --line:#2a323d;
+    --txt:#e7ecf2; --muted:#93a0b0; --accent:#5b9bff; --accent2:#3ad29f;
+    --warn:#ffb454; --right:#ff6b6b; --gold:#ffd166;
+    --radius:14px; --pad:16px;
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45;padding-bottom:68px;}
+  header{position:sticky;top:0;z-index:10;background:rgba(14,17,22,.93);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+    padding:calc(14px + env(safe-area-inset-top)) var(--pad) 10px;}
+  h1{font-size:17px;margin:0 0 2px;letter-spacing:.2px;}
+  .sub{font-size:12px;color:var(--muted);margin:0;}
+  .wrap{max-width:680px;margin:0 auto;padding:0 var(--pad);}
+  .seg{display:flex;gap:6px;margin-top:12px;}
+  .seg button{flex:1;padding:8px 6px;border:1px solid var(--line);background:var(--card);
+    color:var(--muted);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;}
+  .seg button.on{background:var(--accent);border-color:var(--accent);color:#06101f;}
+  .days{display:flex;gap:6px;overflow-x:auto;margin:12px 0 2px;padding-bottom:4px;}
+  .days button{white-space:nowrap;padding:7px 12px;border:1px solid var(--line);background:var(--card);
+    color:var(--muted);border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;}
+  .days button.on{background:var(--card2);border-color:var(--accent);color:var(--txt);}
+  .days button.rest{opacity:.6;}
+  .days button.opt{opacity:.75;font-style:italic;}
+  .days button.today::after{content:"·";color:var(--accent2);font-size:18px;line-height:0;margin-left:3px;}
+  .dayhead{margin:16px 0 4px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;}
+  .dayhead h2{font-size:15px;margin:0;}
+  .dayhead .focus{font-size:12.5px;color:var(--accent2);font-weight:600;}
+  .progress{font-size:12px;color:var(--muted);white-space:nowrap;}
+  .note{font-size:12px;color:var(--muted);margin:6px 0 0;}
+  .banner{margin-top:12px;background:var(--card);border:1px solid var(--warn);border-radius:10px;
+    padding:10px 12px;font-size:12.5px;color:var(--warn);}
+  .banner .bx{color:var(--muted);display:block;margin-top:3px;}
+  .banner button{margin-top:8px;background:transparent;border:1px solid var(--warn);color:var(--warn);
+    border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;}
+  /* rest timer */
+  .timer{display:flex;align-items:center;gap:8px;margin-top:12px;
+    background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;}
+  .timer .disp{font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;min-width:46px;}
+  .timer .disp.run{color:var(--accent2);}
+  .timer button{background:var(--card2);border:1px solid var(--line);color:var(--muted);
+    border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:600;cursor:pointer;}
+  .timer button.stop{color:var(--warn);}
+  .timer .lbl{font-size:11px;color:var(--muted);margin-right:auto;}
+  /* blocks */
+  .block{margin-top:14px;}
+  .block .label{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);
+    margin:0 0 6px;font-weight:700;display:flex;align-items:center;gap:8px;}
+  .ss-badge{color:var(--accent);border:1px solid var(--accent);border-radius:6px;
+    padding:0 5px;font-size:10px;letter-spacing:.5px;}
+  .ex{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px var(--pad);margin-bottom:10px;}
+  .ex.main{border-left:3px solid var(--accent);}
+  .ex.done{opacity:.6;}
+  .ex.pr-flash{animation:prglow 1.6s ease-out;}
+  @keyframes prglow{0%{border-color:var(--gold);box-shadow:0 0 18px rgba(255,209,102,.45);}
+    100%{border-color:var(--line);box-shadow:none;}}
+  .ex .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .ex .name{font-size:14.5px;font-weight:650;margin:0;}
+  .ex .name .r{color:var(--right);font-size:11px;font-weight:700;margin-left:6px;
+    border:1px solid var(--right);border-radius:6px;padding:0 4px;vertical-align:middle;}
+  .prbadge{color:var(--gold);border:1px solid var(--gold);border-radius:6px;
+    padding:0 5px;font-size:10.5px;font-weight:800;margin-left:6px;vertical-align:middle;}
+  .chk{flex:0 0 auto;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);
+    background:transparent;cursor:pointer;position:relative;}
+  .chk.on{border-color:var(--accent2);background:var(--accent2);}
+  .chk.on::after{content:"";position:absolute;left:8px;top:4px;width:5px;height:10px;
+    border:solid #06101f;border-width:0 2px 2px 0;transform:rotate(45deg);}
+  .ex .rx{font-size:12.5px;color:var(--muted);margin:3px 0 0;}
+  .ex .cue{font-size:12px;color:var(--muted);font-style:italic;margin:6px 0 0;}
+  /* steppers */
+  .log{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .stp{display:flex;align-items:center;background:var(--card2);border:1px solid var(--line);
+    border-radius:10px;overflow:hidden;}
+  .stp button{width:38px;height:40px;background:none;border:none;color:var(--accent);
+    font-size:20px;font-weight:700;cursor:pointer;}
+  .stp input{width:56px;height:40px;background:none;border:none;color:var(--txt);text-align:center;
+    font-size:15px;font-weight:700;font-family:inherit;-moz-appearance:textfield;}
+  .stp input::-webkit-outer-spin-button,.stp input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .stp .u{font-size:10.5px;color:var(--muted);padding-right:8px;}
+  .logbtn{height:40px;padding:0 16px;background:var(--accent);color:#06101f;border:none;
+    border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;}
+  .logbtn.saved{background:var(--accent2);}
+  .last{font-size:11.5px;color:var(--accent2);margin-top:7px;min-height:14px;}
+  .last.empty{color:#5d6b7a;}
+  .last .best{color:var(--muted);}
+  /* readiness */
+  .readiness{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px var(--pad);margin:16px 0 4px;}
+  .readiness .rlbl{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);font-weight:700;}
+  .rrow{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .rrow .rn{font-size:12.5px;width:74px;color:var(--txt);}
+  .rrow .chips{display:flex;gap:6px;flex:1;}
+  .rrow .chips button{flex:1;padding:8px 0;border:1px solid var(--line);background:var(--card2);
+    color:var(--muted);border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .rrow .chips button.on0{background:var(--accent2);border-color:var(--accent2);color:#06101f;}
+  .rrow .chips button.on1{background:#9fd23a;border-color:#9fd23a;color:#06101f;}
+  .rrow .chips button.on2{background:var(--warn);border-color:var(--warn);color:#06101f;}
+  .rrow .chips button.on3{background:var(--right);border-color:var(--right);color:#06101f;}
+  .rhint{font-size:11px;color:#5d6b7a;margin:6px 0 0;}
+  /* day notes */
+  .daynotes{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px var(--pad);margin:12px 0 4px;}
+  .daynotes label{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);font-weight:700;}
+  .daynotes textarea{width:100%;margin-top:8px;background:var(--card2);border:1px solid var(--line);
+    color:var(--txt);border-radius:9px;padding:9px 10px;font-size:13px;font-family:inherit;resize:vertical;min-height:54px;}
+  /* panels */
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:var(--pad);margin-top:14px;}
+  .panel h3{font-size:14px;margin:0 0 10px;}
+  .bw{display:flex;gap:8px;align-items:center;}
+  .bw input{flex:1;background:var(--card2);border:1px solid var(--line);color:var(--txt);
+    border-radius:9px;padding:9px 10px;font-size:14px;font-family:inherit;}
+  .btn{background:var(--accent);color:#06101f;border:none;border-radius:9px;
+    padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);}
+  .btn.gold{background:var(--gold);}
+  .info p{font-size:12.5px;color:var(--muted);margin:0 0 8px;}
+  .info b{color:var(--txt);}
+  .row{display:flex;gap:8px;flex-wrap:wrap;}
+  textarea.data{width:100%;height:120px;background:var(--card2);border:1px solid var(--line);
+    color:var(--txt);border-radius:9px;padding:9px 10px;font-size:11.5px;font-family:ui-monospace,Menlo,monospace;}
+  /* stats + trends */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center;}
+  .stat .v{font-size:18px;font-weight:800;color:var(--txt);}
+  .stat .v.gold{color:var(--gold);}
+  .stat .k{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+  .trend{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);}
+  .trend:first-of-type{border-top:none;}
+  .trend .tn{flex:1;min-width:0;}
+  .trend .tn .nm{font-size:13px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .trend .tn .dt{font-size:11px;color:var(--muted);margin-top:1px;}
+  .trend .delta{font-size:12.5px;font-weight:700;min-width:52px;text-align:right;}
+  .delta.up{color:var(--accent2);} .delta.dn{color:var(--right);} .delta.flat{color:var(--muted);}
+  .chartbox{margin-top:8px;}
+  .chartbox svg{width:100%;height:auto;display:block;}
+  .axis{font-size:9.5px;fill:#5d6b7a;}
+  .legend{font-size:11px;color:var(--muted);margin-top:4px;display:flex;gap:14px;}
+  .legend i{display:inline-block;width:10px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px;}
+  footer{text-align:center;font-size:11px;color:#54606e;padding:22px 0 8px;}
+  .tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--card);
+    border-top:1px solid var(--line);display:flex;z-index:20;padding-bottom:env(safe-area-inset-bottom);}
+  .tabbar button{flex:1;background:none;border:none;color:var(--muted);
+    padding:11px 0 13px;font-size:12px;font-weight:600;cursor:pointer;position:relative;}
+  .tabbar button.on{color:var(--accent);}
+  .tabbar button .dot{position:absolute;top:8px;right:calc(50% - 26px);width:7px;height:7px;
+    border-radius:50%;background:var(--warn);}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1 id="hTitle">Training · Beach Volleyball</h1>
+    <p class="sub" id="hSub">Thu &amp; Sat legs · Wed &amp; Fri upper · Mon optional pump</p>
+    <div class="seg" id="weekSeg">
+      <button data-week="A">Week A · strength</button>
+      <button data-week="B">Week B · hypertrophy</button>
+    </div>
+    <div class="days" id="daySeg"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="view-program"></section>
+
+  <section id="view-trends" class="hidden">
+    <div class="stats" id="statsBox"></div>
+
+    <div class="panel">
+      <h3>Bodyweight</h3>
+      <div class="bw">
+        <input id="bwInput" type="number" inputmode="decimal" step="0.1" placeholder="kg">
+        <button class="btn" id="bwSave">Log</button>
+      </div>
+      <div class="chartbox" id="bwChart"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Readiness — knee &amp; right side</h3>
+      <div class="chartbox" id="readyChart"></div>
+      <div class="legend"><span><i style="background:var(--warn)"></i>Knee</span>
+        <span><i style="background:var(--right)"></i>Right side</span>
+        <span style="margin-left:auto">0 = fine · 3 = angry</span></div>
+    </div>
+
+    <div class="panel">
+      <h3>Lift trends</h3>
+      <p class="info" style="font-size:12px;color:var(--muted);margin:0 0 4px">
+        Estimated 1RM (Epley) per lift, or reps for bodyweight moves. Needs 2+ logged sessions.</p>
+      <div id="liftTrends"></div>
+    </div>
+  </section>
+
+  <section id="view-more" class="hidden">
+    <div class="panel">
+      <h3>Monthly check-in</h3>
+      <p class="info" style="margin-bottom:10px">One tap builds a summary of your block — progression,
+        bodyweight, readiness, notes — plus the raw data, formatted for Claude. Share it straight to the
+        Claude app on this phone.</p>
+      <div class="row">
+        <button class="btn gold" id="checkinBtn">Build check-in report</button>
+      </div>
+      <div id="checkinBox" class="hidden" style="margin-top:12px">
+        <textarea class="data" id="checkinText" readonly style="height:160px"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" id="checkinShare">Share to Claude</button>
+          <button class="btn ghost" id="checkinCopy">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Backup <span id="backupWarn" style="color:var(--warn);font-size:11.5px;font-weight:600"></span></h3>
+      <p class="info" style="margin-bottom:10px">Logs live on this phone only. Back up to iCloud Files
+        (or AirDrop) with one tap — do it every few sessions.</p>
+      <div class="row">
+        <button class="btn" id="backupBtn">Back up now</button>
+        <button class="btn ghost" id="exportBtn">Show raw data</button>
+        <button class="btn ghost" id="importToggle">Import</button>
+      </div>
+      <div id="exportBox" class="hidden" style="margin-top:12px">
+        <textarea class="data" id="exportText" readonly></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="btn ghost" id="copyBtn">Copy</button>
+          <button class="btn ghost" id="downloadBtn">Download .json</button>
+        </div>
+      </div>
+      <div id="importBox" class="hidden" style="margin-top:12px">
+        <textarea class="data" id="importText" placeholder="Paste a backup here…"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" id="importLoad">Load this data</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel info">
+      <h3>How to run this block</h3>
+      <p><b>Schedule.</b> Mon AM optional pump (squash PM) · Tue off gym (BV PM) · Wed AM upper push (BV PM)
+        · Thu AM lower-eccentric · Fri AM upper pull · Sat lower-heavy (later start is fine) · Sun off.</p>
+      <p><b>Why Saturday legs works.</b> The heavy day sits in the freshest slot of the week — rested, awake,
+        55 h before Monday squash and 79 h before Tuesday BV. The DOMS-maker day (Thu) has its aftermath land
+        on Fri/Sat, fully sport-free. <b>No Saturday this week?</b> Run the heavy session Monday morning
+        instead — its concentric-bias design is squash-safe. That's the fallback, not a failure.</p>
+      <p><b>The optional Monday is the release valve.</b> Five gym days + three sports + daily cycling is the
+        ceiling. Feeling heavy, knee grumpy, or short on sleep? Drop Monday first, guilt-free — the four fixed
+        days are the complete program.</p>
+      <p><b>Progression (double progression).</b> Stay at a load until you hit the top of the rep range on all
+        sets at the target RIR, then add: +2.5–5 kg lower body, +1–2.5 kg upper. Pull-ups: reps first, then weight.</p>
+      <p><b>Right side first.</b> Lead every single-leg/arm move with the right; match the left. Right feels
+        weaker? One extra set on the right — never the left.</p>
+      <p><b>Knee.</b> The Thursday wall sits + tempo work are treatment, not threat — tendons like regular,
+        controlled load. Skip the lateral bound any day the knee is a 2+.</p>
+      <p><b>Leg-day warm-up.</b> The 10-move stretch flow (30–45 s each), tendon prep on Friday, then
+        ramp-up sets: ~50% and ~75% of work weight on the first lift, one light set before each later lift.
+        Short on time: cat-cow, downward dog, world's greatest stretch, figure four, supine twists.</p>
+      <p><b>Deload</b> when the app suggests it (knee flaring, or 5+ weeks hard): keep loads, cut every
+        exercise to 2 sets, skip throws and bounds for the week.</p>
+      <p><b>RIR</b> = reps in reserve. RIR 2 ≈ stop 2 shy of failure. Log your top set only.</p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn ghost" id="deloadDone">I did a deload this week</button>
+        <button class="btn ghost" id="resetBtn">Reset all data</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="tabbar">
+  <button id="tab-program" class="on">Train</button>
+  <button id="tab-trends">Trends</button>
+  <button id="tab-more">More<span id="moreDot" class="hidden dot"></span></button>
+</div>
+
+<footer>Saved locally on this device · block updated 4 Jul 2026</footer>
+
+<script>
+"use strict";
+/* =====================================================================
+   Program data.
+   Exercise fields:
+     id    stable identity — history/PRs survive block updates & A/B weeks
+     n     display name        rx  prescription        cue  coaching note
+     type  "wr"  weight × reps          (kg logged as written in the cue)
+           "wradd" added weight × reps  (pull-up: 0 = bodyweight)
+           "reps" reps only             "w" weight only
+           "none" no logging (warm-ups, throws, bounds)
+     st    weight stepper increment     start {w,r} first-time defaults
+     r     right-side-first flag
+===================================================================== */
+const BLOCK_START = "2026-07-06";           // first Monday of this block
+const PROGRAM = {
+  A: { days: [
+    { id:"mon", day:"Mon", focus:"Optional · arms & delts pump", sport:"Squash PM", opt:true,
+      note:"Fully optional — the program is complete without it. ~30 min, zero leg cost, no heavy grip before squash. Skip it any week that feels heavy. No Saturday this week? Run Saturday's heavy leg session here instead — it's squash-safe by design.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"cable-latraise", n:"Standing cable lateral raise", rx:"4×12–15", type:"wr", st:2.5, start:{w:7.5,r:12},
+           cue:"Constant tension beats DBs here — strict, lean slightly away from the stack."},
+          {id:"db-curl", n:"Standing DB curl", rx:"3×10–12", type:"wr", st:2, start:{w:10,r:10}, cue:"kg = one DB."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"pushdown", n:"Triceps pushdown", rx:"3×12", type:"wr", st:2.5, start:{w:25,r:12}},
+          {id:"reardelt", n:"Standing cable rear-delt", rx:"2×15", type:"wr", st:2.5, start:{w:10,r:15},
+           cue:"Extra weekly delt sets — pure physique money."}]},
+        {label:"Core", items:[
+          {n:"Deadbug", rx:"2×10 slow", type:"none"}]}
+      ]},
+    { id:"tue", day:"Tue", focus:"Off gym", sport:"Beach volleyball PM", rest:true,
+      note:"BV doubleheader Tue+Wed — keep the morning free. Optional 5–10 min hips/ankles. Do log knee & right side below: it's the data that decides deloads and leg-day placement." },
+    { id:"wed", day:"Wed", focus:"Upper · push / physique", sport:"Beach volleyball PM",
+      note:"Delts & arms — low systemic fatigue so BV is unaffected.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none", cue:"Full shoulder prep every push day."}]},
+        {label:"Primary", main:true, items:[
+          {id:"incline-press", n:"Incline DB press", rx:"4×8 · RIR 2", type:"wr", st:2, start:{w:20,r:8},
+           cue:"kg = one DB. Slow eccentric is fine here — arms don't jump. Pressing is rebuilding: no grinding reps."}]},
+        {label:"Secondary", items:[
+          {id:"latpulldown", n:"Lat pulldown", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:50,r:8},
+           cue:"Keeps vertical-pull volume up; Thursday has the athletic version."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"latraise", n:"Standing lateral raise", rx:"4×12–15", type:"wr", st:2, start:{w:8,r:12},
+           cue:"kg = one DB. The delt-cap move — strict, no swing."},
+          {id:"db-curl", n:"Standing DB curl", rx:"3×10", type:"wr", st:2, start:{w:10,r:10}, cue:"kg = one DB."}]},
+        {label:"Accessory", items:[
+          {id:"oh-triceps", n:"Standing overhead cable triceps", rx:"3×12", type:"wr", st:2.5, start:{w:20,r:12}}]},
+        {label:"Core", items:[
+          {id:"abwheel", n:"Ab-wheel rollout", rx:"3×8–10", type:"reps", start:{r:8},
+           cue:"Anti-extension — ribs down, no low-back arch."}]}
+      ]},
+    { id:"thu", day:"Thu", focus:"Lower · eccentric + tendon", sport:"Sport-free evening",
+      note:"The DOMS-maker day: tempo, tendon, Nordics — deliberately submaximal, ~11 h after volleyball. Soreness lands Fri/Sat, long gone before Monday squash.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
+           cue:"Cat-cow → thread the needle → cobra/child's → downward dog → world's greatest stretch → seated side bend → figure four → side-lying windshield → supine twist, both ways. 30–45 s each — flow, don't force."},
+          {n:"Wall-sit isometric", rx:"3×30–45 s", type:"none",
+           cue:"Thighs near parallel, back flat on the wall. Patellar-tendon prep AND treatment — add a plate on the thighs to progress."},
+          {n:"Ramp-up sets", rx:"2 light sets of split squats", type:"none",
+           cue:"~50% then ~75% of work load, smooth."}]},
+        {label:"Primary", main:true, items:[
+          {id:"rfess", n:"Bulgarian split squat", rx:"4×8 / leg · 3 s down · RIR 2", type:"wr", st:2, start:{w:24,r:8}, r:true,
+           cue:"kg = total in hands. Control the descent, vertical-ish shin. Right first."}]},
+        {label:"Secondary", items:[
+          {id:"stepup", n:"Step-up (knee height or lower)", rx:"3×8 / leg", type:"wr", st:2, start:{w:20,r:8}, r:true,
+           cue:"kg = total in hands. Heel drive; no push off the bottom foot. Right first."}]},
+        {label:"Eccentric hamstring", items:[
+          {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–6", type:"reps", start:{r:4},
+           cue:"Lower as slowly as you can control; hands push back to reset. Band/slider to scale. Hamstrings still sore Saturday? Trim the RDL top set there."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"calf", n:"Standing calf raise", rx:"3×12", type:"wr", st:2.5, start:{w:40,r:12}},
+          {id:"tib", n:"Tibialis raise", rx:"2×15", type:"reps", start:{r:15},
+           cue:"Anterior shin — landing control & knee health."}]},
+        {label:"Power-core", items:[
+          {n:"Rotational med-ball throw", rx:"3×5 / side", type:"none", r:true,
+           cue:"Explosive — matches the spike. Non-impact, full intent."}]}
+      ]},
+    { id:"fri", day:"Fri", focus:"Upper · pull-biased", sport:"Sport-free evening",
+      note:"Pull day between the leg days. Grip-heavy is fine — no racquet until Monday. Direct core lives here too.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Band pull-aparts + shoulder CARs", rx:"2×15 / 5 each way", type:"none",
+           cue:"Prime scaps and cuff before loading."}]},
+        {label:"Primary", main:true, items:[
+          {id:"pullup", n:"Weighted / assisted pull-up", rx:"4×5 · RIR 1–2", type:"wradd", st:2.5, start:{w:0,r:5},
+           cue:"kg = added load (0 = bodyweight, negative = assist). Add reps to 4×6 before adding weight."}]},
+        {label:"Secondary", items:[
+          {id:"csrow", n:"Chest-supported single-arm DB row", rx:"3×10 / side · RIR 2", type:"wr", st:2, start:{w:26,r:10}, r:true,
+           cue:"Chest on an incline bench — no balance tax, all upper back. Row to the hip, 1 s squeeze. Right side first."},
+          {id:"press-std", n:"Standing DB / landmine press", rx:"3×8–10 · RIR 3", type:"wr", st:2, start:{w:14,r:8},
+           cue:"kg = one DB. Rebuilding the overhead pattern — keep 3 in reserve; BV already loads the shoulder overhead."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"facepull", n:"Face-pull", rx:"3×15", type:"wr", st:2.5, start:{w:25,r:15},
+           cue:"External-rotation bias for overhead shoulder health."},
+          {id:"reardelt", n:"Standing cable rear-delt", rx:"3×15", type:"wr", st:2.5, start:{w:10,r:15}}]},
+        {label:"Core", superset:true, items:[
+          {id:"pallof", n:"Standing Pallof press", rx:"3×12 / side", type:"wr", st:2.5, start:{w:15,r:12}, r:true,
+           cue:"Anti-rotation on your feet — press out, resist the twist. Right side first."},
+          {id:"copenhagen", n:"Copenhagen plank", rx:"2×8 / side", type:"reps", start:{r:8}, r:true,
+           cue:"Adductor/groin durability for lateral play."}]}
+      ]},
+    { id:"sat", day:"Sat", focus:"Lower · heavy hip-dominant", sport:"Sport-free · sleep in, lift big",
+      note:"The week's main event, in the freshest slot: 55 h before Monday squash, 79 h before Tuesday volleyball. Concentric bias — heavy but fast-recovering. Right side leads.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
+           cue:"The 10-move flow, 30–45 s each. Rushed? Cat-cow, downward dog, world's greatest stretch, figure four, supine twists."},
+          {n:"Ramp-up sets", rx:"2 light sets of hip thrust", type:"none",
+           cue:"~50% then ~75% of work weight, 5–6 smooth reps. One light set before each later lift."}]},
+        {label:"Power (non-impact)", items:[
+          {id:"kbswing", n:"Kettlebell swing", rx:"3×8 · max intent", type:"wr", st:4, start:{w:20,r:8},
+           cue:"Hip-dominant power, zero landing load — snap the hips, let the bell float."}]},
+        {label:"Primary", main:true, items:[
+          {id:"hipthrust", n:"Hip thrust", rx:"4×6–8 · RIR 2", type:"wr", st:2.5, start:{w:60,r:6},
+           cue:"The jump engine. Full lockout, 1 s pause, drive through heels — controlled down, no slow negative."}]},
+        {label:"Secondary", items:[
+          {id:"slrdl", n:"Single-leg RDL (DB)", rx:"3×8 / leg · RIR 3", type:"wr", st:2, start:{w:16,r:8}, r:true,
+           cue:"kg = total load in hands. Free hand on the rack for support — hinge, flat back, normal tempo. Right first."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"lyingcurl", n:"Lying hamstring curl", rx:"3×10 · RIR 2", type:"wr", st:2.5, start:{w:35,r:10},
+           cue:"Normal tempo — Thursday owns the slow eccentrics."},
+          {id:"calf", n:"Standing calf raise", rx:"3×10–12", type:"wr", st:2.5, start:{w:40,r:10},
+           cue:"Ankle/Achilles stiffness = better jump return."}]},
+        {label:"Core", items:[
+          {n:"Deadbug", rx:"2×10 slow", type:"none"}]}
+      ]}
+  ]},
+  B: { days: [
+    { id:"mon", day:"Mon", focus:"Optional · arms & delts pump", sport:"Squash PM", opt:true,
+      note:"Fully optional, same as week A — the release valve when the week feels heavy. No Saturday this week? Run Saturday's heavy leg session here instead.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"cable-latraise", n:"Standing cable lateral raise", rx:"4×12–15", type:"wr", st:2.5, start:{w:7.5,r:12},
+           cue:"Strict, constant tension, lean slightly away from the stack."},
+          {id:"db-curl", n:"Standing DB curl", rx:"3×10–12", type:"wr", st:2, start:{w:10,r:10}, cue:"kg = one DB."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"pushdown", n:"Triceps pushdown", rx:"3×12", type:"wr", st:2.5, start:{w:25,r:12}},
+          {id:"reardelt", n:"Standing cable rear-delt", rx:"2×15", type:"wr", st:2.5, start:{w:10,r:15}}]},
+        {label:"Core", items:[
+          {n:"Deadbug", rx:"2×10 slow", type:"none"}]}
+      ]},
+    { id:"tue", day:"Tue", focus:"Off gym", sport:"Beach volleyball PM", rest:true,
+      note:"Keep free before the BV block. Optional hips/ankles. Log knee & right side below — it's the deload and leg-day-placement data." },
+    { id:"wed", day:"Wed", focus:"Upper · push / physique", sport:"Beach volleyball PM",
+      note:"Pump-focused delts & arms, low fatigue.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"}]},
+        {label:"Primary", main:true, items:[
+          {id:"chest-press", n:"DB or machine chest press", rx:"4×10–12 · RIR 2", type:"wr", st:2, start:{w:24,r:10},
+           cue:"kg = one DB. Chase a stretch and a pump."}]},
+        {label:"Secondary", items:[
+          {id:"latpulldown", n:"Lat pulldown (wide)", rx:"3×12", type:"wr", st:2.5, start:{w:45,r:12}}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"latraise", n:"Standing lateral raise", rx:"4×15–20", type:"wr", st:2, start:{w:6,r:15},
+           cue:"Last set a burnout if fresh."},
+          {id:"cable-curl", n:"Standing cable curl", rx:"3×12", type:"wr", st:2.5, start:{w:20,r:12}}]},
+        {label:"Accessory", items:[
+          {id:"oh-triceps", n:"Standing overhead cable triceps", rx:"3×12", type:"wr", st:2.5, start:{w:20,r:12}}]},
+        {label:"Core", items:[
+          {id:"pallof", n:"Standing Pallof press", rx:"3×12 / side", type:"wr", st:2.5, start:{w:15,r:12}, r:true,
+           cue:"Anti-rotation on your feet — resist, don't twist."}]}
+      ]},
+    { id:"thu", day:"Thu", focus:"Lower · eccentric + tendon", sport:"Sport-free evening",
+      note:"Lunge-pattern week + the one gym plyo. Deliberately submaximal — ~11 h after volleyball. Soreness lands Fri/Sat, gone before Monday squash.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
+           cue:"The 10-move flow — don't skip the world's greatest stretch before lunging."},
+          {n:"Leg extension — light tempo", rx:"3×10 · 3 s down", type:"none",
+           cue:"Light and smooth, no lockout snap. Tendon prep, not a quad workout."},
+          {n:"Ramp-up sets", rx:"2 light sets of reverse lunge", type:"none",
+           cue:"~50% then ~75% of work load."}]},
+        {label:"Primary", main:true, items:[
+          {id:"revlunge", n:"Reverse lunge", rx:"4×8 / leg · RIR 2", type:"wr", st:2.5, start:{w:30,r:8}, r:true,
+           cue:"kg = total load. Reverse = knee-friendlier than walking. Right first."}]},
+        {label:"Secondary", items:[
+          {id:"goblet-stepup", n:"Goblet step-up", rx:"3×10 / leg", type:"wr", st:2, start:{w:16,r:10}, r:true,
+           cue:"Heel drive, controlled lower. Right first."}]},
+        {label:"Eccentric hamstring", items:[
+          {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–6", type:"reps", start:{r:4},
+           cue:"Slowest lower you can control. Weekly low dose = hamstring insurance."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"calf", n:"Standing calf raise", rx:"4×15", type:"wr", st:2.5, start:{w:35,r:15}},
+          {id:"tib", n:"Tibialis raise", rx:"2×20", type:"reps", start:{r:20}}]},
+        {label:"Power (knee-gated)", items:[
+          {n:"Lateral bound — stick the landing", rx:"3×4 / side", type:"none", r:true,
+           cue:"Hold each landing 1 s. Skip if the knee is a 2+ today."}]}
+      ]},
+    { id:"fri", day:"Fri", focus:"Upper · pull-biased", sport:"Sport-free evening",
+      note:"Higher-rep pull day, plus direct core. Grip-heavy is fine — no racquet until Monday.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Band pull-aparts + shoulder CARs", rx:"2×15 / 5 each way", type:"none"}]},
+        {label:"Primary", main:true, items:[
+          {id:"pullup", n:"Pull-up (assist as needed)", rx:"3×8–12", type:"wradd", st:2.5, start:{w:0,r:8},
+           cue:"kg = added load (0 = bodyweight, negative = assist). Each set close to failure, with control."}]},
+        {label:"Secondary", superset:true, items:[
+          {id:"cablerow", n:"Seated cable row", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:45,r:10},
+           cue:"Chest tall, drive elbows to hips — full stretch forward, no yank."},
+          {id:"press-std", n:"Standing landmine press", rx:"3×10 · RIR 3", type:"wr", st:2.5, start:{w:20,r:10},
+           cue:"Shoulder-friendly pressing while the pattern rebuilds."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"facepull", n:"Face-pull", rx:"3×20", type:"wr", st:2.5, start:{w:20,r:20}},
+          {id:"reardelt", n:"Standing cable rear-delt", rx:"3×15", type:"wr", st:2.5, start:{w:10,r:15}}]},
+        {label:"Core", superset:true, items:[
+          {id:"hangraise", n:"Hanging leg raise", rx:"3×8–12", type:"reps", start:{r:8},
+           cue:"Knees-to-chest if straight legs arch the back. Control the lower — no swing."},
+          {id:"copenhagen", n:"Copenhagen plank", rx:"2×8 / side", type:"reps", start:{r:8}, r:true}]}
+      ]},
+    { id:"sat", day:"Sat", focus:"Lower · heavy hip-dominant", sport:"Sport-free · sleep in, lift big",
+      note:"Hypertrophy week — same slot, more reps. 55 h before Monday squash, 79 h before Tuesday volleyball. Right side leads.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
+           cue:"The 10-move flow, 30–45 s each. Rushed? The 5-move short version."},
+          {n:"Ramp-up sets", rx:"2 light sets of hip thrust", type:"none",
+           cue:"~50% then ~75% of work weight."}]},
+        {label:"Power (non-impact)", items:[
+          {id:"kbswing", n:"Kettlebell swing", rx:"3×10 · max intent", type:"wr", st:4, start:{w:20,r:10},
+           cue:"Hips snap, arms just guide. Full recovery between sets — this is power, not cardio."}]},
+        {label:"Primary", main:true, items:[
+          {id:"hipthrust", n:"Hip thrust", rx:"4×10–12 · RIR 2", type:"wr", st:2.5, start:{w:50,r:10},
+           cue:"Hypertrophy week — same bar path, more reps. 1 s pause at the top."}]},
+        {label:"Secondary", items:[
+          {id:"bstance-rdl", n:"B-stance RDL", rx:"3×10 · RIR 3", type:"wr", st:2.5, start:{w:50,r:10}, r:true,
+           cue:"Barbell or DBs, rear foot kissing the floor. Right leg as working side first."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"lyingcurl", n:"Lying hamstring curl", rx:"3×12 · RIR 2", type:"wr", st:2.5, start:{w:30,r:12},
+           cue:"Normal tempo — Thursday owns the slow eccentrics."},
+          {id:"calf", n:"Standing calf raise", rx:"3×15", type:"wr", st:2.5, start:{w:35,r:15}}]},
+        {label:"Core", items:[
+          {n:"Deadbug", rx:"2×10 slow", type:"none"}]}
+      ]}
+  ]}
+};
+
+/* Exercise registry: id -> {name, type} (first occurrence wins) */
+const EXMETA = {};
+["A","B"].forEach(w => PROGRAM[w].days.forEach(d => (d.blocks||[]).forEach(b => b.items.forEach(it => {
+  if(it.id && !EXMETA[it.id]) EXMETA[it.id] = {name:it.n, type:it.type};
+}))));
+
+/* =====================================================================
+   State
+===================================================================== */
+const STORE_KEY = "mikkel_training_v2";
+const OLD_KEY = "mikkel_training_v1";
+
+function blankState(){
+  return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{},
+          meta:{lastBackup:null, lastDeload:null, blockStart:BLOCK_START}, ui:{}};
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){ const s = JSON.parse(raw); return normalize(s); }
+    // one-time migration from v1 (bodyweight + notes; old free-text logs kept under legacy)
+    const old = localStorage.getItem(OLD_KEY);
+    if(old){
+      const o = JSON.parse(old), s = blankState();
+      s.bw = o.bw || [];
+      if(o.notes) Object.keys(o.notes).forEach(k =>
+        s.notesArr.push({ts:o.notes[k].ts||Date.now(), day:k, text:o.notes[k].text||""}));
+      if(o.logs && Object.keys(o.logs).length) s.legacy = o.logs;
+      return s;
+    }
+    return blankState();
+  }catch(e){ return blankState(); }
+}
+function normalize(s){
+  const b = blankState();
+  return {logs:s.logs||b.logs, bw:s.bw||b.bw, done:s.done||b.done,
+          notesArr:s.notesArr||b.notesArr, ready:s.ready||b.ready, sessions:s.sessions||b.sessions,
+          meta:Object.assign(b.meta, s.meta||{}), ui:s.ui||{}, legacy:s.legacy};
+}
+let state = load();
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+
+/* =====================================================================
+   Helpers
+===================================================================== */
+function ymd(d){ d=d||new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function fmtDate(ts){ return new Date(ts).toLocaleDateString("en-GB",{day:"numeric",month:"short"}); }
+function escapeHtml(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function round1(x){ return Math.round(x*10)/10; }
+function latestBw(){ return (state.bw && state.bw.length) ? state.bw[state.bw.length-1].kg : 83; }
+function e1rm(w,r){ return r>0 ? w*(1+r/30) : w; }
+/* PR metric per exercise type */
+function metric(exId, e){
+  const t = (EXMETA[exId]||{}).type;
+  if(t==="wr")    return e1rm(e.w||0, e.r||0);
+  if(t==="wradd") return e1rm(latestBw()+(e.w||0), e.r||0);
+  if(t==="reps")  return e.r||0;
+  if(t==="w")     return e.w||0;
+  return 0;
+}
+function metricLabel(exId){
+  const t = (EXMETA[exId]||{}).type;
+  return t==="reps" ? "reps" : t==="w" ? "kg" : "kg e1RM";
+}
+function entryText(exId, e){
+  const t = (EXMETA[exId]||{}).type;
+  if(t==="reps") return e.r+" reps";
+  if(t==="w")    return e.w+" kg";
+  if(t==="wradd")return (e.w>0?"+":"")+e.w+" kg × "+e.r;
+  return e.w+" kg × "+e.r;
+}
+function bestEntry(exId){
+  const arr = state.logs[exId]||[];
+  let best=null, bm=-Infinity;
+  arr.forEach(e=>{ const m=metric(exId,e); if(m>bm){bm=m;best=e;} });
+  return best ? {e:best, m:bm} : null;
+}
+function lastEntry(exId){ const a=state.logs[exId]||[]; return a.length? a[a.length-1] : null; }
+function todayEntry(exId){
+  const a=state.logs[exId]||[]; const e=a[a.length-1];
+  return (e && ymd(new Date(e.ts))===ymd()) ? e : null;
+}
+
+/* Auto week: A on even weeks since block start */
+function autoWeek(){
+  const bs = new Date(state.meta.blockStart+"T00:00:00");
+  const w = Math.floor((Date.now()-bs.getTime())/(7*864e5));
+  return (w<0 || w%2===0) ? "A" : "B";
+}
+let curWeek = (state.ui.wDate===ymd() && state.ui.week) ? state.ui.week : autoWeek();
+let curDay  = (state.ui.dDate===ymd() && typeof state.ui.day==="number") ? state.ui.day
+              : ({1:0,2:1,3:2,4:3,5:4,6:5}[new Date().getDay()] ?? 0);
+function persistUi(){ state.ui={week:curWeek, day:curDay, wDate:ymd(), dDate:ymd()}; save(); }
+
+/* Sessions & streaks */
+function markSessionToday(dayId){
+  if(!state.sessions[ymd()]){ state.sessions[ymd()]=dayId; save(); }
+}
+function isoWeek(dstr){
+  const d = new Date(dstr+"T12:00:00");
+  const t = new Date(d); t.setDate(d.getDate()+3-((d.getDay()+6)%7));
+  const jan4 = new Date(t.getFullYear(),0,4);
+  return t.getFullYear()+"-W"+String(1+Math.round(((t-jan4)/864e5-3+((jan4.getDay()+6)%7))/7)).padStart(2,"0");
+}
+function sessionsThisWeek(){
+  const wk = isoWeek(ymd());
+  return Object.keys(state.sessions).filter(d=>isoWeek(d)===wk).length;
+}
+function weekStreak(){
+  const byWeek = {};
+  Object.keys(state.sessions).forEach(d=>{ byWeek[isoWeek(d)]=(byWeek[isoWeek(d)]||0)+1; });
+  let streak=0; const now=new Date();
+  for(let i=0;;i++){
+    const d=new Date(now); d.setDate(d.getDate()-7*i);
+    const wk=isoWeek(ymd(d));
+    if((byWeek[wk]||0)>=3) streak++;
+    else if(i===0 && streak===0 && (byWeek[wk]||0)>0) { /* current week in progress — don't break streak yet */ }
+    else break;
+    if(i>260) break;
+  }
+  return streak;
+}
+function prCountBlock(){
+  const bs=new Date(state.meta.blockStart+"T00:00:00").getTime();
+  let n=0;
+  Object.keys(state.logs).forEach(id=>{
+    let bm=-Infinity;
+    (state.logs[id]||[]).forEach(e=>{
+      const m=metric(id,e);
+      if(m>bm){ if(e.ts>=bs && bm>-Infinity) n++; bm=m; }
+    });
+  });
+  return n;
+}
+function sessionsSinceBackup(){
+  const lb = state.meta.lastBackup||0;
+  return Object.keys(state.sessions).filter(d=>new Date(d+"T23:59:00").getTime()>lb).length;
+}
+
+/* Deload suggestion */
+function readyList(){ return Object.keys(state.ready).sort().map(d=>({d, ...state.ready[d]})); }
+function kneeFlag(){
+  const cutoff=Date.now()-7*864e5;
+  return readyList().filter(r=>new Date(r.d).getTime()>cutoff && r.knee>=2).length>=2;
+}
+function fatigueFlag(){
+  const anchor = state.meta.lastDeload ? new Date(state.meta.lastDeload).getTime()
+                                       : new Date(state.meta.blockStart+"T00:00:00").getTime();
+  return (Date.now()-anchor) > 35*864e5 && Object.keys(state.sessions).length>=6;
+}
+
+/* =====================================================================
+   Render — program view
+===================================================================== */
+const elProgram=document.getElementById("view-program");
+const elDaySeg=document.getElementById("daySeg");
+const todayIdx = {1:0,2:1,3:2,4:3,5:4,6:5}[new Date().getDay()];
+
+function renderDayTabs(){
+  const days=PROGRAM[curWeek].days;
+  elDaySeg.innerHTML="";
+  days.forEach((d,i)=>{
+    const b=document.createElement("button");
+    b.textContent=d.day;
+    if(d.rest) b.classList.add("rest");
+    if(d.opt) b.classList.add("opt");
+    if(i===curDay) b.classList.add("on");
+    if(i===todayIdx) b.classList.add("today");
+    b.onclick=()=>{ curDay=i; persistUi(); renderDayTabs(); renderDay(); };
+    elDaySeg.appendChild(b);
+  });
+}
+
+function bannersHtml(){
+  let h="";
+  if(kneeFlag())
+    h+=`<div class="banner">⚠ Knee has been 2+ twice this week.
+      <span class="bx">Cut tempo-work loads, skip the lateral bound, keep the wall-sit isometrics. If it persists to next week: deload, and tell Claude at check-in.</span></div>`;
+  else if(fatigueFlag())
+    h+=`<div class="banner">It's been 5+ weeks since a deload.
+      <span class="bx">This week: keep loads, cut every exercise to 2 sets, skip throws &amp; bounds. Then mark it done in More.</span></div>`;
+  if(sessionsSinceBackup()>=6)
+    h+=`<div class="banner">💾 ${sessionsSinceBackup()} sessions since your last backup.
+      <span class="bx">One tap in the More tab — logs live only on this phone.</span></div>`;
+  return h;
+}
+
+function renderDay(){
+  const d=PROGRAM[curWeek].days[curDay];
+  let total=0, doneN=0;
+  if(!d.rest) d.blocks.forEach((blk,bi)=>blk.items.forEach((it,ii)=>{
+    if(blk.label==="Warm-up") return;
+    total++; if(state.done[exKey(d,bi,ii)]===ymd()) doneN++;
+  }));
+
+  let html=bannersHtml();
+  html+=`<div class="dayhead">
+      <div><span class="focus">${d.focus}</span>
+      <h2>${d.day} — <span style="color:var(--muted);font-weight:500;font-size:13px">${d.sport}</span></h2></div>
+      ${d.rest?"":`<span class="progress">${doneN}/${total} done</span>`}
+    </div>`;
+  if(d.note) html+=`<p class="note">${d.note}</p>`;
+
+  if(d.rest){
+    html+=`<div class="ex" style="margin-top:14px;text-align:center;color:var(--muted)">
+      Rest from the gym today. Legs belong to the sport.</div>`;
+    html+=readinessHtml(d)+notesHtml(d);
+    elProgram.innerHTML=html;
+    bindReadiness(d); bindNotes(d);
+    return;
+  }
+
+  html+=`<div class="timer">
+      <span class="lbl">Rest timer</span>
+      <button data-sec="60">60</button><button data-sec="90">90</button><button data-sec="120">120</button>
+      <span class="disp" id="timerDisp">—</span>
+      <button class="stop" id="timerStop">reset</button>
+    </div>`;
+
+  d.blocks.forEach((blk,bi)=>{
+    html+=`<div class="block"><p class="label">${blk.label}${blk.superset?'<span class="ss-badge">SUPERSET</span>':""}</p>`;
+    blk.items.forEach((it,ii)=>{
+      html+=exerciseHtml(d,blk,bi,it,ii);
+    });
+    html+=`</div>`;
+  });
+
+  html+=readinessHtml(d)+notesHtml(d);
+  elProgram.innerHTML=html;
+
+  elProgram.querySelectorAll("[data-done]").forEach(b=>b.addEventListener("click",onDoneToggle));
+  elProgram.querySelectorAll("[data-stp]").forEach(b=>b.addEventListener("click",onStep));
+  elProgram.querySelectorAll("[data-logbtn]").forEach(b=>b.addEventListener("click",onLog));
+  bindTimer(); bindReadiness(d); bindNotes(d);
+}
+
+function exKey(d,bi,ii){ return curWeek+"-"+d.id+"|"+bi+"|"+ii; }
+
+function exerciseHtml(d,blk,bi,it,ii){
+  const isWarm=blk.label==="Warm-up";
+  const key=exKey(d,bi,ii);
+  const doneOn=state.done[key]===ymd();
+  let inner=`<div class="top">
+      <p class="name">${it.n}${it.r?'<span class="r">R first</span>':""}${prBadge(it)}</p>
+      ${isWarm?"":`<button class="chk ${doneOn?"on":""}" data-done="${key}" aria-label="mark done"></button>`}
+    </div>
+    <p class="rx">${it.rx}</p>
+    ${it.cue?`<p class="cue">${it.cue}</p>`:""}`;
+
+  if(it.id && it.type!=="none"){
+    const te=todayEntry(it.id), le=lastEntry(it.id), start=it.start||{};
+    const w = te? te.w : (le? le.w : (start.w!=null? start.w : 0));
+    const r = te? te.r : (start.r!=null? start.r : (le? le.r : 8));
+    const showW = it.type!=="reps", showR = it.type!=="w";
+    inner+=`<div class="log" data-ex="${it.id}">`;
+    if(showW) inner+=`<span class="stp">
+        <button data-stp="-w" data-ex="${it.id}">−</button>
+        <input type="number" inputmode="decimal" step="${it.st||2.5}" value="${w}" data-w="${it.id}">
+        <span class="u">kg</span>
+        <button data-stp="+w" data-ex="${it.id}">+</button></span>`;
+    if(showR) inner+=`<span class="stp">
+        <button data-stp="-r" data-ex="${it.id}">−</button>
+        <input type="number" inputmode="numeric" step="1" value="${r}" data-r="${it.id}">
+        <span class="u">reps</span>
+        <button data-stp="+r" data-ex="${it.id}">+</button></span>`;
+    inner+=`<button class="logbtn ${te?"saved":""}" data-logbtn="${it.id}" data-st="${it.st||2.5}">${te?"✓":"Log"}</button></div>`;
+    inner+=`<div class="${le?"last":"last empty"}" id="last-${it.id}-${bi}-${ii}">${lastLine(it.id)}</div>`;
+  }
+  return `<div class="ex ${blk.main?"main":""} ${doneOn?"done":""}" id="card-${key.replace(/[|]/g,"_")}">${inner}</div>`;
+}
+
+function prBadge(it){
+  if(!it.id) return "";
+  const b=bestEntry(it.id), t=todayEntry(it.id);
+  if(b && t && metric(it.id,t)>=b.m && (state.logs[it.id]||[]).length>1) return `<span class="prbadge">PR</span>`;
+  return "";
+}
+function lastLine(exId){
+  const le=lastEntry(exId);
+  if(!le) return "No entry yet — log your top set";
+  const b=bestEntry(exId);
+  let s=`Last (${fmtDate(le.ts)}): ${entryText(exId,le)}`;
+  if(b) s+=`  <span class="best">· best ${round1(b.m)} ${metricLabel(exId)}</span>`;
+  return s;
+}
+
+function onStep(e){
+  const b=e.target, dir=b.getAttribute("data-stp"), id=b.getAttribute("data-ex");
+  const row=b.closest(".log");
+  const st=parseFloat((row.querySelector("[data-logbtn]")||{}).getAttribute?.("data-st")||2.5);
+  if(dir.endsWith("w")){
+    const inp=row.querySelector(`[data-w="${id}"]`);
+    inp.value=round1((parseFloat(inp.value)||0)+(dir[0]==="+"?st:-st));
+  }else{
+    const inp=row.querySelector(`[data-r="${id}"]`);
+    inp.value=Math.max(0,(parseInt(inp.value)||0)+(dir[0]==="+"?1:-1));
+  }
+}
+
+function onLog(e){
+  const btn=e.target, id=btn.getAttribute("data-logbtn");
+  const row=btn.closest(".log");
+  const wI=row.querySelector(`[data-w="${id}"]`), rI=row.querySelector(`[data-r="${id}"]`);
+  const entry={ts:Date.now()};
+  if(wI) entry.w=parseFloat(wI.value)||0;
+  if(rI) entry.r=parseInt(rI.value)||0;
+
+  if(!state.logs[id]) state.logs[id]=[];
+  const arr=state.logs[id];
+  const prevBest=bestEntry(id);
+  const last=arr[arr.length-1];
+  if(last && ymd(new Date(last.ts))===ymd()) arr[arr.length-1]=entry;   // overwrite today's
+  else arr.push(entry);
+  markSessionToday(PROGRAM[curWeek].days[curDay].id);
+  save();
+
+  const isPr = prevBest && metric(id,entry)>prevBest.m;
+  btn.classList.add("saved"); btn.textContent="✓";
+  const card=btn.closest(".ex");
+  if(isPr && card){
+    card.classList.remove("pr-flash"); void card.offsetWidth; card.classList.add("pr-flash");
+    if(navigator.vibrate) navigator.vibrate([60,40,60]);
+  }
+  renderDay();   // refresh badges + last lines
+}
+
+function onDoneToggle(e){
+  const key=e.target.getAttribute("data-done");
+  if(state.done[key]===ymd()) delete state.done[key];
+  else { state.done[key]=ymd(); markSessionToday(PROGRAM[curWeek].days[curDay].id); }
+  save(); renderDay();
+}
+
+/* Readiness */
+function readinessHtml(d){
+  const today=state.ready[ymd()]||{};
+  const chip=(field,val)=>{
+    const cur=today[field];
+    return [0,1,2,3].map(v=>
+      `<button data-ready="${field}:${v}" class="${cur===v?("on"+v):""}">${v}</button>`).join("");
+  };
+  return `<div class="readiness">
+    <span class="rlbl">Today's readiness — 2 taps</span>
+    <div class="rrow"><span class="rn">Knee</span><div class="chips">${chip("knee")}</div></div>
+    <div class="rrow"><span class="rn">Right side</span><div class="chips">${chip("rs")}</div></div>
+    <p class="rhint">0 = fine · 1 = aware of it · 2 = grumpy · 3 = angry. This decides deloads — and whether the leg-day placement stays.</p>
+  </div>`;
+}
+function bindReadiness(d){
+  elProgram.querySelectorAll("[data-ready]").forEach(b=>b.addEventListener("click",e=>{
+    const [f,v]=e.target.getAttribute("data-ready").split(":");
+    const t=state.ready[ymd()]||{};
+    t[f]=parseInt(v); t.day=d.id;
+    state.ready[ymd()]=t; save(); renderDay();
+  }));
+}
+
+/* Notes */
+function todaysNote(dayId){
+  return state.notesArr.find(n=>n.day===dayId && ymd(new Date(n.ts))===ymd());
+}
+function notesHtml(d){
+  const n=todaysNote(d.id);
+  return `<div class="daynotes">
+    <label for="note-${d.id}">Session notes — anything the numbers miss</label>
+    <textarea id="note-${d.id}" data-note="${d.id}" placeholder="How did it feel?">${n?escapeHtml(n.text):""}</textarea>
+  </div>`;
+}
+function bindNotes(d){
+  const ta=document.getElementById("note-"+d.id);
+  if(ta) ta.addEventListener("change",e=>{
+    const t=e.target.value.trim();
+    const ex=todaysNote(d.id);
+    if(ex){ if(t) ex.text=t; else state.notesArr.splice(state.notesArr.indexOf(ex),1); }
+    else if(t) state.notesArr.push({ts:Date.now(), day:d.id, text:t});
+    save();
+  });
+}
+
+/* =====================================================================
+   Rest timer
+===================================================================== */
+let timerId=null, timerLeft=0;
+function bindTimer(){
+  const disp=document.getElementById("timerDisp");
+  elProgram.querySelectorAll(".timer button[data-sec]").forEach(b=>{
+    b.onclick=()=>startTimer(parseInt(b.dataset.sec,10),disp);
+  });
+  const stop=document.getElementById("timerStop");
+  if(stop) stop.onclick=()=>{ clearInterval(timerId); timerId=null;
+    if(disp){disp.textContent="—";disp.classList.remove("run");} };
+}
+function startTimer(sec,disp){
+  clearInterval(timerId); timerLeft=sec;
+  const tick=()=>{
+    if(!disp) return;
+    const m=Math.floor(timerLeft/60), s=timerLeft%60;
+    disp.textContent=m+":"+String(s).padStart(2,"0");
+    disp.classList.add("run");
+    if(timerLeft<=0){ clearInterval(timerId); timerId=null; disp.classList.remove("run"); beep();
+      if(navigator.vibrate) navigator.vibrate(200); }
+    timerLeft--;
+  };
+  tick(); timerId=setInterval(tick,1000);
+}
+function beep(){
+  try{ const ac=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.connect(g); g.connect(ac.destination); o.frequency.value=880; o.type="sine";
+    g.gain.setValueAtTime(0.25,ac.currentTime); o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+0.4); o.stop(ac.currentTime+0.4);
+  }catch(e){}
+}
+
+/* =====================================================================
+   Trends tab
+===================================================================== */
+function renderStats(){
+  const el=document.getElementById("statsBox");
+  el.innerHTML=`
+    <div class="stat"><div class="v">${sessionsThisWeek()}<span style="font-size:12px;color:var(--muted)">/4+</span></div><div class="k">this week</div></div>
+    <div class="stat"><div class="v">${weekStreak()}</div><div class="k">wk streak</div></div>
+    <div class="stat"><div class="v gold">${prCountBlock()}</div><div class="k">PRs · block</div></div>
+    <div class="stat"><div class="v">${Object.keys(state.sessions).length}</div><div class="k">sessions</div></div>`;
+}
+
+function lineChart(points, opts){
+  // points: [{x:ts, y:val}] sorted; opts: {h, color, y2?:[{x,y}], color2, ymin, ymax, unit}
+  const W=640, H=opts.h||150, P={l:34,r:10,t:10,b:20};
+  if(points.length<2 && !(opts.y2&&opts.y2.length>1))
+    return `<p style="font-size:12px;color:#5d6b7a;margin:6px 0">Not enough data yet — needs 2+ entries.</p>`;
+  const all=points.concat(opts.y2||[]);
+  const xs=all.map(p=>p.x), ys=all.map(p=>p.y);
+  const x0=Math.min(...xs), x1=Math.max(...xs);
+  let ymin=opts.ymin!=null?opts.ymin:Math.min(...ys), ymax=opts.ymax!=null?opts.ymax:Math.max(...ys);
+  if(ymax-ymin<1){ ymax+=1; ymin-=1; }
+  const pad=(ymax-ymin)*0.08; if(opts.ymin==null)ymin-=pad; if(opts.ymax==null)ymax+=pad;
+  const sx=t=>P.l+(x1===x0?0.5:(t-x0)/(x1-x0))*(W-P.l-P.r);
+  const sy=v=>P.t+(1-(v-ymin)/(ymax-ymin))*(H-P.t-P.b);
+  const path=pts=>pts.map((p,i)=>(i?"L":"M")+round1(sx(p.x))+" "+round1(sy(p.y))).join(" ");
+  const gridY=[ymin,(ymin+ymax)/2,ymax];
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`;
+  gridY.forEach(v=>{ s+=`<line x1="${P.l}" y1="${round1(sy(v))}" x2="${W-P.r}" y2="${round1(sy(v))}" stroke="#2a323d" stroke-width="1"/>
+    <text x="${P.l-4}" y="${round1(sy(v))+3}" text-anchor="end" class="axis">${round1(v)}</text>`; });
+  s+=`<text x="${P.l}" y="${H-5}" class="axis">${fmtDate(x0)}</text>
+      <text x="${W-P.r}" y="${H-5}" text-anchor="end" class="axis">${fmtDate(x1)}</text>`;
+  if(opts.unit) s+=`<text x="6" y="${P.t+4}" class="axis">${opts.unit}</text>`;
+  if(points.length>1) s+=`<path d="${path(points)}" fill="none" stroke="${opts.color}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  if(opts.y2&&opts.y2.length>1) s+=`<path d="${path(opts.y2)}" fill="none" stroke="${opts.color2}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  const lp=points[points.length-1];
+  if(lp) s+=`<circle cx="${round1(sx(lp.x))}" cy="${round1(sy(lp.y))}" r="4" fill="${opts.color}"/>`;
+  s+=`</svg>`;
+  return s;
+}
+
+function sparkline(vals){
+  const W=110,H=28,P=3;
+  if(vals.length<2) return "";
+  const mn=Math.min(...vals), mx=Math.max(...vals), rg=(mx-mn)||1;
+  const pts=vals.map((v,i)=>round1(P+i*(W-2*P)/(vals.length-1))+" "+round1(H-P-(v-mn)/rg*(H-2*P))).join(" ");
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><polyline points="${pts}" fill="none"
+    stroke="var(--accent)" stroke-width="2"/><circle cx="${W-P}" cy="${round1(H-P-(vals[vals.length-1]-mn)/rg*(H-2*P))}" r="3" fill="var(--accent2)"/></svg>`;
+}
+
+function renderTrends(){
+  renderStats();
+  // bodyweight
+  const bwPts=(state.bw||[]).map(e=>({x:e.ts,y:e.kg}));
+  document.getElementById("bwChart").innerHTML=lineChart(bwPts,{color:"var(--accent2)",unit:"kg"});
+  // readiness
+  const rl=readyList();
+  const k=rl.filter(r=>r.knee!=null).map(r=>({x:new Date(r.d+"T12:00").getTime(),y:r.knee}));
+  const rs=rl.filter(r=>r.rs!=null).map(r=>({x:new Date(r.d+"T12:00").getTime(),y:r.rs}));
+  document.getElementById("readyChart").innerHTML=
+    lineChart(k,{color:"var(--warn)",y2:rs,color2:"var(--right)",ymin:0,ymax:3,h:120});
+  // lifts
+  const box=document.getElementById("liftTrends");
+  const rows=[];
+  Object.keys(state.logs).forEach(id=>{
+    const arr=state.logs[id]||[];
+    if(arr.length<2 || !EXMETA[id]) return;
+    const ms=arr.map(e=>metric(id,e));
+    const first=ms[0], last=ms[ms.length-1];
+    const pct=first>0 ? (last-first)/first*100 : 0;
+    rows.push({id, name:EXMETA[id].name, n:arr.length, ms, first, last, pct, ts:arr[arr.length-1].ts});
+  });
+  rows.sort((a,b)=>b.ts-a.ts);
+  box.innerHTML = rows.length ? rows.map(r=>{
+    const cls=r.pct>1?"up":(r.pct<-1?"dn":"flat");
+    const sign=r.pct>0?"+":"";
+    return `<div class="trend">
+      <div class="tn"><div class="nm">${r.name}</div>
+        <div class="dt">${round1(r.first)} → ${round1(r.last)} ${metricLabel(r.id)} · ${r.n} sessions</div></div>
+      ${sparkline(r.ms)}
+      <div class="delta ${cls}">${sign}${round1(r.pct)}%</div>
+    </div>`;
+  }).join("") : `<p style="font-size:12px;color:#5d6b7a;margin:6px 0">Log a lift twice and its trend appears here.</p>`;
+}
+
+/* Bodyweight input */
+document.getElementById("bwSave").onclick=()=>{
+  const kg=parseFloat(document.getElementById("bwInput").value);
+  if(!kg||kg<30||kg>200) return;
+  state.bw.push({ts:Date.now(), kg:Math.round(kg*10)/10});
+  save(); document.getElementById("bwInput").value=""; renderTrends();
+};
+
+/* =====================================================================
+   More tab: check-in, backup, import, deload, reset
+===================================================================== */
+function buildCheckin(){
+  const L=[];
+  const days=Object.keys(state.sessions).sort();
+  const since=days.length?days[0]:ymd();
+  const weeks=Math.max(1,Math.round((Date.now()-new Date(since).getTime())/(7*864e5)));
+  L.push("# Training check-in — "+ymd());
+  L.push("");
+  L.push(`Block: Thu/Sat lower + optional Mon · started ${state.meta.blockStart} · week ${curWeek} currently shown`);
+  L.push(`Adherence: ${days.length} sessions since ${since} (~${round1(days.length/weeks)}/week, target 4–5)`);
+  if(state.bw.length){
+    const f=state.bw[0], l=state.bw[state.bw.length-1];
+    L.push(`Bodyweight: ${f.kg} → ${l.kg} kg (${l.kg-f.kg>=0?"+":""}${round1(l.kg-f.kg)} kg over ${state.bw.length} logs)`);
+  }
+  const rl=readyList();
+  if(rl.length){
+    const avg=a=>round1(a.reduce((s,x)=>s+x,0)/a.length);
+    const ks=rl.filter(r=>r.knee!=null).map(r=>r.knee), rss=rl.filter(r=>r.rs!=null).map(r=>r.rs);
+    L.push(`Readiness (${rl.length} entries): knee avg ${ks.length?avg(ks):"–"} (max ${ks.length?Math.max(...ks):"–"}), right side avg ${rss.length?avg(rss):"–"} (max ${rss.length?Math.max(...rss):"–"})`);
+    const bad=rl.filter(r=>(r.knee||0)>=2||(r.rs||0)>=2).slice(-6);
+    if(bad.length) L.push("Flagged days: "+bad.map(r=>`${r.d} (knee ${r.knee??"–"}, R ${r.rs??"–"})`).join("; "));
+  }
+  if(state.meta.lastDeload) L.push("Last deload: "+ymd(new Date(state.meta.lastDeload)));
+  L.push(""); L.push("## Lifts");
+  Object.keys(state.logs).forEach(id=>{
+    const arr=state.logs[id]; if(!arr||!arr.length||!EXMETA[id]) return;
+    const f=arr[0], l=arr[arr.length-1], b=bestEntry(id);
+    const pct=metric(id,f)>0 ? round1((metric(id,l)-metric(id,f))/metric(id,f)*100) : 0;
+    L.push(`- ${EXMETA[id].name}: ${entryText(id,f)} → ${entryText(id,l)} · ${round1(metric(id,f))}→${round1(metric(id,l))} ${metricLabel(id)} (${pct>=0?"+":""}${pct}%) · best ${round1(b.m)} · ${arr.length}×`);
+  });
+  const notes=state.notesArr.slice(-8);
+  if(notes.length){
+    L.push(""); L.push("## Recent notes");
+    notes.forEach(n=>L.push(`- ${ymd(new Date(n.ts))} (${n.day}): ${n.text}`));
+  }
+  L.push(""); L.push("## Raw data"); L.push("```json");
+  L.push(JSON.stringify(state)); L.push("```");
+  return L.join("\n");
+}
+document.getElementById("checkinBtn").onclick=()=>{
+  document.getElementById("checkinText").value=buildCheckin();
+  document.getElementById("checkinBox").classList.remove("hidden");
+};
+document.getElementById("checkinShare").onclick=async()=>{
+  const text=document.getElementById("checkinText").value||buildCheckin();
+  if(navigator.share){ try{ await navigator.share({text}); }catch(e){} }
+  else { copyText(text); alert("Sharing not available — copied instead. Paste it to Claude."); }
+};
+document.getElementById("checkinCopy").onclick=()=>{
+  copyText(document.getElementById("checkinText").value||buildCheckin());
+  alert("Copied — paste it to Claude.");
+};
+function copyText(t){
+  if(navigator.clipboard) navigator.clipboard.writeText(t).catch(()=>{});
+  else{ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta);
+    ta.select(); try{document.execCommand("copy");}catch(e){} ta.remove(); }
+}
+
+/* Backup */
+async function doBackup(){
+  const json=JSON.stringify(state,null,2);
+  const fname="training-backup-"+ymd()+".json";
+  let ok=false;
+  try{
+    const file=new File([json],fname,{type:"application/json"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:"Training backup"});
+      ok=true;
+    }
+  }catch(e){ /* user cancelled or unsupported */ }
+  if(!ok){
+    const blob=new Blob([json],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download=fname; a.click(); URL.revokeObjectURL(a.href);
+    ok=true;
+  }
+  if(ok){ state.meta.lastBackup=Date.now(); save(); refreshBackupUi(); }
+}
+document.getElementById("backupBtn").onclick=doBackup;
+function refreshBackupUi(){
+  const n=sessionsSinceBackup();
+  document.getElementById("backupWarn").textContent = n>=6 ? "· "+n+" sessions unbacked" : "";
+  document.getElementById("moreDot").classList.toggle("hidden", n<6);
+}
+
+/* Raw export / import */
+document.getElementById("exportBtn").onclick=()=>{
+  document.getElementById("exportText").value=JSON.stringify(state,null,2);
+  document.getElementById("exportBox").classList.remove("hidden");
+  document.getElementById("importBox").classList.add("hidden");
+};
+document.getElementById("importToggle").onclick=()=>{
+  document.getElementById("importBox").classList.toggle("hidden");
+  document.getElementById("exportBox").classList.add("hidden");
+};
+document.getElementById("copyBtn").onclick=()=>{
+  copyText(document.getElementById("exportText").value); alert("Copied.");
+};
+document.getElementById("downloadBtn").onclick=()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="training-data-"+ymd()+".json"; a.click(); URL.revokeObjectURL(a.href);
+};
+document.getElementById("importLoad").onclick=()=>{
+  try{
+    const s=JSON.parse(document.getElementById("importText").value);
+    if(typeof s!=="object"||!s) throw new Error("bad");
+    state=normalize(s); save();
+    curWeek=autoWeek(); curDay=({1:0,2:1,3:2,4:3,5:4,6:5}[new Date().getDay()] ?? 0);
+    syncWeekButtons(); renderDayTabs(); renderDay(); renderTrends(); refreshBackupUi();
+    document.getElementById("importBox").classList.add("hidden");
+    alert("Data loaded.");
+  }catch(e){ alert("Couldn't read that JSON — check you pasted the whole backup."); }
+};
+
+document.getElementById("deloadDone").onclick=()=>{
+  state.meta.lastDeload=Date.now(); save(); renderDay();
+  alert("Deload logged — next one suggested in ~5 weeks, sooner if the knee flags.");
+};
+document.getElementById("resetBtn").onclick=()=>{
+  if(confirm("Clear ALL logs, notes, readiness and bodyweight? This can't be undone. (Back up first!)")){
+    state=blankState(); save(); renderDay(); renderTrends(); refreshBackupUi();
+  }
+};
+
+/* =====================================================================
+   Week toggle & tabs
+===================================================================== */
+document.getElementById("weekSeg").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  curWeek=b.dataset.week; persistUi();
+  syncWeekButtons(); renderDayTabs(); renderDay();
+});
+function syncWeekButtons(){
+  document.querySelectorAll("#weekSeg button").forEach(x=>x.classList.toggle("on",x.dataset.week===curWeek));
+}
+function showTab(which){
+  ["program","trends","more"].forEach(t=>{
+    document.getElementById("view-"+t).classList.toggle("hidden",which!==t);
+    document.getElementById("tab-"+t).classList.toggle("on",which===t);
+  });
+  const isProg=which==="program";
+  document.querySelector("header .seg").style.display=isProg?"":"none";
+  document.getElementById("daySeg").style.display=isProg?"":"none";
+  if(which==="trends") renderTrends();
+  if(which==="more") refreshBackupUi();
+}
+document.getElementById("tab-program").onclick=()=>showTab("program");
+document.getElementById("tab-trends").onclick=()=>showTab("trends");
+document.getElementById("tab-more").onclick=()=>showTab("more");
+
+/* =====================================================================
+   Init
+===================================================================== */
+if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+syncWeekButtons();
+renderDayTabs();
+renderDay();
+refreshBackupUi();
+save();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("service-worker.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
