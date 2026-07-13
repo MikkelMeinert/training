@@ -41,6 +41,11 @@
   .days button.on{background:var(--card2);border-color:var(--accent);color:var(--txt);}
   .days button.rest{opacity:.6;}
   .days button.opt{opacity:.75;font-style:italic;}
+  details.how{margin:7px 0 0;}
+  details.how summary{font-size:11.5px;color:var(--accent);cursor:pointer;list-style:none;font-weight:600;}
+  details.how summary::before{content:"\24D8  ";}
+  details.how p{font-size:12px;color:var(--muted);margin:6px 0 0;}
+  details.how a{color:var(--accent);font-size:12px;display:inline-block;margin-top:5px;}
   .days button.today::after{content:"·";color:var(--accent2);font-size:18px;line-height:0;margin-left:3px;}
   .dayhead{margin:16px 0 4px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;}
   .dayhead h2{font-size:15px;margin:0;}
@@ -172,7 +177,7 @@
 <header>
   <div class="wrap">
     <h1 id="hTitle">Training · Beach Volleyball</h1>
-    <p class="sub" id="hSub">Thu &amp; Sat legs · Wed &amp; Fri upper · Mon optional pump</p>
+    <p class="sub" id="hSub">Sessions, not weekdays · legs Mon/Tue + Fri/Sat · pump optional</p>
     <div class="seg" id="weekSeg">
       <button data-week="A">Week A · strength</button>
       <button data-week="B">Week B · hypertrophy</button>
@@ -256,22 +261,22 @@
 
     <div class="panel info">
       <h3>How to run this block</h3>
-      <p><b>Schedule.</b> Mon AM optional pump (squash PM) · Tue off gym (BV PM) · Wed AM upper push (BV PM)
-        · Thu AM lower-eccentric · Fri AM upper pull · Sat lower-heavy (later start is fine) · Sun off.</p>
-      <p><b>Why Saturday legs works.</b> The heavy day sits in the freshest slot of the week — rested, awake,
-        55 h before Monday squash and 79 h before Tuesday BV. The DOMS-maker day (Thu) has its aftermath land
-        on Fri/Sat, fully sport-free. <b>No Saturday this week?</b> Run the heavy session Monday morning
-        instead — its concentric-bias design is squash-safe. That's the fallback, not a failure.</p>
-      <p><b>The optional Monday is the release valve.</b> Five gym days + three sports + daily cycling is the
-        ceiling. Feeling heavy, knee grumpy, or short on sleep? Drop Monday first, guilt-free — the four fixed
-        days are the complete program.</p>
+      <p><b>Sessions, not weekdays.</b> Two leg days + push + pull are the fixed four; pump is the optional
+        fifth. Slot them where the week allows, inside these guardrails:</p>
+      <p><b>Guardrails.</b> Legs · heavy goes <b>Mon or Tue</b> (concentric bias recovers fast — volleyball
+        survives; Tuesday evening after volleyball also works). Legs · ecc goes <b>Fri or Sat</b> — its DOMS
+        must land on the weekend, never within ~72 h of Tuesday volleyball. Keep 3+ clear days between the two
+        leg days. Push and pull fill Wed/Thu in either order. Pump goes anywhere, morning or evening.</p>
+      <p><b>Dropping order on a heavy week:</b> pump first, then push. Never a leg day — and guard the pull
+        day; it's the most goal-relevant upper session.</p>
+      <p><b>Supersets are suggestions.</b> Pair only when the stations sit together; otherwise run straight sets.</p>
       <p><b>Progression (double progression).</b> Stay at a load until you hit the top of the rep range on all
         sets at the target RIR, then add: +2.5–5 kg lower body, +1–2.5 kg upper. Pull-ups: reps first, then weight.</p>
       <p><b>Right side first.</b> Lead every single-leg/arm move with the right; match the left. Right feels
         weaker? One extra set on the right — never the left.</p>
-      <p><b>Knee.</b> The Thursday wall sits + tempo work are treatment, not threat — tendons like regular,
+      <p><b>Knee.</b> The wall sits + tempo work on Legs · ecc are treatment, not threat — tendons like regular,
         controlled load. Skip the lateral bound any day the knee is a 2+.</p>
-      <p><b>Leg-day warm-up.</b> The 10-move stretch flow (30–45 s each), tendon prep on Friday, then
+      <p><b>Leg-day warm-up.</b> The 10-move stretch flow (30–45 s each, now checkable), tendon prep on Legs · ecc, then
         ramp-up sets: ~50% and ~75% of work weight on the first lift, one light set before each later lift.
         Short on time: cat-cow, downward dog, world's greatest stretch, figure four, supine twists.</p>
       <p><b>Deload</b> when the app suggests it (knee flaring, or 5+ weeks hard): keep loads, cut every
@@ -291,7 +296,7 @@
   <button id="tab-more">More<span id="moreDot" class="hidden dot"></span></button>
 </div>
 
-<footer>Saved locally on this device · block updated 4 Jul 2026</footer>
+<footer>Saved locally on this device · block updated 13 Jul 2026</footer>
 
 <script>
 "use strict";
@@ -310,209 +315,157 @@
 const BLOCK_START = "2026-07-06";           // first Monday of this block
 const PROGRAM = {
   A: { days: [
-    { id:"mon", day:"Mon", focus:"Optional · arms & delts pump", sport:"Squash PM", opt:true,
-      note:"Fully optional — the program is complete without it. ~30 min, zero leg cost, no heavy grip before squash. Skip it any week that feels heavy. No Saturday this week? Run Saturday's heavy leg session here instead — it's squash-safe by design.",
-      blocks:[
-        {label:"Warm-up", items:[
-          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"}]},
-        {label:"Accessory", superset:true, items:[
-          {id:"cable-latraise", n:"Standing cable lateral raise", rx:"4×12–15", type:"wr", st:2.5, start:{w:7.5,r:12},
-           cue:"Constant tension beats DBs here — strict, lean slightly away from the stack."},
-          {id:"db-curl", n:"Standing DB curl", rx:"3×10–12", type:"wr", st:2, start:{w:10,r:10}, cue:"kg = one DB."}]},
-        {label:"Accessory", superset:true, items:[
-          {id:"pushdown", n:"Triceps pushdown", rx:"3×12", type:"wr", st:2.5, start:{w:25,r:12}},
-          {id:"reardelt", n:"Standing cable rear-delt", rx:"2×15", type:"wr", st:2.5, start:{w:10,r:15},
-           cue:"Extra weekly delt sets — pure physique money."}]},
-        {label:"Core", items:[
-          {n:"Deadbug", rx:"2×10 slow", type:"none"}]}
-      ]},
-    { id:"tue", day:"Tue", focus:"Off gym", sport:"Beach volleyball PM", rest:true,
-      note:"BV doubleheader Tue+Wed — keep the morning free. Optional 5–10 min hips/ankles. Do log knee & right side below: it's the data that decides deloads and leg-day placement." },
-    { id:"wed", day:"Wed", focus:"Upper · push / physique", sport:"Beach volleyball PM",
-      note:"Delts & arms — low systemic fatigue so BV is unaffected.",
-      blocks:[
-        {label:"Warm-up", items:[
-          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none", cue:"Full shoulder prep every push day."}]},
-        {label:"Primary", main:true, items:[
-          {id:"incline-press", n:"Incline DB press", rx:"4×8 · RIR 2", type:"wr", st:2, start:{w:20,r:8},
-           cue:"kg = one DB. Slow eccentric is fine here — arms don't jump. Pressing is rebuilding: no grinding reps."}]},
-        {label:"Secondary", items:[
-          {id:"latpulldown", n:"Lat pulldown", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:50,r:8},
-           cue:"Keeps vertical-pull volume up; Thursday has the athletic version."}]},
-        {label:"Accessory", superset:true, items:[
-          {id:"latraise", n:"Standing lateral raise", rx:"4×12–15", type:"wr", st:2, start:{w:8,r:12},
-           cue:"kg = one DB. The delt-cap move — strict, no swing."},
-          {id:"db-curl", n:"Standing DB curl", rx:"3×10", type:"wr", st:2, start:{w:10,r:10}, cue:"kg = one DB."}]},
-        {label:"Accessory", items:[
-          {id:"oh-triceps", n:"Standing overhead cable triceps", rx:"3×12", type:"wr", st:2.5, start:{w:20,r:12}}]},
-        {label:"Core", items:[
-          {id:"abwheel", n:"Ab-wheel rollout", rx:"3×8–10", type:"reps", start:{r:8},
-           cue:"Anti-extension — ribs down, no low-back arch."}]}
-      ]},
-    { id:"thu", day:"Thu", focus:"Lower · eccentric + tendon", sport:"Sport-free evening",
-      note:"The DOMS-maker day: tempo, tendon, Nordics — deliberately submaximal, ~11 h after volleyball. Soreness lands Fri/Sat, long gone before Monday squash.",
+    { id:"heavy", day:"Legs · heavy", focus:"Lower · heavy hip-dominant", sport:"Best: Mon or Tue",
+      note:"Leg day 1 — concentric bias: heavy but fast-recovering, so volleyball a day or two later survives. Tuesday evening after volleyball also works. Keep 3+ clear days before Legs · ecc.",
       blocks:[
         {label:"Warm-up", items:[
           {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
            cue:"Cat-cow → thread the needle → cobra/child's → downward dog → world's greatest stretch → seated side bend → figure four → side-lying windshield → supine twist, both ways. 30–45 s each — flow, don't force."},
-          {n:"Wall-sit isometric", rx:"3×30–45 s", type:"none",
-           cue:"Thighs near parallel, back flat on the wall. Patellar-tendon prep AND treatment — add a plate on the thighs to progress."},
-          {n:"Ramp-up sets", rx:"2 light sets of split squats", type:"none",
-           cue:"~50% then ~75% of work load, smooth."}]},
+          {n:"Ramp-up sets", rx:"2 light sets of hip thrust", type:"none",
+           cue:"~50% then ~75% of work weight, 5–6 smooth reps. One light set before each later lift."}]},
+        {label:"Power (non-impact)", items:[
+          {id:"kbswing", n:"Kettlebell swing", rx:"3×8 · max intent", type:"wr", st:4, start:{w:20,r:8},
+           how:"Two-handed swing to chest height. It is a hip hinge with a snap — not a squat, not a shoulder raise. Use a bell that only floats if the hips really fire: 16–24 kg, not 8.",
+           cue:"Hips throw the bell — the arms are just ropes."}]},
         {label:"Primary", main:true, items:[
-          {id:"rfess", n:"Bulgarian split squat", rx:"4×8 / leg · 3 s down · RIR 2", type:"wr", st:2, start:{w:24,r:8}, r:true,
-           cue:"kg = total in hands. Control the descent, vertical-ish shin. Right first."}]},
+          {id:"hipthrust", n:"Hip thrust", rx:"4×6–8 · RIR 2", type:"wr", st:2.5, start:{w:60,r:6},
+           how:"Upper back on a bench, barbell across the hips, feet flat under the knees; drive up until the body is a flat tabletop.",
+           cue:"Chin tucked, ribs down — push the floor away, 1 s squeeze at the top."}]},
         {label:"Secondary", items:[
-          {id:"stepup", n:"Step-up (knee height or lower)", rx:"3×8 / leg", type:"wr", st:2, start:{w:20,r:8}, r:true,
-           cue:"kg = total in hands. Heel drive; no push off the bottom foot. Right first."}]},
-        {label:"Eccentric hamstring", items:[
-          {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–6", type:"reps", start:{r:4},
-           cue:"Lower as slowly as you can control; hands push back to reset. Band/slider to scale. Hamstrings still sore Saturday? Trim the RDL top set there."}]},
+          {id:"slrdl", n:"Single-leg RDL (DB)", rx:"3×8 / leg · RIR 3", type:"wr", st:2, start:{w:16,r:8}, r:true,
+           how:"One-leg hinge holding DBs, free hand resting lightly on the rack for balance; the rear leg extends behind as a counterweight. kg = total in hands.",
+           cue:"Headlights on your hips point at the floor; slide the weight down the thigh. Right first."}]},
         {label:"Accessory", superset:true, items:[
-          {id:"calf", n:"Standing calf raise", rx:"3×12", type:"wr", st:2.5, start:{w:40,r:12}},
-          {id:"tib", n:"Tibialis raise", rx:"2×15", type:"reps", start:{r:15},
-           cue:"Anterior shin — landing control & knee health."}]},
-        {label:"Power-core", items:[
-          {n:"Rotational med-ball throw", rx:"3×5 / side", type:"none", r:true,
-           cue:"Explosive — matches the spike. Non-impact, full intent."}]}
+          {id:"lyingcurl", n:"Lying hamstring curl", rx:"3×10 · RIR 2", type:"wr", st:2.5, start:{w:25,r:10},
+           how:"Face-down on the machine, pad at the ankles; curl heels toward the glutes. Normal tempo here — the slow eccentrics live on Legs · ecc.",
+           cue:"Hips pinned to the pad — hamstrings curl, lower back stays out of it."},
+          {id:"calf", n:"Standing calf raise", rx:"3×10–12", type:"wr", st:2.5, start:{w:40,r:10},
+           how:"Standing, balls of the feet on a step or machine; full range top to bottom.",
+           cue:"Pause the bottom stretch, then drive tall onto the big toes."}]},
+        {label:"Core", items:[
+          {n:"Deadbug", rx:"2×10 slow", type:"none",
+           how:"On your back, arms and knees to the ceiling; lower opposite arm and leg slowly, return, switch sides.",
+           cue:"Lower back glued to the floor — exhale as you reach."}]}
       ]},
-    { id:"fri", day:"Fri", focus:"Upper · pull-biased", sport:"Sport-free evening",
-      note:"Pull day between the leg days. Grip-heavy is fine — no racquet until Monday. Direct core lives here too.",
+    { id:"push", day:"Push", focus:"Upper · push / physique", sport:"Best: Wed",
+      note:"Delts, chest & arms — low systemic fatigue, safe the morning before volleyball.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none", cue:"Full shoulder prep every push day."}]},
+        {label:"Primary", main:true, items:[
+          {id:"incline-press", n:"Incline DB press", rx:"4×8 · RIR 2", type:"wr", st:2, start:{w:14,r:8},
+           how:"Bench at ~30°, press DBs from shoulder height to above the upper chest. kg = one DB. Pressing is rebuilding — no grinding reps.",
+           cue:"Elbows ~45° from the body; deep stretch, no bounce."}]},
+        {label:"Secondary", items:[
+          {id:"latpulldown", n:"Lat pulldown", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:50,r:8},
+           how:"Grip just outside the shoulders, pull the bar to the collarbones.",
+           cue:"Chest tall — drive the elbows down and back."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"latraise", n:"Standing lateral raise", rx:"4×12–15", type:"wr", st:2, start:{w:5,r:12},
+           how:"DBs at your sides, raise out to shoulder height. kg = one DB.",
+           cue:"Lead with the elbows, pour-the-jug wrists, zero swing."},
+          {id:"db-curl", n:"Standing DB curl", rx:"3×10", type:"wr", st:2, start:{w:10,r:10},
+           how:"kg = one DB.", cue:"Elbows pinned to the ribs — curl, don't swing."}]},
+        {label:"Accessory", items:[
+          {id:"oh-triceps", n:"Overhead cable triceps extension", rx:"3×12", type:"wr", st:2.5, start:{w:20,r:12},
+           how:"Face away from a high cable, rope behind the head, press up and forward to lockout. The long head of the triceps only gets its full stretch overhead.",
+           cue:"Elbows by the ears — only the forearms move."}]},
+        {label:"Core", items:[
+          {id:"abwheel", n:"Ab-wheel rollout", rx:"3×8–10", type:"reps", start:{r:8},
+           how:"Kneeling, roll the wheel out as far as you can control, then pull back with the abs.",
+           cue:"Ribs down, pelvis tucked — no low-back sag."}]}
+      ]},
+    { id:"pull", day:"Pull", focus:"Upper · pull-biased", sport:"Best: Thu or Fri",
+      note:"The most goal-relevant upper day (upper back = physique + overhead shoulder durability). Don't let it be the one that slips. Grip-heavy is fine on sport-free evenings.",
       blocks:[
         {label:"Warm-up", items:[
           {n:"Band pull-aparts + shoulder CARs", rx:"2×15 / 5 each way", type:"none",
            cue:"Prime scaps and cuff before loading."}]},
         {label:"Primary", main:true, items:[
           {id:"pullup", n:"Weighted / assisted pull-up", rx:"4×5 · RIR 1–2", type:"wradd", st:2.5, start:{w:0,r:5},
-           cue:"kg = added load (0 = bodyweight, negative = assist). Add reps to 4×6 before adding weight."}]},
+           how:"Full hang to chin over the bar. kg = added load on a belt (0 = bodyweight, negative = assist). Add reps to 4×6 before adding weight.",
+           cue:"Set the shoulder blades down first, then pull the chest to the bar."}]},
         {label:"Secondary", items:[
           {id:"csrow", n:"Chest-supported single-arm DB row", rx:"3×10 / side · RIR 2", type:"wr", st:2, start:{w:26,r:10}, r:true,
-           cue:"Chest on an incline bench — no balance tax, all upper back. Row to the hip, 1 s squeeze. Right side first."},
+           how:"Lie chest-down on a ~30° incline bench, row one DB — no balance tax, all upper back.",
+           cue:"Row to the hip pocket, 1 s squeeze. Right side first."},
           {id:"press-std", n:"Standing DB / landmine press", rx:"3×8–10 · RIR 3", type:"wr", st:2, start:{w:14,r:8},
-           cue:"kg = one DB. Rebuilding the overhead pattern — keep 3 in reserve; BV already loads the shoulder overhead."}]},
+           how:"Press one or two DBs (or a landmine bar) overhead from standing. kg = one DB. Rebuilding — keep 3 in reserve.",
+           cue:"Squeeze glutes, ribs down — press without leaning back."}]},
         {label:"Accessory", superset:true, items:[
           {id:"facepull", n:"Face-pull", rx:"3×15", type:"wr", st:2.5, start:{w:25,r:15},
-           cue:"External-rotation bias for overhead shoulder health."},
-          {id:"reardelt", n:"Standing cable rear-delt", rx:"3×15", type:"wr", st:2.5, start:{w:10,r:15}}]},
+           how:"Rope at face height; pull toward the bridge of your nose until the rope ends pass your ears.",
+           cue:"Thumbs point behind you at the finish — like a double-biceps pose."},
+          {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×15", type:"wr", st:2.5, start:{w:15,r:15},
+           how:"Sit FACING the pec-deck machine, chest against the pad, handles in front of you; sweep the arms wide and back.",
+           cue:"Arms open like saloon doors — long arms, no shoulder-blade pinch."}]},
         {label:"Core", superset:true, items:[
           {id:"pallof", n:"Standing Pallof press", rx:"3×12 / side", type:"wr", st:2.5, start:{w:15,r:12}, r:true,
-           cue:"Anti-rotation on your feet — press out, resist the twist. Right side first."},
+           how:"Cable at chest height, stand side-on, press the handle straight out and hold it there.",
+           cue:"Shoulders and hips stay square — resist the twist. Right side first."},
           {id:"copenhagen", n:"Copenhagen plank", rx:"2×8 / side", type:"reps", start:{r:8}, r:true,
-           cue:"Adductor/groin durability for lateral play."}]}
+           how:"Side plank with the top leg's foot or shin on a bench, bottom leg hovering. Adductor/groin armour for lateral play.",
+           cue:"Press the top inner thigh into the bench, hips tall."}]}
       ]},
-    { id:"sat", day:"Sat", focus:"Lower · heavy hip-dominant", sport:"Sport-free · sleep in, lift big",
-      note:"The week's main event, in the freshest slot: 55 h before Monday squash, 79 h before Tuesday volleyball. Concentric bias — heavy but fast-recovering. Right side leads.",
+    { id:"ecc", day:"Legs · ecc", focus:"Lower · eccentric + tendon", sport:"Best: Fri or Sat",
+      note:"Leg day 2 — all the slow, DOMS-making tendon work. Its soreness must land on the weekend: never closer than ~72 h to Tuesday volleyball. Keep 3+ clear days after Legs · heavy.",
       blocks:[
         {label:"Warm-up", items:[
           {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
-           cue:"The 10-move flow, 30–45 s each. Rushed? Cat-cow, downward dog, world's greatest stretch, figure four, supine twists."},
-          {n:"Ramp-up sets", rx:"2 light sets of hip thrust", type:"none",
-           cue:"~50% then ~75% of work weight, 5–6 smooth reps. One light set before each later lift."}]},
-        {label:"Power (non-impact)", items:[
-          {id:"kbswing", n:"Kettlebell swing", rx:"3×8 · max intent", type:"wr", st:4, start:{w:20,r:8},
-           cue:"Hip-dominant power, zero landing load — snap the hips, let the bell float."}]},
+           cue:"The 10-move flow. Rushed? Cat-cow, downward dog, world's greatest stretch, figure four, supine twists."},
+          {n:"Wall-sit isometric", rx:"3×30–45 s", type:"none",
+           how:"Back flat on a wall, slide down until thighs are near parallel, hold. Patellar-tendon prep AND treatment — add a plate on the thighs to progress.",
+           cue:"Sit hard into the wall — thighs burn, knees stay quiet."},
+          {n:"Ramp-up sets", rx:"2 light sets of split squats", type:"none",
+           cue:"~50% then ~75% of work load, smooth."}]},
         {label:"Primary", main:true, items:[
-          {id:"hipthrust", n:"Hip thrust", rx:"4×6–8 · RIR 2", type:"wr", st:2.5, start:{w:60,r:6},
-           cue:"The jump engine. Full lockout, 1 s pause, drive through heels — controlled down, no slow negative."}]},
+          {id:"rfess", n:"Bulgarian split squat", rx:"4×8 / leg · 3 s down · RIR 2", type:"wr", st:2, start:{w:24,r:8}, r:true,
+           how:"Rear foot laced on a bench behind you, front leg does the squatting. kg = total in hands.",
+           cue:"3 s down like a slow elevator; front heel heavy, knee tracking the toes. Right first."}]},
         {label:"Secondary", items:[
-          {id:"slrdl", n:"Single-leg RDL (DB)", rx:"3×8 / leg · RIR 3", type:"wr", st:2, start:{w:16,r:8}, r:true,
-           cue:"kg = total load in hands. Free hand on the rack for support — hinge, flat back, normal tempo. Right first."}]},
+          {id:"stepup", n:"Step-up (knee height or lower)", rx:"3×8 / leg", type:"wr", st:2, start:{w:20,r:8}, r:true,
+           how:"Step onto a knee-height box, drive to standing, lower with control. kg = total in hands.",
+           cue:"All the work from the top leg — no push off the floor foot. Right first."}]},
+        {label:"Eccentric hamstring", items:[
+          {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–6", type:"reps", start:{r:4},
+           how:"Kneel with ankles anchored (partner, machine or a loaded bar), fall forward as slowly as you can, catch with the hands, push back up. Band or slider to scale.",
+           cue:"Fight the fall with the hamstrings the whole way down."}]},
         {label:"Accessory", superset:true, items:[
-          {id:"lyingcurl", n:"Lying hamstring curl", rx:"3×10 · RIR 2", type:"wr", st:2.5, start:{w:35,r:10},
-           cue:"Normal tempo — Thursday owns the slow eccentrics."},
-          {id:"calf", n:"Standing calf raise", rx:"3×10–12", type:"wr", st:2.5, start:{w:40,r:10},
-           cue:"Ankle/Achilles stiffness = better jump return."}]},
+          {id:"calf", n:"Standing calf raise", rx:"3×12", type:"wr", st:2.5, start:{w:40,r:12}},
+          {id:"tib", n:"Tibialis raise", rx:"2×15", type:"reps", start:{r:15},
+           how:"Heels on the floor (or on a plate, toes hanging), lift the toes toward the shins.",
+           cue:"Slow down, slow up — shins burn, knees say thanks."}]},
+        {label:"Power-core", items:[
+          {n:"Rotational med-ball throw", rx:"3×5 / side", type:"none", r:true,
+           how:"Stand side-on to a solid wall; rotate hips and throw the ball into it explosively.",
+           cue:"Hips fire first, the arm is a whip — full intent, full rest."}]}
+      ]},
+    { id:"pump", day:"Pump", focus:"Optional · arms & delts", sport:"Anywhere · optional", opt:true,
+      note:"The optional fifth — any day, morning or evening, even straight after volleyball. First thing dropped on a heavy week. Never legs. Pair 1 shares one cable tower; pair 2: superset only if the stations are neighbours, otherwise straight sets.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"}]},
+        {label:"Superset · one cable tower", superset:true, items:[
+          {id:"cable-latraise", n:"Standing cable lateral raise", rx:"4×12–15", type:"wr", st:2.5, start:{w:5,r:12},
+           how:"Cable at the lowest setting, handle in the far hand, raise out to shoulder height. Swap attachment with the triceps move — same station.",
+           cue:"Lean slightly away — constant tension, no swing."},
+          {id:"oh-triceps", n:"Overhead cable triceps extension", rx:"3×12", type:"wr", st:2.5, start:{w:20,r:12},
+           how:"Face away from the same tower, rope behind the head, press up and forward.",
+           cue:"Elbows by the ears — only the forearms move."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"db-curl", n:"Standing DB curl", rx:"3×10–12", type:"wr", st:2, start:{w:10,r:10},
+           how:"kg = one DB.", cue:"Elbows pinned to the ribs — curl, don't swing."},
+          {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"2×15", type:"wr", st:2.5, start:{w:15,r:15},
+           how:"Sit facing the pec-deck, chest on the pad; sweep the arms wide and back.",
+           cue:"Arms open like saloon doors — no shoulder-blade pinch."}]},
         {label:"Core", items:[
-          {n:"Deadbug", rx:"2×10 slow", type:"none"}]}
+          {n:"Deadbug", rx:"2×10 slow", type:"none",
+           cue:"Lower back glued to the floor — exhale as you reach."}]}
       ]}
   ]},
   B: { days: [
-    { id:"mon", day:"Mon", focus:"Optional · arms & delts pump", sport:"Squash PM", opt:true,
-      note:"Fully optional, same as week A — the release valve when the week feels heavy. No Saturday this week? Run Saturday's heavy leg session here instead.",
-      blocks:[
-        {label:"Warm-up", items:[
-          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"}]},
-        {label:"Accessory", superset:true, items:[
-          {id:"cable-latraise", n:"Standing cable lateral raise", rx:"4×12–15", type:"wr", st:2.5, start:{w:7.5,r:12},
-           cue:"Strict, constant tension, lean slightly away from the stack."},
-          {id:"db-curl", n:"Standing DB curl", rx:"3×10–12", type:"wr", st:2, start:{w:10,r:10}, cue:"kg = one DB."}]},
-        {label:"Accessory", superset:true, items:[
-          {id:"pushdown", n:"Triceps pushdown", rx:"3×12", type:"wr", st:2.5, start:{w:25,r:12}},
-          {id:"reardelt", n:"Standing cable rear-delt", rx:"2×15", type:"wr", st:2.5, start:{w:10,r:15}}]},
-        {label:"Core", items:[
-          {n:"Deadbug", rx:"2×10 slow", type:"none"}]}
-      ]},
-    { id:"tue", day:"Tue", focus:"Off gym", sport:"Beach volleyball PM", rest:true,
-      note:"Keep free before the BV block. Optional hips/ankles. Log knee & right side below — it's the deload and leg-day-placement data." },
-    { id:"wed", day:"Wed", focus:"Upper · push / physique", sport:"Beach volleyball PM",
-      note:"Pump-focused delts & arms, low fatigue.",
-      blocks:[
-        {label:"Warm-up", items:[
-          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"}]},
-        {label:"Primary", main:true, items:[
-          {id:"chest-press", n:"DB or machine chest press", rx:"4×10–12 · RIR 2", type:"wr", st:2, start:{w:24,r:10},
-           cue:"kg = one DB. Chase a stretch and a pump."}]},
-        {label:"Secondary", items:[
-          {id:"latpulldown", n:"Lat pulldown (wide)", rx:"3×12", type:"wr", st:2.5, start:{w:45,r:12}}]},
-        {label:"Accessory", superset:true, items:[
-          {id:"latraise", n:"Standing lateral raise", rx:"4×15–20", type:"wr", st:2, start:{w:6,r:15},
-           cue:"Last set a burnout if fresh."},
-          {id:"cable-curl", n:"Standing cable curl", rx:"3×12", type:"wr", st:2.5, start:{w:20,r:12}}]},
-        {label:"Accessory", items:[
-          {id:"oh-triceps", n:"Standing overhead cable triceps", rx:"3×12", type:"wr", st:2.5, start:{w:20,r:12}}]},
-        {label:"Core", items:[
-          {id:"pallof", n:"Standing Pallof press", rx:"3×12 / side", type:"wr", st:2.5, start:{w:15,r:12}, r:true,
-           cue:"Anti-rotation on your feet — resist, don't twist."}]}
-      ]},
-    { id:"thu", day:"Thu", focus:"Lower · eccentric + tendon", sport:"Sport-free evening",
-      note:"Lunge-pattern week + the one gym plyo. Deliberately submaximal — ~11 h after volleyball. Soreness lands Fri/Sat, gone before Monday squash.",
-      blocks:[
-        {label:"Warm-up", items:[
-          {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
-           cue:"The 10-move flow — don't skip the world's greatest stretch before lunging."},
-          {n:"Leg extension — light tempo", rx:"3×10 · 3 s down", type:"none",
-           cue:"Light and smooth, no lockout snap. Tendon prep, not a quad workout."},
-          {n:"Ramp-up sets", rx:"2 light sets of reverse lunge", type:"none",
-           cue:"~50% then ~75% of work load."}]},
-        {label:"Primary", main:true, items:[
-          {id:"revlunge", n:"Reverse lunge", rx:"4×8 / leg · RIR 2", type:"wr", st:2.5, start:{w:30,r:8}, r:true,
-           cue:"kg = total load. Reverse = knee-friendlier than walking. Right first."}]},
-        {label:"Secondary", items:[
-          {id:"goblet-stepup", n:"Goblet step-up", rx:"3×10 / leg", type:"wr", st:2, start:{w:16,r:10}, r:true,
-           cue:"Heel drive, controlled lower. Right first."}]},
-        {label:"Eccentric hamstring", items:[
-          {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–6", type:"reps", start:{r:4},
-           cue:"Slowest lower you can control. Weekly low dose = hamstring insurance."}]},
-        {label:"Accessory", superset:true, items:[
-          {id:"calf", n:"Standing calf raise", rx:"4×15", type:"wr", st:2.5, start:{w:35,r:15}},
-          {id:"tib", n:"Tibialis raise", rx:"2×20", type:"reps", start:{r:20}}]},
-        {label:"Power (knee-gated)", items:[
-          {n:"Lateral bound — stick the landing", rx:"3×4 / side", type:"none", r:true,
-           cue:"Hold each landing 1 s. Skip if the knee is a 2+ today."}]}
-      ]},
-    { id:"fri", day:"Fri", focus:"Upper · pull-biased", sport:"Sport-free evening",
-      note:"Higher-rep pull day, plus direct core. Grip-heavy is fine — no racquet until Monday.",
-      blocks:[
-        {label:"Warm-up", items:[
-          {n:"Band pull-aparts + shoulder CARs", rx:"2×15 / 5 each way", type:"none"}]},
-        {label:"Primary", main:true, items:[
-          {id:"pullup", n:"Pull-up (assist as needed)", rx:"3×8–12", type:"wradd", st:2.5, start:{w:0,r:8},
-           cue:"kg = added load (0 = bodyweight, negative = assist). Each set close to failure, with control."}]},
-        {label:"Secondary", superset:true, items:[
-          {id:"cablerow", n:"Seated cable row", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:45,r:10},
-           cue:"Chest tall, drive elbows to hips — full stretch forward, no yank."},
-          {id:"press-std", n:"Standing landmine press", rx:"3×10 · RIR 3", type:"wr", st:2.5, start:{w:20,r:10},
-           cue:"Shoulder-friendly pressing while the pattern rebuilds."}]},
-        {label:"Accessory", superset:true, items:[
-          {id:"facepull", n:"Face-pull", rx:"3×20", type:"wr", st:2.5, start:{w:20,r:20}},
-          {id:"reardelt", n:"Standing cable rear-delt", rx:"3×15", type:"wr", st:2.5, start:{w:10,r:15}}]},
-        {label:"Core", superset:true, items:[
-          {id:"hangraise", n:"Hanging leg raise", rx:"3×8–12", type:"reps", start:{r:8},
-           cue:"Knees-to-chest if straight legs arch the back. Control the lower — no swing."},
-          {id:"copenhagen", n:"Copenhagen plank", rx:"2×8 / side", type:"reps", start:{r:8}, r:true}]}
-      ]},
-    { id:"sat", day:"Sat", focus:"Lower · heavy hip-dominant", sport:"Sport-free · sleep in, lift big",
-      note:"Hypertrophy week — same slot, more reps. 55 h before Monday squash, 79 h before Tuesday volleyball. Right side leads.",
+    { id:"heavy", day:"Legs · heavy", focus:"Lower · heavy hip-dominant", sport:"Best: Mon or Tue",
+      note:"Hypertrophy week — same slot logic, more reps. Concentric bias keeps volleyball safe. 3+ clear days before Legs · ecc.",
       blocks:[
         {label:"Warm-up", items:[
           {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
@@ -521,19 +474,139 @@ const PROGRAM = {
            cue:"~50% then ~75% of work weight."}]},
         {label:"Power (non-impact)", items:[
           {id:"kbswing", n:"Kettlebell swing", rx:"3×10 · max intent", type:"wr", st:4, start:{w:20,r:10},
-           cue:"Hips snap, arms just guide. Full recovery between sets — this is power, not cardio."}]},
+           how:"Hip hinge with a snap — 16–24 kg, heavy enough that floating it takes real intent.",
+           cue:"Hips throw the bell — arms are just ropes. Power, not cardio."}]},
         {label:"Primary", main:true, items:[
           {id:"hipthrust", n:"Hip thrust", rx:"4×10–12 · RIR 2", type:"wr", st:2.5, start:{w:50,r:10},
-           cue:"Hypertrophy week — same bar path, more reps. 1 s pause at the top."}]},
+           how:"Same setup as week A — bench under the shoulder blades, bar over hips.",
+           cue:"Same bar path, more reps. 1 s squeeze at the top."}]},
         {label:"Secondary", items:[
           {id:"bstance-rdl", n:"B-stance RDL", rx:"3×10 · RIR 3", type:"wr", st:2.5, start:{w:50,r:10}, r:true,
-           cue:"Barbell or DBs, rear foot kissing the floor. Right leg as working side first."}]},
+           how:"An RDL with the non-working foot half a step back on tiptoe — ~70% of the load on the front (right) leg. Barbell or DBs.",
+           cue:"Hips back until the front hamstring pulls hard; squeeze the glute to stand."}]},
         {label:"Accessory", superset:true, items:[
-          {id:"lyingcurl", n:"Lying hamstring curl", rx:"3×12 · RIR 2", type:"wr", st:2.5, start:{w:30,r:12},
-           cue:"Normal tempo — Thursday owns the slow eccentrics."},
+          {id:"lyingcurl", n:"Lying hamstring curl", rx:"3×12 · RIR 2", type:"wr", st:2.5, start:{w:25,r:12},
+           how:"Normal tempo — the slow eccentrics live on Legs · ecc.",
+           cue:"Hips pinned to the pad — hamstrings only."},
           {id:"calf", n:"Standing calf raise", rx:"3×15", type:"wr", st:2.5, start:{w:35,r:15}}]},
         {label:"Core", items:[
-          {n:"Deadbug", rx:"2×10 slow", type:"none"}]}
+          {n:"Deadbug", rx:"2×10 slow", type:"none",
+           cue:"Lower back glued to the floor — exhale as you reach."}]}
+      ]},
+    { id:"push", day:"Push", focus:"Upper · push / physique", sport:"Best: Wed",
+      note:"Pump-focused delts & arms, low fatigue before volleyball.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"}]},
+        {label:"Primary", main:true, items:[
+          {id:"chest-press", n:"DB or machine chest press", rx:"4×10–12 · RIR 2", type:"wr", st:2, start:{w:16,r:10},
+           how:"Flat DB or machine press. kg = one DB.",
+           cue:"Chase the stretch and the pump — control the negative."}]},
+        {label:"Secondary", items:[
+          {id:"latpulldown", n:"Lat pulldown (wide)", rx:"3×12", type:"wr", st:2.5, start:{w:45,r:12},
+           how:"Wider grip than week A, bar to the collarbones.",
+           cue:"Chest tall — elbows down and back."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"latraise", n:"Standing lateral raise", rx:"4×15–20", type:"wr", st:2, start:{w:5,r:15},
+           how:"kg = one DB. Last set can be a burnout if fresh.",
+           cue:"Lead with the elbows — zero swing."},
+          {id:"cable-curl", n:"Standing cable curl", rx:"3×12", type:"wr", st:2.5, start:{w:20,r:12},
+           how:"Bar or rope on the low cable.",
+           cue:"Elbows pinned — constant tension top to bottom."}]},
+        {label:"Accessory", items:[
+          {id:"oh-triceps", n:"Overhead cable triceps extension", rx:"3×12", type:"wr", st:2.5, start:{w:20,r:12},
+           how:"Face away from a high cable, rope behind the head, press up and forward.",
+           cue:"Elbows by the ears — only the forearms move."}]},
+        {label:"Core", items:[
+          {id:"pallof", n:"Standing Pallof press", rx:"3×12 / side", type:"wr", st:2.5, start:{w:15,r:12}, r:true,
+           how:"Cable at chest height, stand side-on, press the handle straight out and hold.",
+           cue:"Shoulders and hips square — resist, don't twist. Right side first."}]}
+      ]},
+    { id:"pull", day:"Pull", focus:"Upper · pull-biased", sport:"Best: Thu or Fri",
+      note:"Higher-rep pull day, plus direct core. Protect this one — it's the priority upper session.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Band pull-aparts + shoulder CARs", rx:"2×15 / 5 each way", type:"none"}]},
+        {label:"Primary", main:true, items:[
+          {id:"pullup", n:"Pull-up (assist as needed)", rx:"3×8–12", type:"wradd", st:2.5, start:{w:0,r:8},
+           how:"kg = added load (0 = bodyweight, negative = assist).",
+           cue:"Each set close to failure, with control — blades down first."}]},
+        {label:"Secondary", superset:true, items:[
+          {id:"cablerow", n:"Seated cable row", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:45,r:10},
+           how:"Seated, neutral grip, pull to the sternum.",
+           cue:"Chest tall, elbows to hips — full stretch forward, no yank."},
+          {id:"press-std", n:"Standing landmine press", rx:"3×10 · RIR 3", type:"wr", st:2.5, start:{w:20,r:10},
+           how:"Bar wedged in a corner or landmine sleeve; press the fat end up and forward.",
+           cue:"Shoulder-friendly path — glutes tight, no lean-back."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"facepull", n:"Face-pull", rx:"3×20", type:"wr", st:2.5, start:{w:20,r:20},
+           how:"Rope at face height, pull toward the bridge of the nose.",
+           cue:"Thumbs behind you at the finish."},
+          {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×15", type:"wr", st:2.5, start:{w:15,r:15},
+           how:"Sit facing the pec-deck, chest on the pad; sweep the arms wide and back.",
+           cue:"Arms open like saloon doors — no shoulder-blade pinch."}]},
+        {label:"Core", superset:true, items:[
+          {id:"hangraise", n:"Hanging leg raise", rx:"3×8–12", type:"reps", start:{r:8},
+           how:"Hang from a bar; raise knees (or straight legs) to hip height or higher. Knees-to-chest if straight legs arch the back.",
+           cue:"No swing — own the way down."},
+          {id:"copenhagen", n:"Copenhagen plank", rx:"2×8 / side", type:"reps", start:{r:8}, r:true,
+           how:"Side plank, top foot or shin on a bench, bottom leg hovering.",
+           cue:"Top inner thigh presses the bench — hips tall."}]}
+      ]},
+    { id:"ecc", day:"Legs · ecc", focus:"Lower · eccentric + tendon", sport:"Best: Fri or Sat",
+      note:"Lunge-pattern week + the one gym plyo. DOMS lands on the weekend — never closer than ~72 h to Tuesday volleyball.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
+           cue:"The 10-move flow — don't skip the world's greatest stretch before lunging."},
+          {n:"Leg extension — light tempo", rx:"3×10 · 3 s down", type:"none",
+           how:"Light weight on the leg-extension machine, 3 s on the way down each rep.",
+           cue:"Smooth and light — tendon medicine, not a quad workout."},
+          {n:"Ramp-up sets", rx:"2 light sets of reverse lunge", type:"none",
+           cue:"~50% then ~75% of work load."}]},
+        {label:"Primary", main:true, items:[
+          {id:"revlunge", n:"Reverse lunge", rx:"4×8 / leg · RIR 2", type:"wr", st:2.5, start:{w:30,r:8}, r:true,
+           how:"Step backward into a lunge, then drive back to standing through the front leg. kg = total load.",
+           cue:"Knee-friendlier than forward lunges — front heel heavy, torso tall. Right first."}]},
+        {label:"Secondary", items:[
+          {id:"goblet-stepup", n:"Goblet step-up", rx:"3×10 / leg", type:"wr", st:2, start:{w:16,r:10}, r:true,
+           how:"One DB or KB held at the chest; step onto a knee-height box.",
+           cue:"Heel drive, controlled lower. Right first."}]},
+        {label:"Eccentric hamstring", items:[
+          {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–6", type:"reps", start:{r:4},
+           how:"Ankles anchored, fall forward as slowly as possible, hands catch, push back. Band or slider to scale.",
+           cue:"Slowest lower you can control — weekly hamstring insurance."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"calf", n:"Standing calf raise", rx:"4×15", type:"wr", st:2.5, start:{w:35,r:15}},
+          {id:"tib", n:"Tibialis raise", rx:"2×20", type:"reps", start:{r:20},
+           how:"Heels down, lift the toes toward the shins.",
+           cue:"Slow both ways — landing control lives here."}]},
+        {label:"Power (knee-gated)", items:[
+          {n:"Lateral bound — stick the landing", rx:"3×4 / side", type:"none", r:true,
+           how:"Jump sideways off one leg, land on the other and freeze.",
+           cue:"Stick every landing quietly for 1 s. Skip if the knee is a 2+ today."}]}
+      ]},
+    { id:"pump", day:"Pump", focus:"Optional · arms & delts", sport:"Anywhere · optional", opt:true,
+      note:"Same as week A — the optional fifth, any day, morning or evening, even straight after volleyball. First dropped on a heavy week. Never legs.",
+      blocks:[
+        {label:"Warm-up", items:[
+          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"}]},
+        {label:"Superset · one cable tower", superset:true, items:[
+          {id:"cable-latraise", n:"Standing cable lateral raise", rx:"4×12–15", type:"wr", st:2.5, start:{w:5,r:12},
+           how:"Cable at the lowest setting, handle in the far hand; swap attachment with the triceps move — same station.",
+           cue:"Lean slightly away — constant tension, no swing."},
+          {id:"oh-triceps", n:"Overhead cable triceps extension", rx:"3×12", type:"wr", st:2.5, start:{w:20,r:12},
+           how:"Same tower, rope behind the head, press up and forward.",
+           cue:"Elbows by the ears — only the forearms move."}]},
+        {label:"Accessory", superset:true, items:[
+          {id:"db-curl", n:"Standing DB curl", rx:"3×10–12", type:"wr", st:2, start:{w:10,r:10},
+           how:"kg = one DB.", cue:"Elbows pinned to the ribs."},
+          {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"2×15", type:"wr", st:2.5, start:{w:15,r:15},
+           how:"Sit facing the pec-deck, chest on the pad; sweep the arms wide and back. Superset only if the stations are neighbours.",
+           cue:"Arms open like saloon doors — no shoulder-blade pinch."}]},
+        {label:"Core", items:[
+          {n:"Deadbug", rx:"2×10 slow", type:"none",
+           cue:"Lower back glued to the floor — exhale as you reach."}]}
       ]}
   ]}
 };
@@ -629,7 +702,7 @@ function autoWeek(){
 }
 let curWeek = (state.ui.wDate===ymd() && state.ui.week) ? state.ui.week : autoWeek();
 let curDay  = (state.ui.dDate===ymd() && typeof state.ui.day==="number") ? state.ui.day
-              : ({1:0,2:1,3:2,4:3,5:4,6:5}[new Date().getDay()] ?? 0);
+              : ({0:4,1:0,2:0,3:1,4:2,5:3,6:3}[new Date().getDay()] ?? 0);
 function persistUi(){ state.ui={week:curWeek, day:curDay, wDate:ymd(), dDate:ymd()}; save(); }
 
 /* Sessions & streaks */
@@ -694,7 +767,7 @@ function fatigueFlag(){
 ===================================================================== */
 const elProgram=document.getElementById("view-program");
 const elDaySeg=document.getElementById("daySeg");
-const todayIdx = {1:0,2:1,3:2,4:3,5:4,6:5}[new Date().getDay()];
+const todayIdx = {0:4,1:0,2:0,3:1,4:2,5:3,6:3}[new Date().getDay()];
 
 function renderDayTabs(){
   const days=PROGRAM[curWeek].days;
@@ -729,7 +802,6 @@ function renderDay(){
   const d=PROGRAM[curWeek].days[curDay];
   let total=0, doneN=0;
   if(!d.rest) d.blocks.forEach((blk,bi)=>blk.items.forEach((it,ii)=>{
-    if(blk.label==="Warm-up") return;
     total++; if(state.done[exKey(d,bi,ii)]===ymd()) doneN++;
   }));
 
@@ -777,15 +849,15 @@ function renderDay(){
 function exKey(d,bi,ii){ return curWeek+"-"+d.id+"|"+bi+"|"+ii; }
 
 function exerciseHtml(d,blk,bi,it,ii){
-  const isWarm=blk.label==="Warm-up";
   const key=exKey(d,bi,ii);
   const doneOn=state.done[key]===ymd();
   let inner=`<div class="top">
       <p class="name">${it.n}${it.r?'<span class="r">R first</span>':""}${prBadge(it)}</p>
-      ${isWarm?"":`<button class="chk ${doneOn?"on":""}" data-done="${key}" aria-label="mark done"></button>`}
+      <button class="chk ${doneOn?"on":""}" data-done="${key}" aria-label="mark done"></button>
     </div>
     <p class="rx">${it.rx}</p>
-    ${it.cue?`<p class="cue">${it.cue}</p>`:""}`;
+    ${it.cue?`<p class="cue"><b>Focus:</b> ${it.cue}</p>`:""}
+    ${it.how?`<details class="how"><summary>What is this?</summary><p>${it.how}</p><a href="https://www.youtube.com/results?search_query=${encodeURIComponent(it.n+" form")}" target="_blank" rel="noopener">Watch a demo &#8599;</a></details>`:""}`;
 
   if(it.id && it.type!=="none"){
     const te=todayEntry(it.id), le=lastEntry(it.id), start=it.start||{};
@@ -883,7 +955,7 @@ function readinessHtml(d){
     <span class="rlbl">Today's readiness — 2 taps</span>
     <div class="rrow"><span class="rn">Knee</span><div class="chips">${chip("knee")}</div></div>
     <div class="rrow"><span class="rn">Right side</span><div class="chips">${chip("rs")}</div></div>
-    <p class="rhint">0 = fine · 1 = aware of it · 2 = grumpy · 3 = angry. This decides deloads — and whether the leg-day placement stays.</p>
+    <p class="rhint">0 = fine · 1 = aware of it · 2 = grumpy · 3 = angry. Log daily — especially mornings after volleyball. This decides deloads and leg-day placement.</p>
   </div>`;
 }
 function bindReadiness(d){
@@ -1055,7 +1127,7 @@ function buildCheckin(){
   const weeks=Math.max(1,Math.round((Date.now()-new Date(since).getTime())/(7*864e5)));
   L.push("# Training check-in — "+ymd());
   L.push("");
-  L.push(`Block: Thu/Sat lower + optional Mon · started ${state.meta.blockStart} · week ${curWeek} currently shown`);
+  L.push(`Block: flex sessions — 2× legs, push, pull, optional pump · started ${state.meta.blockStart} · week ${curWeek} currently shown`);
   L.push(`Adherence: ${days.length} sessions since ${since} (~${round1(days.length/weeks)}/week, target 4–5)`);
   if(state.bw.length){
     const f=state.bw[0], l=state.bw[state.bw.length-1];
@@ -1155,7 +1227,7 @@ document.getElementById("importLoad").onclick=()=>{
     const s=JSON.parse(document.getElementById("importText").value);
     if(typeof s!=="object"||!s) throw new Error("bad");
     state=normalize(s); save();
-    curWeek=autoWeek(); curDay=({1:0,2:1,3:2,4:3,5:4,6:5}[new Date().getDay()] ?? 0);
+    curWeek=autoWeek(); curDay=({0:4,1:0,2:0,3:1,4:2,5:3,6:3}[new Date().getDay()] ?? 0);
     syncWeekButtons(); renderDayTabs(); renderDay(); renderTrends(); refreshBackupUi();
     document.getElementById("importBox").classList.add("hidden");
     alert("Data loaded.");
