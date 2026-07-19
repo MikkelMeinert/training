@@ -24,6 +24,17 @@ time-poor, concise evidence-based coaching. Full profile and rules live in
 
 ## 2. The current program (July 2026 block, in `training.html`)
 
+**v5 (19 July 2026, second check-in):** lower back promoted to tracked priority — Mikkel
+identified it as his primary canary (flares with *inactivity*; "right side" = specifically
+the right hamstring). Added: weekly **deadlift** (Legs · big, 3×6–10 RIR 2–3) + **45° back
+extensions** (Legs · hip, 2×12–15); third readiness metric (low back, 0–3) with its own
+downshift banner; **Legs · big is now the long weekend session (60–75 min)** at his
+request. Audited out: step-ups (both variants — redundant after Bulgarians/lunges);
+hip-day calf raises (consolidated onto Legs · big). Renames: Legs · heavy → **Legs · hip**,
+Legs · ecc → **Legs · big**. Progression to date: hip thrust 60×6→60×12 (next: 70 kg),
+swing 8→16 kg (next: 20), pull-up tested badly only because it was attempted post-tennis
+at the end of a leg session — pull-ups go first on pull day.
+
 **v4 (13 July 2026, post-first-check-in): sessions are named, not weekday-locked.**
 Five session chips in the app — Mikkel slots them inside guardrails (his week-1 finding:
 sport recovery is cheap for him, strength recovery is not, so leg days need max spread):

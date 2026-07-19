@@ -22,16 +22,21 @@ zero injury; (2) strength & athletic physique (delts, upper back, arms, core);
 
 **Health flags:** anterior-knee irritation (jump impact; currently mild, likely from
 irregular load) — no deep heavy bilateral squatting, bias single-leg, tendon work is
-treatment; right-side posterior chain historically weak — right side always trains
-first and gets any extra set. Pressing is rebuilding after a layoff — keep it RIR 3,
-no grinding. If pain is beyond normal soreness: physio, and program around it.
+treatment. **Low back is his primary canary — it flares with INACTIVITY**, so the weekly
+deadlift + back extensions are protective medicine (moderate, crisp, never ego); low
+back 2+ twice a week → swap deadlift for light back extensions, keep moving, physio if
+two weeks. Right hamstring historically weak — right side always trains first and gets
+any extra set. Pressing is rebuilding after a layoff — keep it RIR 3, no grinding. If
+pain is beyond normal soreness: physio, and program around it. Readiness = 3 daily taps
+(knee / R hamstring / low back, 0–3).
 
-**Current block (v4: 4 fixed sessions + optional pump, flexible days, A/B weeks):**
-Sessions are named, not weekday-locked. Guardrails: **Legs·heavy** (concentric-bias:
-KB swings 16–24 kg, hip thrust, SL-RDL/B-stance RDL, lying curl, calves) goes Mon or
-Tue — Tue evening after volleyball is fine. **Push** best Wed. **Pull** Thu or Fri —
-the priority upper day, don't let it slip (it did in week 1). **Legs·ecc** (wall sits/
-tempo leg extensions, tempo Bulgarians/reverse lunges, Nordics, calves/tib, knee-gated
+**Current block (v5: 4 fixed sessions + optional pump, flexible days, A/B weeks):**
+Sessions are named, not weekday-locked. Guardrails: **Legs·hip** (45 min, concentric-
+bias: KB swings 16–24 kg, hip thrust, SL-RDL/B-stance RDL, lying curl, 45° back
+extensions) goes Mon or Tue — Tue evening after volleyball is fine. **Push** best Wed.
+**Pull** Thu or Fri — the priority upper day, pull-ups always first and fresh.
+**Legs·big** (the long one, 60–75 min, weekend: wall sits/tempo leg extensions, tempo
+Bulgarians/reverse lunges, deadlift 3×6–10 RIR 2–3, Nordics, calves/tib, knee-gated
 bound) goes Fri or Sat ONLY — its DOMS must land ≥72 h before Tuesday volleyball.
 **Pump** (laterals, curls, overhead triceps, reverse pec-deck) anywhere, dropped first
 on heavy weeks. ≥3 clear days between leg days; leg-day roles never swap.
@@ -39,8 +44,9 @@ on heavy weeks. ≥3 clear days between leg days; leg-day roles never swap.
 - **Dislikes — never prescribe:** standing DB rows, loaded carries, med-ball slams,
   Spanish squats, triceps pushdowns, standing cable rear-delt flies. Supersets must
   share a station. SL-RDL: rack-supported version; B-stance is the fallback.
-- Baselines (calibrated 6–12 July): hip thrust 60×6, Bulgarian 24×8 @3 s, step-up 20×8,
-  lying curl 25×10, incline press 14×8/DB, laterals 5×10, DB curl 10×10.
+- Baselines (19 July): hip thrust 60×12 → next 70 kg; KB swing 16 → next 20; lying curl
+  25×12 → next 27.5–30; Bulgarian 24×8 @3 s; incline 14×8/DB; pull-up ~4×5 BW; deadlift
+  starts 70×6–8 (A) / 60×8–10 (B), RIR 2–3.
 - **Revert trigger:** Tuesday volleyball legs flat two weeks running → Monday lower
   moves back to Thursday. The app's readiness taps (knee & right side, 0–3) are the evidence.
 
