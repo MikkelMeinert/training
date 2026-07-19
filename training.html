@@ -202,10 +202,11 @@
     </div>
 
     <div class="panel">
-      <h3>Readiness — knee &amp; right side</h3>
+      <h3>Readiness — knee · R ham · low back</h3>
       <div class="chartbox" id="readyChart"></div>
       <div class="legend"><span><i style="background:var(--warn)"></i>Knee</span>
-        <span><i style="background:var(--right)"></i>Right side</span>
+        <span><i style="background:var(--right)"></i>R ham</span>
+        <span><i style="background:var(--accent)"></i>Low back</span>
         <span style="margin-left:auto">0 = fine · 3 = angry</span></div>
     </div>
 
@@ -263,10 +264,12 @@
       <h3>How to run this block</h3>
       <p><b>Sessions, not weekdays.</b> Two leg days + push + pull are the fixed four; pump is the optional
         fifth. Slot them where the week allows, inside these guardrails:</p>
-      <p><b>Guardrails.</b> Legs · heavy goes <b>Mon or Tue</b> (concentric bias recovers fast — volleyball
-        survives; Tuesday evening after volleyball also works). Legs · ecc goes <b>Fri or Sat</b> — its DOMS
+      <p><b>Guardrails.</b> Legs · hip goes <b>Mon or Tue</b> (concentric bias recovers fast — volleyball
+        survives; Tuesday evening after volleyball also works). Legs · big goes <b>Fri or Sat</b> — its DOMS
         must land on the weekend, never within ~72 h of Tuesday volleyball. Keep 3+ clear days between the two
         leg days. Push and pull fill Wed/Thu in either order. Pump goes anywhere, morning or evening.</p>
+      <p><b>Time budgets.</b> Legs · big is the long one — 60–75 min, built for the weekend. The other four
+        fit 45-minute mornings.</p>
       <p><b>Dropping order on a heavy week:</b> pump first, then push. Never a leg day — and guard the pull
         day; it's the most goal-relevant upper session.</p>
       <p><b>Supersets are suggestions.</b> Pair only when the stations sit together; otherwise run straight sets.</p>
@@ -274,9 +277,12 @@
         sets at the target RIR, then add: +2.5–5 kg lower body, +1–2.5 kg upper. Pull-ups: reps first, then weight.</p>
       <p><b>Right side first.</b> Lead every single-leg/arm move with the right; match the left. Right feels
         weaker? One extra set on the right — never the left.</p>
-      <p><b>Knee.</b> The wall sits + tempo work on Legs · ecc are treatment, not threat — tendons like regular,
+      <p><b>Knee.</b> The wall sits + tempo work on Legs · big are treatment, not threat — tendons like regular,
         controlled load. Skip the lateral bound any day the knee is a 2+.</p>
-      <p><b>Leg-day warm-up.</b> The 10-move stretch flow (30–45 s each, now checkable), tendon prep on Legs · ecc, then
+      <p><b>Low back.</b> Same philosophy as the knee: it flares when it <i>isn't</i> loaded. The weekly
+        deadlift (Legs · big) and back extensions (Legs · hip) are its vitamin — moderate, crisp, never ego.
+        Rate it daily in the readiness taps; 2+ twice in a week and the app will tell you to downshift.</p>
+      <p><b>Leg-day warm-up.</b> The 10-move stretch flow (30–45 s each, now checkable), tendon prep on Legs · big, then
         ramp-up sets: ~50% and ~75% of work weight on the first lift, one light set before each later lift.
         Short on time: cat-cow, downward dog, world's greatest stretch, figure four, supine twists.</p>
       <p><b>Deload</b> when the app suggests it (knee flaring, or 5+ weeks hard): keep loads, cut every
@@ -296,7 +302,7 @@
   <button id="tab-more">More<span id="moreDot" class="hidden dot"></span></button>
 </div>
 
-<footer>Saved locally on this device · block updated 13 Jul 2026</footer>
+<footer>Saved locally on this device · block updated 19 Jul 2026</footer>
 
 <script>
 "use strict";
@@ -315,8 +321,8 @@
 const BLOCK_START = "2026-07-06";           // first Monday of this block
 const PROGRAM = {
   A: { days: [
-    { id:"heavy", day:"Legs · heavy", focus:"Lower · heavy hip-dominant", sport:"Best: Mon or Tue",
-      note:"Leg day 1 — concentric bias: heavy but fast-recovering, so volleyball a day or two later survives. Tuesday evening after volleyball also works. Keep 3+ clear days before Legs · ecc.",
+    { id:"heavy", day:"Legs · hip", focus:"Lower · heavy hip-dominant", sport:"Best: Mon or Tue",
+      note:"Leg day 1 — concentric bias: heavy but fast-recovering, so volleyball a day or two later survives. Tuesday evening after volleyball also works. Keep 3+ clear days before Legs · big.",
       blocks:[
         {label:"Warm-up", items:[
           {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
@@ -339,9 +345,9 @@ const PROGRAM = {
           {id:"lyingcurl", n:"Lying hamstring curl", rx:"3×10 · RIR 2", type:"wr", st:2.5, start:{w:25,r:10},
            how:"Face-down on the machine, pad at the ankles; curl heels toward the glutes. Normal tempo here — the slow eccentrics live on Legs · ecc.",
            cue:"Hips pinned to the pad — hamstrings curl, lower back stays out of it."},
-          {id:"calf", n:"Standing calf raise", rx:"3×10–12", type:"wr", st:2.5, start:{w:40,r:10},
-           how:"Standing, balls of the feet on a step or machine; full range top to bottom.",
-           cue:"Pause the bottom stretch, then drive tall onto the big toes."}]},
+          {id:"backext", n:"45° back extension", rx:"2×12–15", type:"wr", st:2.5, start:{w:0,r:12},
+           how:"Hips on the pad of the 45° bench, hinge down and rise to a straight line. kg = plate hugged to the chest (0 = bodyweight). Your lower back likes regular, moderate load — this is its weekly vitamin, not a max lift.",
+           cue:"Long spine, squeeze the glutes to rise — no whip at the top."}]},
         {label:"Core", items:[
           {n:"Deadbug", rx:"2×10 slow", type:"none",
            how:"On your back, arms and knees to the ceiling; lower opposite arm and leg slowly, return, switch sides.",
@@ -407,8 +413,8 @@ const PROGRAM = {
            how:"Side plank with the top leg's foot or shin on a bench, bottom leg hovering. Adductor/groin armour for lateral play.",
            cue:"Press the top inner thigh into the bench, hips tall."}]}
       ]},
-    { id:"ecc", day:"Legs · ecc", focus:"Lower · eccentric + tendon", sport:"Best: Fri or Sat",
-      note:"Leg day 2 — all the slow, DOMS-making tendon work. Its soreness must land on the weekend: never closer than ~72 h to Tuesday volleyball. Keep 3+ clear days after Legs · heavy.",
+    { id:"ecc", day:"Legs · big", focus:"Lower · deadlift + tendon/eccentric", sport:"Best: Fri or Sat",
+      note:"Leg day 2 — the big weekend session (60–75 min): tendon prep, tempo quads, the week\u2019s deadlift, Nordics. Soreness lands on the weekend — never within ~72 h of Tuesday volleyball, 3+ clear days after Legs · hip.",
       blocks:[
         {label:"Warm-up", items:[
           {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
@@ -423,9 +429,9 @@ const PROGRAM = {
            how:"Rear foot laced on a bench behind you, front leg does the squatting. kg = total in hands.",
            cue:"3 s down like a slow elevator; front heel heavy, knee tracking the toes. Right first."}]},
         {label:"Secondary", items:[
-          {id:"stepup", n:"Step-up (knee height or lower)", rx:"3×8 / leg", type:"wr", st:2, start:{w:20,r:8}, r:true,
-           how:"Step onto a knee-height box, drive to standing, lower with control. kg = total in hands.",
-           cue:"All the work from the top leg — no push off the floor foot. Right first."}]},
+          {id:"deadlift", n:"Deadlift (trap-bar or barbell)", rx:"3×6–8 · RIR 2–3", type:"wr", st:2.5, start:{w:70,r:6},
+           how:"From the floor, hinge and stand tall. Trap-bar if one is free (easier back angle); barbell works. Moderate loads, crisp reps — this is back medicine, not ego lifting.",
+           cue:"Wedge in, push the floor away — bar close, long spine, no jerk off the floor."}]},
         {label:"Eccentric hamstring", items:[
           {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–6", type:"reps", start:{r:4},
            how:"Kneel with ankles anchored (partner, machine or a loaded bar), fall forward as slowly as you can, catch with the hands, push back up. Band or slider to scale.",
@@ -464,8 +470,8 @@ const PROGRAM = {
       ]}
   ]},
   B: { days: [
-    { id:"heavy", day:"Legs · heavy", focus:"Lower · heavy hip-dominant", sport:"Best: Mon or Tue",
-      note:"Hypertrophy week — same slot logic, more reps. Concentric bias keeps volleyball safe. 3+ clear days before Legs · ecc.",
+    { id:"heavy", day:"Legs · hip", focus:"Lower · heavy hip-dominant", sport:"Best: Mon or Tue",
+      note:"Hypertrophy week — same slot logic, more reps. Concentric bias keeps volleyball safe. 3+ clear days before Legs · big.",
       blocks:[
         {label:"Warm-up", items:[
           {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
@@ -488,7 +494,9 @@ const PROGRAM = {
           {id:"lyingcurl", n:"Lying hamstring curl", rx:"3×12 · RIR 2", type:"wr", st:2.5, start:{w:25,r:12},
            how:"Normal tempo — the slow eccentrics live on Legs · ecc.",
            cue:"Hips pinned to the pad — hamstrings only."},
-          {id:"calf", n:"Standing calf raise", rx:"3×15", type:"wr", st:2.5, start:{w:35,r:15}}]},
+          {id:"backext", n:"45° back extension", rx:"2×12–15", type:"wr", st:2.5, start:{w:0,r:12},
+           how:"Hips on the pad, hinge down, rise to a straight line. kg = plate at the chest (0 = bodyweight).",
+           cue:"Long spine, glutes to rise — smooth, no whip."}]},
         {label:"Core", items:[
           {n:"Deadbug", rx:"2×10 slow", type:"none",
            cue:"Lower back glued to the floor — exhale as you reach."}]}
@@ -553,8 +561,8 @@ const PROGRAM = {
            how:"Side plank, top foot or shin on a bench, bottom leg hovering.",
            cue:"Top inner thigh presses the bench — hips tall."}]}
       ]},
-    { id:"ecc", day:"Legs · ecc", focus:"Lower · eccentric + tendon", sport:"Best: Fri or Sat",
-      note:"Lunge-pattern week + the one gym plyo. DOMS lands on the weekend — never closer than ~72 h to Tuesday volleyball.",
+    { id:"ecc", day:"Legs · big", focus:"Lower · deadlift + tendon/eccentric", sport:"Best: Fri or Sat",
+      note:"Lunge-pattern week + the week\u2019s deadlift + the one gym plyo. The big weekend session (60–75 min). DOMS lands on the weekend — never within ~72 h of Tuesday volleyball.",
       blocks:[
         {label:"Warm-up", items:[
           {n:"Full-body stretch flow", rx:"~6–8 min", type:"none",
@@ -569,9 +577,9 @@ const PROGRAM = {
            how:"Step backward into a lunge, then drive back to standing through the front leg. kg = total load.",
            cue:"Knee-friendlier than forward lunges — front heel heavy, torso tall. Right first."}]},
         {label:"Secondary", items:[
-          {id:"goblet-stepup", n:"Goblet step-up", rx:"3×10 / leg", type:"wr", st:2, start:{w:16,r:10}, r:true,
-           how:"One DB or KB held at the chest; step onto a knee-height box.",
-           cue:"Heel drive, controlled lower. Right first."}]},
+          {id:"deadlift", n:"Deadlift (trap-bar or barbell)", rx:"3×8–10 · RIR 2–3", type:"wr", st:2.5, start:{w:60,r:8},
+           how:"Slightly lighter and higher-rep than week A — same crisp standard, same back medicine.",
+           cue:"Bar close, long spine — every rep looks identical."}]},
         {label:"Eccentric hamstring", items:[
           {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–6", type:"reps", start:{r:4},
            how:"Ankles anchored, fall forward as slowly as possible, hands catch, push back. Band or slider to scale.",
@@ -756,6 +764,10 @@ function kneeFlag(){
   const cutoff=Date.now()-7*864e5;
   return readyList().filter(r=>new Date(r.d).getTime()>cutoff && r.knee>=2).length>=2;
 }
+function lbFlag(){
+  const cutoff=Date.now()-7*864e5;
+  return readyList().filter(r=>new Date(r.d).getTime()>cutoff && (r.lb||0)>=2).length>=2;
+}
 function fatigueFlag(){
   const anchor = state.meta.lastDeload ? new Date(state.meta.lastDeload).getTime()
                                        : new Date(state.meta.blockStart+"T00:00:00").getTime();
@@ -789,7 +801,10 @@ function bannersHtml(){
   if(kneeFlag())
     h+=`<div class="banner">⚠ Knee has been 2+ twice this week.
       <span class="bx">Cut tempo-work loads, skip the lateral bound, keep the wall-sit isometrics. If it persists to next week: deload, and tell Claude at check-in.</span></div>`;
-  else if(fatigueFlag())
+  if(lbFlag())
+    h+=`<div class="banner">⚠ Low back has been 2+ twice this week.
+      <span class="bx">Swap the deadlift for light back extensions and keep moving — gentle regular load beats rest. Two weeks running: see a physio, tell Claude.</span></div>`;
+  if(!kneeFlag() && !lbFlag() && fatigueFlag())
     h+=`<div class="banner">It's been 5+ weeks since a deload.
       <span class="bx">This week: keep loads, cut every exercise to 2 sets, skip throws &amp; bounds. Then mark it done in More.</span></div>`;
   if(sessionsSinceBackup()>=6)
@@ -952,9 +967,10 @@ function readinessHtml(d){
       `<button data-ready="${field}:${v}" class="${cur===v?("on"+v):""}">${v}</button>`).join("");
   };
   return `<div class="readiness">
-    <span class="rlbl">Today's readiness — 2 taps</span>
+    <span class="rlbl">Today's readiness — 3 taps</span>
     <div class="rrow"><span class="rn">Knee</span><div class="chips">${chip("knee")}</div></div>
-    <div class="rrow"><span class="rn">Right side</span><div class="chips">${chip("rs")}</div></div>
+    <div class="rrow"><span class="rn">R hamstring</span><div class="chips">${chip("rs")}</div></div>
+    <div class="rrow"><span class="rn">Low back</span><div class="chips">${chip("lb")}</div></div>
     <p class="rhint">0 = fine · 1 = aware of it · 2 = grumpy · 3 = angry. Log daily — especially mornings after volleyball. This decides deloads and leg-day placement.</p>
   </div>`;
 }
@@ -1041,7 +1057,7 @@ function lineChart(points, opts){
   const W=640, H=opts.h||150, P={l:34,r:10,t:10,b:20};
   if(points.length<2 && !(opts.y2&&opts.y2.length>1))
     return `<p style="font-size:12px;color:#5d6b7a;margin:6px 0">Not enough data yet — needs 2+ entries.</p>`;
-  const all=points.concat(opts.y2||[]);
+  const all=points.concat(opts.y2||[]).concat(opts.y3||[]);
   const xs=all.map(p=>p.x), ys=all.map(p=>p.y);
   const x0=Math.min(...xs), x1=Math.max(...xs);
   let ymin=opts.ymin!=null?opts.ymin:Math.min(...ys), ymax=opts.ymax!=null?opts.ymax:Math.max(...ys);
@@ -1059,6 +1075,7 @@ function lineChart(points, opts){
   if(opts.unit) s+=`<text x="6" y="${P.t+4}" class="axis">${opts.unit}</text>`;
   if(points.length>1) s+=`<path d="${path(points)}" fill="none" stroke="${opts.color}" stroke-width="2.5" stroke-linejoin="round"/>`;
   if(opts.y2&&opts.y2.length>1) s+=`<path d="${path(opts.y2)}" fill="none" stroke="${opts.color2}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  if(opts.y3&&opts.y3.length>1) s+=`<path d="${path(opts.y3)}" fill="none" stroke="${opts.color3}" stroke-width="2.5" stroke-linejoin="round"/>`;
   const lp=points[points.length-1];
   if(lp) s+=`<circle cx="${round1(sx(lp.x))}" cy="${round1(sy(lp.y))}" r="4" fill="${opts.color}"/>`;
   s+=`</svg>`;
@@ -1083,8 +1100,9 @@ function renderTrends(){
   const rl=readyList();
   const k=rl.filter(r=>r.knee!=null).map(r=>({x:new Date(r.d+"T12:00").getTime(),y:r.knee}));
   const rs=rl.filter(r=>r.rs!=null).map(r=>({x:new Date(r.d+"T12:00").getTime(),y:r.rs}));
+  const lb=rl.filter(r=>r.lb!=null).map(r=>({x:new Date(r.d+"T12:00").getTime(),y:r.lb}));
   document.getElementById("readyChart").innerHTML=
-    lineChart(k,{color:"var(--warn)",y2:rs,color2:"var(--right)",ymin:0,ymax:3,h:120});
+    lineChart(k,{color:"var(--warn)",y2:rs,color2:"var(--right)",y3:lb,color3:"var(--accent)",ymin:0,ymax:3,h:120});
   // lifts
   const box=document.getElementById("liftTrends");
   const rows=[];
@@ -1136,10 +1154,11 @@ function buildCheckin(){
   const rl=readyList();
   if(rl.length){
     const avg=a=>round1(a.reduce((s,x)=>s+x,0)/a.length);
-    const ks=rl.filter(r=>r.knee!=null).map(r=>r.knee), rss=rl.filter(r=>r.rs!=null).map(r=>r.rs);
-    L.push(`Readiness (${rl.length} entries): knee avg ${ks.length?avg(ks):"–"} (max ${ks.length?Math.max(...ks):"–"}), right side avg ${rss.length?avg(rss):"–"} (max ${rss.length?Math.max(...rss):"–"})`);
-    const bad=rl.filter(r=>(r.knee||0)>=2||(r.rs||0)>=2).slice(-6);
-    if(bad.length) L.push("Flagged days: "+bad.map(r=>`${r.d} (knee ${r.knee??"–"}, R ${r.rs??"–"})`).join("; "));
+    const ks=rl.filter(r=>r.knee!=null).map(r=>r.knee), rss=rl.filter(r=>r.rs!=null).map(r=>r.rs),
+          lbs=rl.filter(r=>r.lb!=null).map(r=>r.lb);
+    L.push(`Readiness (${rl.length} entries): knee avg ${ks.length?avg(ks):"–"} (max ${ks.length?Math.max(...ks):"–"}), R ham avg ${rss.length?avg(rss):"–"} (max ${rss.length?Math.max(...rss):"–"}), low back avg ${lbs.length?avg(lbs):"–"} (max ${lbs.length?Math.max(...lbs):"–"})`);
+    const bad=rl.filter(r=>(r.knee||0)>=2||(r.rs||0)>=2||(r.lb||0)>=2).slice(-6);
+    if(bad.length) L.push("Flagged days: "+bad.map(r=>`${r.d} (knee ${r.knee??"–"}, R ${r.rs??"–"}, LB ${r.lb??"–"})`).join("; "));
   }
   if(state.meta.lastDeload) L.push("Last deload: "+ymd(new Date(state.meta.lastDeload)));
   L.push(""); L.push("## Lifts");
