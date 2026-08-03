@@ -27,8 +27,11 @@ deadlift + back extensions are protective medicine (moderate, crisp, never ego);
 back 2+ twice a week → swap deadlift for light back extensions, keep moving, physio if
 two weeks. Right hamstring historically weak — right side always trains first and gets
 any extra set. Pressing is rebuilding after a layoff — keep it RIR 3, no grinding. If
-pain is beyond normal soreness: physio, and program around it. Readiness = 3 daily taps
-(knee / R hamstring / low back, 0–3).
+pain is beyond normal soreness: physio, and program around it. Readiness = 4 daily taps
+(knee / R hamstring / low back / R shoulder, 0–3). **R shoulder (Aug 2026):** grumpy from
+BV hitting technique (he's fixing the whip mechanics — that's the treatment); pressing
+frozen at RIR 3 reps-only until quiet 2 weeks; shoulder 2+ → no overhead pressing that
+day; persistent 2 weeks or night pain → physio.
 
 **Current block (v5: 4 fixed sessions + optional pump, flexible days, A/B weeks):**
 Sessions are named, not weekday-locked. Guardrails: **Legs·hip** (45 min, concentric-
@@ -44,9 +47,11 @@ on heavy weeks. ≥3 clear days between leg days; leg-day roles never swap.
 - **Dislikes — never prescribe:** standing DB rows, loaded carries, med-ball slams,
   Spanish squats, triceps pushdowns, standing cable rear-delt flies. Supersets must
   share a station. SL-RDL: rack-supported version; B-stance is the fallback.
-- Baselines (19 July): hip thrust 60×12 → next 70 kg; KB swing 16 → next 20; lying curl
-  25×12 → next 27.5–30; Bulgarian 24×8 @3 s; incline 14×8/DB; pull-up ~4×5 BW; deadlift
-  starts 70×6–8 (A) / 60×8–10 (B), RIR 2–3.
+- Baselines (3 Aug): hip thrust 60×12 → 70 (A) / 65 (B); deadlift 65×10 → 75×6–8 (A) /
+  70×8–10 (B); reverse lunge 40×8 → 42.5; Bulgarian 24×8 @3 s → 26 knee-gated; lying curl
+  25×12 → 27.5–30; KB swing → 20; pulldown 55×10 → 55×12 then 60; back ext 5×12 → 7.5–10;
+  pull-up 4×4–5 BW reps-first. FROZEN while shoulder grumpy: incline 16 (reps 10→12,
+  RIR 3), chest press 16×12, landmine 10–12, laterals 5 kg reps-only.
 - **Revert trigger:** Tuesday volleyball legs flat two weeks running → Monday lower
   moves back to Thursday. The app's readiness taps (knee & right side, 0–3) are the evidence.
 

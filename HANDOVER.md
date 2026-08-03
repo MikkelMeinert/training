@@ -24,6 +24,18 @@ time-poor, concise evidence-based coaching. Full profile and rules live in
 
 ## 2. The current program (July 2026 block, in `training.html`)
 
+**v6 (3 August 2026, third check-in):** right shoulder added as 4th readiness metric
+(grumpy ~10 days from BV hitting technique — he's fixing the whip mechanics; gym holds
+pressing at RIR 3, reps-only, app benches overhead pressing at 2+ twice/week). Supersets
+station-locked (face-pull + Pallof on one tower; back ext + deadbug on the floor beside
+the bench; cable curl → DB curl at the laterals rack; all cross-gym pairs dissolved to
+straight sets). Tempo leg extension now loggable (`legext-tempo`). Illness week
+(~20–26 July) absorbed — advised tapping the deload button to reset the 5-week clock.
+Trends: pulldown +16%, reverse lunge +33%, Nordics to 8, knee trending DOWN (no 2s since
+19 July), low back steady at 1 with the new DL/back-ext work. Pull-up stuck at 4 and
+cable row dipped — shoulder-related, watch it. He skips bottom-of-session accessories
+under time pressure: by design, order = priority, don't "fix" it.
+
 **v5 (19 July 2026, second check-in):** lower back promoted to tracked priority — Mikkel
 identified it as his primary canary (flares with *inactivity*; "right side" = specifically
 the right hamstring). Added: weekly **deadlift** (Legs · big, 3×6–10 RIR 2–3) + **45° back
