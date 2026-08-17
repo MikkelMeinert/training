@@ -24,6 +24,23 @@ time-poor, concise evidence-based coaching. Full profile and rules live in
 
 ## 2. The current program (July 2026 block, in `training.html`)
 
+**v7 (17 August 2026, fourth check-in):** best data yet — hip thrust 80×8 (e1RM +40%
+in six weeks), deadlift 70×8, pull-up unstuck at 6, knee/ham/back all quiet or trending
+down; deload logged 5 Aug. Changes, all Mikkel-driven: **KB swing retired** (technique
+never felt right) → **speed hip thrusts** (~50% top weight, 3×5–6, max bar speed);
+**lying curls officially single-leg** (his initiative — right first, stack = per-leg);
+**SL-RDL pinned to ONE version** (one DB in LEFT hand, right hand on rack — he refused
+to do it while ambiguous, rightly); **barbell OHP adopted** (he tried 22.5×8 on 9 Aug
+and liked it) as pull-day superset with DB curls, landmine = fallback — this also fixes
+arms/delts getting zero volume from the never-done pump day; **deadbug cut** after his
+inclusion-criteria challenge; **towel-whip drill** added to push/pull warm-ups
+(spike-swing sequencing rehearsal, his request). RETIRED registry added so retired
+lifts stay visible in trends/check-ins. Watch-list: right groin/hip-flexor pinch
+(13 Aug — notes only, NOT a 5th readiness tap; metric creep refused). **Nicotine quit
+14 Aug** — 1–2 soft weeks expected, long-term tendon win. Shoulder hit 2 on 13 Aug —
+pressing stays reps-only; two-quiet-weeks clock restarted. **Next check-in (~mid-Sept)
+= indoor-season transition planning; confirm winter sport schedule.**
+
 **v6 (3 August 2026, third check-in):** right shoulder added as 4th readiness metric
 (grumpy ~10 days from BV hitting technique — he's fixing the whip mechanics; gym holds
 pressing at RIR 3, reps-only, app benches overhead pressing at 2+ twice/week). Supersets

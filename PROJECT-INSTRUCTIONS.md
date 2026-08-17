@@ -33,25 +33,34 @@ BV hitting technique (he's fixing the whip mechanics — that's the treatment); 
 frozen at RIR 3 reps-only until quiet 2 weeks; shoulder 2+ → no overhead pressing that
 day; persistent 2 weeks or night pain → physio.
 
-**Current block (v5: 4 fixed sessions + optional pump, flexible days, A/B weeks):**
+**Current block (v7: 4 fixed sessions + optional pump, flexible days, A/B weeks):**
 Sessions are named, not weekday-locked. Guardrails: **Legs·hip** (45 min, concentric-
-bias: KB swings 16–24 kg, hip thrust, SL-RDL/B-stance RDL, lying curl, 45° back
-extensions) goes Mon or Tue — Tue evening after volleyball is fine. **Push** best Wed.
-**Pull** Thu or Fri — the priority upper day, pull-ups always first and fresh.
-**Legs·big** (the long one, 60–75 min, weekend: wall sits/tempo leg extensions, tempo
-Bulgarians/reverse lunges, deadlift 3×6–10 RIR 2–3, Nordics, calves/tib, knee-gated
-bound) goes Fri or Sat ONLY — its DOMS must land ≥72 h before Tuesday volleyball.
-**Pump** (laterals, curls, overhead triceps, reverse pec-deck) anywhere, dropped first
-on heavy weeks. ≥3 clear days between leg days; leg-day roles never swap.
+bias: speed hip thrusts 3×5 @ ~50%, heavy hip thrust, SL-RDL [ONE version: one DB in
+LEFT hand, right hand on rack, right leg first] or B-stance RDL, single-leg lying curls
+[right first, stack = per-leg load], 45° back extensions) goes Mon or Tue — Tue evening
+after volleyball is fine. **Push** best Wed. **Pull** Thu or Fri — priority upper day,
+pull-ups always first; barbell OHP (22.5, RIR 3, reps-first, landmine fallback,
+shoulder 2+ = skip) supersetted with DB curls. **Legs·big** (60–75 min, weekend:
+wall sits/tempo leg extensions, tempo Bulgarians/reverse lunges, deadlift RIR 2–3,
+Nordics, calves/tib, knee-gated bound; splitting across two mornings is legal) goes
+Fri or Sat ONLY — DOMS must land ≥72 h before Tuesday volleyball. **Pump** optional,
+dropped first. ≥3 clear days between leg days; leg-day roles never swap. Push/pull
+warm-ups include the towel-whip drill (spike sequencing: hips → chest → elbow → hand).
+KB swings and deadbugs are retired — don't re-prescribe.
 - Leg-day warm-up: his 10-move stretch flow + ramp-up sets (~50%, ~75% of first lift).
 - **Dislikes — never prescribe:** standing DB rows, loaded carries, med-ball slams,
   Spanish squats, triceps pushdowns, standing cable rear-delt flies. Supersets must
   share a station. SL-RDL: rack-supported version; B-stance is the fallback.
-- Baselines (3 Aug): hip thrust 60×12 → 70 (A) / 65 (B); deadlift 65×10 → 75×6–8 (A) /
-  70×8–10 (B); reverse lunge 40×8 → 42.5; Bulgarian 24×8 @3 s → 26 knee-gated; lying curl
-  25×12 → 27.5–30; KB swing → 20; pulldown 55×10 → 55×12 then 60; back ext 5×12 → 7.5–10;
-  pull-up 4×4–5 BW reps-first. FROZEN while shoulder grumpy: incline 16 (reps 10→12,
-  RIR 3), chest press 16×12, landmine 10–12, laterals 5 kg reps-only.
+- Baselines (17 Aug): hip thrust 80×8 → 85×6–8 (A) / 72.5×10–12 (B); speed sets 40 kg;
+  deadlift 70×8 → 75×6–8 (A) / 72.5×8–10 (B); Bulgarian 30×9 → 32×8 knee-gated; reverse
+  lunge 40×8 → 42.5; single-leg curl 30×10/leg → 3×12 then 32.5; back ext 5×12 → 10 kg;
+  pulldown 55×10 → 55×12 then 60; pull-up 6 BW → 4×6 then +2.5 kg; Nordic 3×6–8.
+  FROZEN while shoulder grumpy (2 on 13 Aug, clock restarted): OHP 22.5 reps to 3×10
+  before 25; incline 16 (reps 10→12, RIR 3); chest press 16×12; laterals 5 kg reps-only.
+- **Nicotine quit 14 Aug** — expect 1–2 soft weeks; dips are withdrawal, not detraining;
+  RIR fixed, loads float. **Groin/hip-flexor pinch (13 Aug)** on watch — persistent
+  2 weeks → physio. **Indoor season from late Sept** — schedule confirmation due at the
+  mid-Sept check-in.
 - **Revert trigger:** Tuesday volleyball legs flat two weeks running → Monday lower
   moves back to Thursday. The app's readiness taps (knee & right side, 0–3) are the evidence.
 
