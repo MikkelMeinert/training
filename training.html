@@ -239,8 +239,9 @@
 
     <div class="panel">
       <h3>Backup <span id="backupWarn" style="color:var(--warn);font-size:11.5px;font-weight:600"></span></h3>
-      <p class="info" style="margin-bottom:10px">Logs live on this phone only. Back up to iCloud Files
-        (or AirDrop) with one tap — do it every few sessions.</p>
+      <p class="info" style="margin-bottom:10px">Logs live on this phone only, and iOS can silently wipe
+        them after ~2 weeks of not opening the app — open it weekly, back up every few sessions. Import
+        accepts a raw backup <i>or</i> a whole pasted check-in report (it finds the data itself).</p>
       <div class="row">
         <button class="btn" id="backupBtn">Back up now</button>
         <button class="btn ghost" id="exportBtn">Show raw data</button>
@@ -310,7 +311,7 @@
   <button id="tab-more">More<span id="moreDot" class="hidden dot"></span></button>
 </div>
 
-<footer>Saved locally on this device · block updated 17 Aug 2026</footer>
+<footer>Saved locally on this device · block updated 5 Sep 2026</footer>
 
 <script>
 "use strict";
@@ -362,10 +363,7 @@ const PROGRAM = {
       note:"Delts, chest & arms — low systemic fatigue, safe the morning before volleyball.",
       blocks:[
         {label:"Warm-up", items:[
-          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none", cue:"Full shoulder prep every push day."},
-          {n:"Towel-whip drill", rx:"2×5 / side · slow → fast", type:"none",
-           how:"Hold a small towel like a whip and rehearse your spike swing: hips turn, chest follows, elbow leads, hand snaps last. The towel only cracks when the sequence is right — shoulder-rotation power can't crack it. The swing-mechanics rehearsal you asked for; the real fix still happens on the sand.",
-           cue:"Crack it with the sequence, not the shoulder."}]},
+          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none", cue:"Full shoulder prep every push day."}]},
         {label:"Primary", main:true, items:[
           {id:"incline-press", n:"Incline DB press", rx:"4×8–10 · RIR 3 while the shoulder rebuilds", type:"wr", st:2, start:{w:14,r:8},
            how:"Bench at ~30°, press DBs from shoulder height to above the upper chest. kg = one DB. Pressing is rebuilding — no grinding reps.",
@@ -395,9 +393,9 @@ const PROGRAM = {
         {label:"Warm-up", items:[
           {n:"Band pull-aparts + shoulder CARs", rx:"2×15 / 5 each way", type:"none",
            cue:"Prime scaps and cuff before loading."},
-          {n:"Towel-whip drill", rx:"2×5 / side · slow → fast", type:"none",
-           how:"Same drill as push day — sequence rehearsal for the spike: hips, chest, elbow, hand.",
-           cue:"Crack it with the sequence, not the shoulder."}]},
+          {n:"Spike-pattern ball throw (optional)", rx:"2×5 / side", type:"none",
+           how:"A 1–2 kg soft med-ball thrown hard into a wall with your full spike swing — external load and real feedback on the hips → chest → elbow → hand sequence. Honest note: the swing itself is built on the court with a ball and video; this only greases the pattern. Skip freely — the towel drill is retired.",
+           cue:"Hips fire first; the arm arrives last."}]},
         {label:"Primary", main:true, items:[
           {id:"pullup", n:"Weighted / assisted pull-up", rx:"4×5 · RIR 1–2", type:"wradd", st:2.5, start:{w:0,r:5},
            how:"Full hang to chin over the bar. kg = added load on a belt (0 = bodyweight, negative = assist). Add reps to 4×6 before adding weight.",
@@ -408,11 +406,11 @@ const PROGRAM = {
            cue:"Row to the hip pocket, 1 s squeeze. Right side first."}]},
         {label:"Barbell corner · superset", superset:true, items:[
           {id:"ohp", n:"Overhead press (barbell)", rx:"3×8 · RIR 3", type:"wr", st:2.5, start:{w:22.5,r:8},
-           how:"Standing barbell press — you ran it on 9 Aug and enjoyed it, so it's now the official press here. Landmine stays the fallback any day the shoulder grumbles; shoulder at 2+ = no pressing at all. Bring a pair of DBs to the rack for the curls — one spot, no walking.",
+           how:"Standing barbell press — you ran it on 9 Aug and enjoyed it, so it's now the official press here. Landmine stays the fallback any day the shoulder grumbles; shoulder at 2+ = no pressing at all. Curls use the same bar — one station, nothing to fetch.",
            cue:"Glutes tight, ribs down, bar over mid-foot at lockout. RIR 3 — the shoulder sets the ceiling, not the ego."},
-          {id:"db-curl", n:"Standing DB curl", rx:"3×10 · RIR 2", type:"wr", st:2, start:{w:10,r:10},
-           how:"kg = one DB. Your own 9 Aug superset, formalized.",
-           cue:"Elbows pinned to the ribs — curl, don't swing."}]},
+          {id:"bb-curl", n:"Barbell curl (same bar)", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:22.5,r:8},
+           how:"Your correction taken: same bar as the press, nothing to fetch. Handy coincidence — your press and curl loads currently match, so the bar needs no re-plating between lifts.",
+           cue:"Elbows pinned to the ribs — curl it, don't swing it."}]},
         {label:"One cable tower · superset", superset:true, items:[
           {id:"facepull", n:"Face-pull", rx:"3×15", type:"wr", st:2.5, start:{w:25,r:15},
            how:"Rope at face height; pull toward the bridge of your nose until the rope ends pass your ears. Pairs with the Pallof on the same tower — just move the pulley.",
@@ -420,10 +418,10 @@ const PROGRAM = {
           {id:"pallof", n:"Standing Pallof press", rx:"3×12 / side", type:"wr", st:2.5, start:{w:15,r:12}, r:true,
            how:"Same tower, pulley to chest height; stand side-on, press the handle straight out and hold.",
            cue:"Shoulders and hips stay square — resist the twist. Right side first."}]},
-        {label:"Accessory", items:[
-          {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×15", type:"wr", st:2.5, start:{w:15,r:15},
-           how:"Sit FACING the pec-deck machine, chest against the pad, handles in front of you; sweep the arms wide and back.",
-           cue:"Arms open like saloon doors — long arms, no shoulder-blade pinch."}]},
+        {label:"Vertical-pull back-off", items:[
+          {id:"latpulldown", n:"Lat pulldown", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:50,r:10},
+           how:"Your call, and correct: 4×5 pull-ups don't yet exhaust the vertical pull, so the pulldown finishes the job here. Same lift as push day — shared history and progression. Rear delts keep the face-pulls here and the pec-deck on pump day.",
+           cue:"Chest tall — drive the elbows down and back."}]},
         {label:"Core", items:[
           {id:"copenhagen", n:"Copenhagen plank", rx:"2×8 / side", type:"reps", start:{r:8}, r:true,
            how:"Side plank with the top leg's foot or shin on a bench, bottom leg hovering. Adductor/groin armour for lateral play.",
@@ -516,10 +514,7 @@ const PROGRAM = {
       note:"Pump-focused delts & arms, low fatigue before volleyball.",
       blocks:[
         {label:"Warm-up", items:[
-          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"},
-          {n:"Towel-whip drill", rx:"2×5 / side · slow → fast", type:"none",
-           how:"Slow-motion spike swing, then snap: hips, chest, elbow, hand — in that order.",
-           cue:"Crack it with the sequence, not the shoulder."}]},
+          {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"}]},
         {label:"Primary", main:true, items:[
           {id:"chest-press", n:"DB or machine chest press", rx:"4×10–12 · RIR 2", type:"wr", st:2, start:{w:16,r:10},
            how:"Flat DB or machine press. kg = one DB.",
@@ -549,9 +544,9 @@ const PROGRAM = {
       blocks:[
         {label:"Warm-up", items:[
           {n:"Band pull-aparts + shoulder CARs", rx:"2×15 / 5 each way", type:"none"},
-          {n:"Towel-whip drill", rx:"2×5 / side · slow → fast", type:"none",
-           how:"Slow-motion spike swing, then snap: hips, chest, elbow, hand — in that order.",
-           cue:"Crack it with the sequence, not the shoulder."}]},
+          {n:"Spike-pattern ball throw (optional)", rx:"2×5 / side", type:"none",
+           how:"Light soft ball, full spike swing into a wall — pattern grease, not technique surgery. Skip freely.",
+           cue:"Hips fire first; the arm arrives last."}]},
         {label:"Primary", main:true, items:[
           {id:"pullup", n:"Pull-up (assist as needed)", rx:"3×8–12", type:"wradd", st:2.5, start:{w:0,r:8},
            how:"kg = added load (0 = bodyweight, negative = assist).",
@@ -564,16 +559,17 @@ const PROGRAM = {
           {id:"ohp", n:"Overhead press (barbell)", rx:"3×8–10 · RIR 3", type:"wr", st:2.5, start:{w:22.5,r:8},
            how:"Standing barbell press. Landmine is the fallback on a grumbly-shoulder day; shoulder at 2+ = skip pressing entirely.",
            cue:"Ribs down, no lean-back. Reps before load while the shoulder rebuilds."},
-          {id:"db-curl", n:"Standing DB curl", rx:"3×10–12 · RIR 2", type:"wr", st:2, start:{w:10,r:10},
-           how:"kg = one DB — bring them to the rack.",
+          {id:"bb-curl", n:"Barbell curl (same bar)", rx:"3×10 · RIR 2", type:"wr", st:2.5, start:{w:22.5,r:10},
+           how:"Same bar as the press — one station, zero fetching.",
            cue:"Elbows pinned — no swing."}]},
         {label:"Accessory", items:[
           {id:"facepull", n:"Face-pull", rx:"3×20", type:"wr", st:2.5, start:{w:20,r:20},
            how:"Rope at face height, pull toward the bridge of the nose.",
-           cue:"Thumbs behind you at the finish."},
-          {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×15", type:"wr", st:2.5, start:{w:15,r:15},
-           how:"Sit facing the pec-deck, chest on the pad; sweep the arms wide and back.",
-           cue:"Arms open like saloon doors — no shoulder-blade pinch."}]},
+           cue:"Thumbs behind you at the finish."}]},
+        {label:"Vertical-pull back-off", items:[
+          {id:"latpulldown", n:"Lat pulldown (wide)", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:50,r:10},
+           how:"Finishes the vertical pull after the pull-ups. Shared history with push day.",
+           cue:"Chest tall — elbows down and back."}]},
         {label:"Core", items:[
           {id:"hangraise", n:"Hanging leg raise", rx:"3×8–12", type:"reps", start:{r:8},
            how:"Hang from a bar; raise knees (or straight legs) to hip height or higher. Knees-to-chest if straight legs arch the back.",
@@ -840,9 +836,9 @@ function bannersHtml(){
   if(!kneeFlag() && !lbFlag() && !shFlag() && fatigueFlag())
     h+=`<div class="banner">It's been 5+ weeks since a deload.
       <span class="bx">This week: keep loads, cut every exercise to 2 sets, skip throws &amp; bounds. Then mark it done in More.</span></div>`;
-  if(sessionsSinceBackup()>=6)
-    h+=`<div class="banner">💾 ${sessionsSinceBackup()} sessions since your last backup.
-      <span class="bx">One tap in the More tab — logs live only on this phone.</span></div>`;
+  if((state.meta.lastBackup===null && Object.keys(state.sessions).length>=2) || sessionsSinceBackup()>=4)
+    h+=`<div class="banner">💾 Back up now — ${state.meta.lastBackup===null?"no backup exists on this install":sessionsSinceBackup()+" sessions unbacked"}.
+      <span class="bx">iOS quietly deletes app storage after long inactivity — it has happened once. More tab → Back up now → Save to Files: 30 seconds of insurance. (Your monthly check-in also carries a full copy, and Import understands pasted check-ins.)</span></div>`;
   return h;
 }
 
@@ -1255,8 +1251,8 @@ async function doBackup(){
 document.getElementById("backupBtn").onclick=doBackup;
 function refreshBackupUi(){
   const n=sessionsSinceBackup();
-  document.getElementById("backupWarn").textContent = n>=6 ? "· "+n+" sessions unbacked" : "";
-  document.getElementById("moreDot").classList.toggle("hidden", n<6);
+  document.getElementById("backupWarn").textContent = (state.meta.lastBackup===null||n>=4) ? "· "+(state.meta.lastBackup===null?"never backed up":n+" sessions unbacked") : "";
+  document.getElementById("moreDot").classList.toggle("hidden", !(state.meta.lastBackup===null||n>=4));
 }
 
 /* Raw export / import */
@@ -1279,7 +1275,11 @@ document.getElementById("downloadBtn").onclick=()=>{
 };
 document.getElementById("importLoad").onclick=()=>{
   try{
-    const s=JSON.parse(document.getElementById("importText").value);
+    let txt=document.getElementById("importText").value.trim();
+    const fence=txt.match(/```json\s*([\s\S]*?)```/);
+    if(fence) txt=fence[1].trim();
+    else if(txt.indexOf("{")>0) txt=txt.slice(txt.indexOf("{"), txt.lastIndexOf("}")+1);
+    const s=JSON.parse(txt);
     if(typeof s!=="object"||!s) throw new Error("bad");
     state=normalize(s); save();
     curWeek=autoWeek(); curDay=({0:4,1:0,2:0,3:1,4:2,5:3,6:3}[new Date().getDay()] ?? 0);

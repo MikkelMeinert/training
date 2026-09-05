@@ -24,6 +24,25 @@ time-poor, concise evidence-based coaching. Full profile and rules live in
 
 ## 2. The current program (July 2026 block, in `training.html`)
 
+**v8 (5 September 2026, fifth check-in):** disrupted month — bike crash mid-Aug +
+week-long bike trip = ~2.5-week layoff (3 sessions, all upper). **Data-loss incident:**
+iOS evicted the app's localStorage during the ~12-day gap (lastBackup was null — the
+nag never converted). Full history rebuilt from check-in exports into
+`restore-2026-09-05.json` (23 exercises, 64 entries, merged by timestamp) — **check-in
+reports are de-facto backups; that redundancy saved everything.** App hardening: Import
+now extracts the JSON from a whole pasted check-in report; backup banner fires at 4
+unbacked sessions or a never-backed-up install with honest copy; docs mandate weekly
+app-opens. Program changes (his notes, all adopted): towel-whip drill retired (didn't
+feel like spike training — dry-land whip drills transfer poorly; optional light
+spike-ball wall throw on pull days instead; real fix = ball + video on court); OHP
+superset now uses **barbell curls on the same bar** (his original design — press and
+curl loads match at 22.5); **lat pulldown back-off on pull days** replaces reverse
+pec-deck (4×5 pull-ups doesn't exhaust his vertical pull — pec-deck lives on pump day).
+Body state: LB and R shoulder both 2 on Sept 3+4 (post-crash/bike-trip) → re-entry
+protocol active: no deadlift, no overhead pressing until quiet; legs restart ~-15–20%
+after the layoff. **Next check-in = indoor-season re-cut (late Sept): get the winter
+sport schedule, tighten knee care for hard-court landings.**
+
 **v7 (17 August 2026, fourth check-in):** best data yet — hip thrust 80×8 (e1RM +40%
 in six weeks), deadlift 70×8, pull-up unstuck at 6, knee/ham/back all quiet or trending
 down; deload logged 5 Aug. Changes, all Mikkel-driven: **KB swing retired** (technique

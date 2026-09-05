@@ -109,8 +109,14 @@ they live in the phone's storage, keyed to the URL, not in the file.
 
 - **Keep the URL forever.** New URL = empty app (use Export/Import to migrate).
 - **Safari required** for Add to Home Screen; afterwards it's its own app.
-- Deleting the home-screen app or clearing Safari website data deletes logs —
-  that's what the one-tap backup is for.
+- **Open the app at least once a week, even in off-weeks.** iOS silently deletes a web
+  app's storage after ~2 weeks of inactivity — this happened once (Sept 2026, recovered
+  from check-in exports). A 5-second open resets the clock; the readiness taps give the
+  visit a purpose.
+- Deleting the home-screen app or clearing Safari website data also deletes logs —
+  that's what the one-tap backup is for. **Every monthly check-in report carries a full
+  copy of your data**, and the Import box understands a whole pasted check-in report —
+  so worst case, recovery is one paste away.
 - After a block update, if the app looks stale: close it fully and reopen with
   internet once (the service worker fetches new versions network-first).
 

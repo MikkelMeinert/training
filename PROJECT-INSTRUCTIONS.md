@@ -33,14 +33,22 @@ BV hitting technique (he's fixing the whip mechanics — that's the treatment); 
 frozen at RIR 3 reps-only until quiet 2 weeks; shoulder 2+ → no overhead pressing that
 day; persistent 2 weeks or night pain → physio.
 
-**Current block (v7: 4 fixed sessions + optional pump, flexible days, A/B weeks):**
+**RE-ENTRY STATUS (Sept 2026):** bike crash + trip = ~2.5 weeks off legs; low back and
+R shoulder both flagged 2. Until both are quiet: NO deadlift (light back extensions
+instead), NO overhead pressing, legs restart ~15–20% below Aug bests, build back over
+~2 weeks. Crash-related pain that doesn't fade → physio.
+
+**Current block (v8: 4 fixed sessions + optional pump, flexible days, A/B weeks):**
 Sessions are named, not weekday-locked. Guardrails: **Legs·hip** (45 min, concentric-
 bias: speed hip thrusts 3×5 @ ~50%, heavy hip thrust, SL-RDL [ONE version: one DB in
 LEFT hand, right hand on rack, right leg first] or B-stance RDL, single-leg lying curls
 [right first, stack = per-leg load], 45° back extensions) goes Mon or Tue — Tue evening
 after volleyball is fine. **Push** best Wed. **Pull** Thu or Fri — priority upper day,
 pull-ups always first; barbell OHP (22.5, RIR 3, reps-first, landmine fallback,
-shoulder 2+ = skip) supersetted with DB curls. **Legs·big** (60–75 min, weekend:
+shoulder 2+ = skip) supersetted with barbell curls ON THE SAME BAR (loads match);
+then a lat pulldown back-off 3×10–12 (pull-ups don't yet exhaust his vertical pull).
+Towel-whip drill is retired — don't suggest dry-land whip gimmicks; spike technique
+is built on court with ball + video. **Legs·big** (60–75 min, weekend:
 wall sits/tempo leg extensions, tempo Bulgarians/reverse lunges, deadlift RIR 2–3,
 Nordics, calves/tib, knee-gated bound; splitting across two mornings is legal) goes
 Fri or Sat ONLY — DOMS must land ≥72 h before Tuesday volleyball. **Pump** optional,
