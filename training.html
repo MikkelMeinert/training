@@ -108,6 +108,9 @@
   .last{font-size:11.5px;color:var(--accent2);margin-top:7px;min-height:14px;}
   .last.empty{color:#5d6b7a;}
   .last .best{color:var(--muted);}
+  .chip{display:inline-block;border-radius:6px;padding:0 6px;font-size:10.5px;font-weight:700;margin-left:6px;font-style:normal;vertical-align:middle;}
+  .chip.up{color:var(--accent2);border:1px solid var(--accent2);}
+  .chip.amber{color:var(--warn);border:1px solid var(--warn);}
   /* readiness */
   .readiness{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     padding:12px var(--pad);margin:16px 0 4px;}
@@ -194,6 +197,8 @@
 
     <div class="panel">
       <h3>Bodyweight</h3>
+      <p class="info" style="font-size:12px;color:var(--muted);margin:0 0 8px">No scale at home — the PureGym
+        locker-room scale every few weeks, same time of day, is plenty. Leanness is priority 3.</p>
       <div class="bw">
         <input id="bwInput" type="number" inputmode="decimal" step="0.1" placeholder="kg">
         <button class="btn" id="bwSave">Log</button>
@@ -239,6 +244,7 @@
 
     <div class="panel">
       <h3>Backup <span id="backupWarn" style="color:var(--warn);font-size:11.5px;font-weight:600"></span></h3>
+      <p class="info" id="dataHealth" style="margin-bottom:6px;font-variant-numeric:tabular-nums"></p>
       <p class="info" style="margin-bottom:10px">Logs live on this phone only, and iOS can silently wipe
         them after ~2 weeks of not opening the app — open it weekly, back up every few sessions. Import
         accepts a raw backup <i>or</i> a whole pasted check-in report (it finds the data itself).</p>
@@ -311,7 +317,7 @@
   <button id="tab-more">More<span id="moreDot" class="hidden dot"></span></button>
 </div>
 
-<footer>Saved locally on this device · block updated 5 Sep 2026</footer>
+<footer>Saved locally on this device · block updated 5 Sep 2026 · app v9</footer>
 
 <script>
 "use strict";
@@ -397,7 +403,7 @@ const PROGRAM = {
            how:"A 1–2 kg soft med-ball thrown hard into a wall with your full spike swing — external load and real feedback on the hips → chest → elbow → hand sequence. Honest note: the swing itself is built on the court with a ball and video; this only greases the pattern. Skip freely — the towel drill is retired.",
            cue:"Hips fire first; the arm arrives last."}]},
         {label:"Primary", main:true, items:[
-          {id:"pullup", n:"Weighted / assisted pull-up", rx:"4×5 · RIR 1–2", type:"wradd", st:2.5, start:{w:0,r:5},
+          {id:"pullup", n:"Weighted / assisted pull-up", rx:"4×5–6 · RIR 1–2", type:"wradd", st:2.5, start:{w:0,r:5},
            how:"Full hang to chin over the bar. kg = added load on a belt (0 = bodyweight, negative = assist). Add reps to 4×6 before adding weight.",
            cue:"Set the shoulder blades down first, then pull the chest to the bar."}]},
         {label:"Secondary", items:[
@@ -447,7 +453,7 @@ const PROGRAM = {
            how:"From the floor, hinge and stand tall. Trap-bar if one is free (easier back angle); barbell works. Moderate loads, crisp reps — this is back medicine, not ego lifting.",
            cue:"Wedge in, push the floor away — bar close, long spine, no jerk off the floor."}]},
         {label:"Eccentric hamstring", items:[
-          {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–6", type:"reps", start:{r:4},
+          {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–8", type:"reps", start:{r:4},
            how:"Kneel with ankles anchored (partner, machine or a loaded bar), fall forward as slowly as you can, catch with the hands, push back up. Band or slider to scale.",
            cue:"Fight the fall with the hamstrings the whole way down."}]},
         {label:"Accessory", superset:true, items:[
@@ -598,7 +604,7 @@ const PROGRAM = {
            how:"Slightly lighter and higher-rep than week A — same crisp standard, same back medicine.",
            cue:"Bar close, long spine — every rep looks identical."}]},
         {label:"Eccentric hamstring", items:[
-          {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–6", type:"reps", start:{r:4},
+          {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–8", type:"reps", start:{r:4},
            how:"Ankles anchored, fall forward as slowly as possible, hands catch, push back. Band or slider to scale.",
            cue:"Slowest lower you can control — weekly hamstring insurance."}]},
         {label:"Accessory", superset:true, items:[
@@ -681,7 +687,7 @@ function normalize(s){
           meta:Object.assign(b.meta, s.meta||{}), ui:s.ui||{}, legacy:s.legacy};
 }
 let state = load();
-function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+function save(){ try{ state.meta.app="v9"; localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
 
 /* =====================================================================
    Helpers
@@ -776,9 +782,10 @@ function prCountBlock(){
   return n;
 }
 function sessionsSinceBackup(){
-  const lb = state.meta.lastBackup||0;
+  const lb = Math.max(state.meta.lastBackup||0, state.meta.lastCheckin||0);
   return Object.keys(state.sessions).filter(d=>new Date(d+"T23:59:00").getTime()>lb).length;
 }
+function dataIsSafe(){ return !!(state.meta.lastBackup || state.meta.lastCheckin); }
 
 /* Deload suggestion */
 function readyList(){ return Object.keys(state.ready).sort().map(d=>({d, ...state.ready[d]})); }
@@ -824,6 +831,9 @@ function renderDayTabs(){
 
 function bannersHtml(){
   let h="";
+  if(deloadActive())
+    h+=`<div class="banner">🛠 DELOAD WEEK — until ${state.meta.deloadUntil}.
+      <span class="bx">Every lift: 2 sets, keep the loads. Power and plyo blocks: skip. Ends automatically.</span></div>`;
   if(kneeFlag())
     h+=`<div class="banner">⚠ Knee has been 2+ twice this week.
       <span class="bx">Cut tempo-work loads, skip the lateral bound, keep the wall-sit isometrics. If it persists to next week: deload, and tell Claude at check-in.</span></div>`;
@@ -833,11 +843,12 @@ function bannersHtml(){
   if(shFlag())
     h+=`<div class="banner">⚠ Right shoulder has been 2+ twice this week.
       <span class="bx">Skip overhead pressing today — rows and pulldowns in a pain-free range are fine. Double the band ER, keep fixing the hitting technique (whip, not shoulder). Two weeks of this: physio, tell Claude.</span></div>`;
-  if(!kneeFlag() && !lbFlag() && !shFlag() && fatigueFlag())
+  if(!kneeFlag() && !lbFlag() && !shFlag() && !deloadActive() && fatigueFlag())
     h+=`<div class="banner">It's been 5+ weeks since a deload.
-      <span class="bx">This week: keep loads, cut every exercise to 2 sets, skip throws &amp; bounds. Then mark it done in More.</span></div>`;
-  if((state.meta.lastBackup===null && Object.keys(state.sessions).length>=2) || sessionsSinceBackup()>=4)
-    h+=`<div class="banner">💾 Back up now — ${state.meta.lastBackup===null?"no backup exists on this install":sessionsSinceBackup()+" sessions unbacked"}.
+      <span class="bx">One tap starts it — every card shows its deload dose for 7 days, then it ends itself.</span>
+      <button data-deload-start>Start deload week</button></div>`;
+  if((!dataIsSafe() && Object.keys(state.sessions).length>=2) || sessionsSinceBackup()>=4)
+    h+=`<div class="banner">💾 Back up now — ${!dataIsSafe()?"no backup exists on this install":sessionsSinceBackup()+" sessions unbacked"}.
       <span class="bx">iOS quietly deletes app storage after long inactivity — it has happened once. More tab → Back up now → Save to Files: 30 seconds of insurance. (Your monthly check-in also carries a full copy, and Import understands pasted check-ins.)</span></div>`;
   return h;
 }
@@ -885,12 +896,40 @@ function renderDay(){
   elProgram.innerHTML=html;
 
   elProgram.querySelectorAll("[data-done]").forEach(b=>b.addEventListener("click",onDoneToggle));
+  elProgram.querySelectorAll("[data-deload-start]").forEach(b=>b.addEventListener("click",()=>{
+    state.meta.deloadUntil=ymd(new Date(Date.now()+6*864e5));
+    state.meta.lastDeload=Date.now(); save(); renderDay();
+  }));
   elProgram.querySelectorAll("[data-stp]").forEach(b=>b.addEventListener("click",onStep));
   elProgram.querySelectorAll("[data-logbtn]").forEach(b=>b.addEventListener("click",onLog));
   bindTimer(); bindReadiness(d); bindNotes(d);
 }
 
 function exKey(d,bi,ii){ return curWeek+"-"+d.id+"|"+bi+"|"+ii; }
+
+/* ----- double-progression advisor ----- */
+function topReps(rx){ const m=rx.match(/×\s*(\d+)(?:[–-](\d+))?/); return m?parseInt(m[2]||m[1]):null; }
+function shRecent(){ const cutoff=Date.now()-14*864e5;
+  return readyList().some(r=>new Date(r.d).getTime()>cutoff && (r.sh||0)>=2); }
+const PRESS_IDS=["ohp","incline-press","chest-press","latraise","cable-latraise"];
+const NO_CHIP=["speed-hipthrust","legext-tempo"];
+function progChip(it){
+  if(!it.id || it.type==="none" || it.type==="w" || NO_CHIP.includes(it.id)) return "";
+  const le=lastEntry(it.id); if(!le || le.r==null) return "";
+  if(PRESS_IDS.includes(it.id) && shRecent()) return `<span class="chip amber">reps only · shoulder</span>`;
+  const top=topReps(it.rx); if(!top) return "";
+  if(le.r>=top) return `<span class="chip up">↑ ${it.type==="reps"?"range topped — extend it":"earned a jump"}</span>`;
+  return "";
+}
+
+/* ----- one-tap deload mode ----- */
+function deloadActive(){ return !!state.meta.deloadUntil && ymd() <= state.meta.deloadUntil; }
+function deloadBadge(blk,it){
+  if(!deloadActive() || blk.label==="Warm-up") return "";
+  if(/Power/i.test(blk.label)) return `<span class="chip amber">skip · deload</span>`;
+  if(it.type==="none") return "";
+  return `<span class="chip amber">deload: 2 sets · same load</span>`;
+}
 
 function exerciseHtml(d,blk,bi,it,ii){
   const key=exKey(d,bi,ii);
@@ -899,9 +938,15 @@ function exerciseHtml(d,blk,bi,it,ii){
       <p class="name">${it.n}${it.r?'<span class="r">R first</span>':""}${prBadge(it)}</p>
       <button class="chk ${doneOn?"on":""}" data-done="${key}" aria-label="mark done"></button>
     </div>
-    <p class="rx">${it.rx}</p>
+    <p class="rx">${it.rx}${deloadBadge(blk,it)}</p>
     ${it.cue?`<p class="cue"><b>Focus:</b> ${it.cue}</p>`:""}
     ${it.how?`<details class="how"><summary>What is this?</summary><p>${it.how}</p><a href="https://www.youtube.com/results?search_query=${encodeURIComponent(it.n+" form")}" target="_blank" rel="noopener">Watch a demo &#8599;</a></details>`:""}`;
+  if(!it.id && it.n.indexOf("Ramp-up")===0){
+    const mainIt=((d.blocks||[]).find(b=>b.main)||{items:[{}]}).items[0];
+    const le=mainIt.id?lastEntry(mainIt.id):null;
+    if(le && le.w){ const rr=x=>Math.round(le.w*x/2.5)*2.5;
+      inner+=`<p class="cue">≈ ${rr(0.5)} kg, then ≈ ${rr(0.75)} kg (from your last ${le.w} kg top set)</p>`; }
+  }
 
   if(it.id && it.type!=="none"){
     const te=todayEntry(it.id), le=lastEntry(it.id), start=it.start||{};
@@ -920,7 +965,7 @@ function exerciseHtml(d,blk,bi,it,ii){
         <span class="u">reps</span>
         <button data-stp="+r" data-ex="${it.id}">+</button></span>`;
     inner+=`<button class="logbtn ${te?"saved":""}" data-logbtn="${it.id}" data-st="${it.st||2.5}">${te?"✓":"Log"}</button></div>`;
-    inner+=`<div class="${le?"last":"last empty"}" id="last-${it.id}-${bi}-${ii}">${lastLine(it.id)}</div>`;
+    inner+=`<div class="${le?"last":"last empty"}" id="last-${it.id}-${bi}-${ii}">${lastLine(it.id)} ${progChip(it)}</div>`;
   }
   return `<div class="ex ${blk.main?"main":""} ${doneOn?"done":""}" id="card-${key.replace(/[|]/g,"_")}">${inner}</div>`;
 }
@@ -1217,10 +1262,12 @@ document.getElementById("checkinShare").onclick=async()=>{
   const text=document.getElementById("checkinText").value||buildCheckin();
   if(navigator.share){ try{ await navigator.share({text}); }catch(e){} }
   else { copyText(text); alert("Sharing not available — copied instead. Paste it to Claude."); }
+  state.meta.lastCheckin=Date.now(); save(); refreshBackupUi();
 };
 document.getElementById("checkinCopy").onclick=()=>{
   copyText(document.getElementById("checkinText").value||buildCheckin());
-  alert("Copied — paste it to Claude.");
+  state.meta.lastCheckin=Date.now(); save(); refreshBackupUi();
+  alert("Copied — paste it to Claude. (Counts as a backup: the report carries all your data.)");
 };
 function copyText(t){
   if(navigator.clipboard) navigator.clipboard.writeText(t).catch(()=>{});
@@ -1251,8 +1298,12 @@ async function doBackup(){
 document.getElementById("backupBtn").onclick=doBackup;
 function refreshBackupUi(){
   const n=sessionsSinceBackup();
-  document.getElementById("backupWarn").textContent = (state.meta.lastBackup===null||n>=4) ? "· "+(state.meta.lastBackup===null?"never backed up":n+" sessions unbacked") : "";
-  document.getElementById("moreDot").classList.toggle("hidden", !(state.meta.lastBackup===null||n>=4));
+  const risk=!dataIsSafe()||n>=4;
+  document.getElementById("backupWarn").textContent = risk ? "· "+(!dataIsSafe()?"never backed up":n+" sessions unbacked") : "";
+  document.getElementById("moreDot").classList.toggle("hidden", !risk);
+  const ago=t=>t?Math.round((Date.now()-t)/864e5)+" d ago":"never";
+  const el=document.getElementById("dataHealth");
+  if(el) el.textContent=`${Object.keys(state.logs).length} lifts · ${Object.values(state.logs).reduce((s,a)=>s+a.length,0)} entries · backup: ${ago(state.meta.lastBackup)} · check-in: ${ago(state.meta.lastCheckin)}`;
 }
 
 /* Raw export / import */
@@ -1290,7 +1341,7 @@ document.getElementById("importLoad").onclick=()=>{
 };
 
 document.getElementById("deloadDone").onclick=()=>{
-  state.meta.lastDeload=Date.now(); save(); renderDay();
+  state.meta.lastDeload=Date.now(); state.meta.deloadUntil=null; save(); renderDay();
   alert("Deload logged — next one suggested in ~5 weeks, sooner if the knee flags.");
 };
 document.getElementById("resetBtn").onclick=()=>{

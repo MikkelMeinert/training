@@ -24,6 +24,19 @@ time-poor, concise evidence-based coaching. Full profile and rules live in
 
 ## 2. The current program (July 2026 block, in `training.html`)
 
+**v9 (5 September 2026, same day — expert-pass features, Mikkel's invitation):**
+the app now answers "what should I lift next" itself: **double-progression advisor**
+("↑ earned a jump" chip when last log tops the rx rep range; "reps only · shoulder"
+on pressing IDs while the shoulder flagged 2 within 14 days); **ramp-up kilos** computed
+from the day's main lift; **one-tap deload mode** (banner button → 7 days of per-card
+"2 sets · same load" / "skip" badges, auto-expires, suppresses the fatigue nag);
+**data-health line** in More; **check-in share/copy counts as a backup** (dataIsSafe =
+backup OR check-in). Rep-range fixes for advisor honesty: pull-up 4×5–6, Nordic 3×4–8.
+meta.app version stamp added. Rejected on principle: per-set logging, RIR logging,
+cloud sync, more charts — intelligence without added taps. NOTE for regeneration: rx
+rep ranges drive the advisor; keep them honest. Backup verified restored (23 lifts,
+64 entries) via his own uploaded backup file.
+
 **v8 (5 September 2026, fifth check-in):** disrupted month — bike crash mid-Aug +
 week-long bike trip = ~2.5-week layoff (3 sessions, all upper). **Data-loss incident:**
 iOS evicted the app's localStorage during the ~12-day gap (lastBackup was null — the
