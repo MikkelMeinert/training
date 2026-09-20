@@ -37,6 +37,41 @@ cloud sync, more charts — intelligence without added taps. NOTE for regenerati
 rep ranges drive the advisor; keep them honest. Backup verified restored (23 lifts,
 64 entries) via his own uploaded backup file.
 
+**v10 (20 September 2026, sixth check-in) — biggest change since v2.**
+
+*Program restructured at his request:* he reliably hits four sessions and wants **2 lower +
+2 upper**, with the upper days carrying both push and pull rather than being split.
+Solution: the two upper days divide by **movement plane** — **Upper · vertical**
+(pull-up → pulldown → [OHP + barbell curl, one bar] → [face-pull + Pallof, one tower] →
+hang) and **Upper · horizontal** (CS row → cable row → incline press → reverse pec-deck →
+laterals → triceps → Copenhagen). Both open with a pull; week runs ~62% pull volume, which
+the app now measures. Lower days keep their roles and were renamed **Lower · power** /
+**Lower · strength**. Winter sport: squash Mon 17–19, two indoor volleyball nights (TBC),
+**Friday-morning padel from October — which is why Lower · strength defaults to Saturday**,
+plus a fun session; peak weeks are 5 sport + 4 gym, sustained by deliberate fuelling.
+
+*Exercise changes, all from his notes:* med-ball throws **dropped, not replaced** (no way to
+do them; sport supplies rotational power); **bar hangs** promoted to a real loggable
+exercise (his own find, for low-back decompression); **banded terminal knee extension**
+added — he asked if it was placebo, it isn't, it's standard patellofemoral rehab; wall sits
+progressed to 45–60 s at 10–15 kg; lying-curl history **repaired by migration** (he'd been
+logging doubled two-legged numbers for single-leg work — halved, so 17.5/leg reads as the
+PR it is); DB curls retired in favour of the barbell.
+
+*The intelligence layer he asked for* ("it still feels quite naive"): **readiness gates** —
+each exercise declares the structure it stresses, and a 2+ tap rewrites that card in amber
+(deadlift → SKIP, hip thrust → 60%, OHP → benched, bound → skip, spine-safe work explicitly
+kept); **concrete next loads** ("↑ try 82.5 kg × 6"); **week planner** on the session chips
+(✓ done this week, suggested next, 3-clear-days rule between lower days); **pull:push
+balance meter**; **stall detection**; and the banner stack replaced by a **compact status
+strip** of pills that expands on tap — which also answers his "too much text at the top".
+
+*Health:* acute **left lower-back strain from off-gym lifting on 11 Sept**, rated 3/2/2
+across 15–20 Sept. **Physio referral given** — follow up next time. Deadlift and loaded
+hinging withheld until two days at 0–1. Pull-up, pulldown and face-pull are all flagged
+stalled after a fragmented month (crash → trip → back strain); that's re-entry, not a
+programming fault.
+
 **v8 (5 September 2026, fifth check-in):** disrupted month — bike crash mid-Aug +
 week-long bike trip = ~2.5-week layoff (3 sessions, all upper). **Data-loss incident:**
 iOS evicted the app's localStorage during the ~12-day gap (lastBackup was null — the

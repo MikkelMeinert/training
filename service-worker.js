@@ -4,7 +4,7 @@
      falling back to the cached copy when offline.
    - Static assets (icons, manifest): cache-first.
    Bump CACHE when you redeploy a new program so old caches are cleared. */
-const CACHE = "training-v10";
+const CACHE = "training-v11";
 const ASSETS = [
   "training.html",
   "manifest.webmanifest",
