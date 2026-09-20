@@ -79,8 +79,11 @@ Upper warm-ups are band cuff work only — dry-land spike drills were tried and 
 +2.5–5 kg lower / +1–2.5 kg upper. Pull-ups: reps before load. Progress pressing and
 pulling hardest (most headroom); hold legs steady when sport volume spikes.
 
-**Deload (trigger-based):** knee rated 2+ twice in a week, or ~5 weeks without one →
-keep loads, cut everything to 2 sets, skip throws/bounds for the week.
+**Deload (work-based, not calendar-based):** 18 sessions since the last reset, or knee
+2+ twice in a week → keep loads, 2 sets per exercise, skip power work for the week.
+**A layoff of 10+ days IS a deload** — never prescribe one to someone just back from
+illness, injury or travel; that's re-entry at ~80–85% of previous loads instead, easing
+knee and back work in slowest.
 
 **The app coaches him between check-ins now** (v10): it prints the concrete next load
 ("↑ try 82.5 kg × 6"), rewrites any exercise in amber when he rates the relevant

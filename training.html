@@ -830,10 +830,41 @@ function sessionsSinceBackup(){
   return Object.keys(state.sessions).filter(d=>new Date(d+"T23:59:00").getTime()>lb).length;
 }
 function deloadActive(){ return !!state.meta.deloadUntil && ymd() <= state.meta.deloadUntil; }
+/* A layoff IS a deload. Fatigue accumulates per session, not per calendar week — so the
+   deload clock counts sessions since the last reset, and any 10+ day gap resets it. */
+const LAYOFF_DAYS = 10, DELOAD_SESSIONS = 18;
+function sessionDates(){ return Object.keys(state.sessions).sort(); }
+function layoffDays(){
+  const ds=sessionDates(); if(!ds.length) return 999;
+  return Math.round((Date.now()-new Date(ds[ds.length-1]+"T12:00").getTime())/864e5);
+}
+function lastGapReset(){
+  const ds=sessionDates(); if(!ds.length) return null;
+  let reset=null;
+  for(let i=1;i<ds.length;i++){
+    const gap=(new Date(ds[i]+"T12:00")-new Date(ds[i-1]+"T12:00"))/864e5;
+    if(gap>=LAYOFF_DAYS) reset=ds[i];
+  }
+  if(layoffDays()>=LAYOFF_DAYS) reset=ymd();
+  return reset;
+}
+function deloadAnchorTs(){
+  const a = state.meta.lastDeload || new Date(state.meta.blockStart+"T00:00:00").getTime();
+  const g = lastGapReset();
+  return Math.max(a, g ? new Date(g+"T12:00").getTime() : 0);
+}
+function sessionsSinceAnchor(){
+  const t=deloadAnchorTs();
+  return sessionDates().filter(d=>new Date(d+"T23:59:00").getTime()>t).length;
+}
+function reEntry(){
+  if(layoffDays()>=LAYOFF_DAYS) return true;
+  const g=lastGapReset();
+  return !!g && (Date.now()-new Date(g+"T12:00").getTime())/864e5 <= LAYOFF_DAYS;
+}
 function fatigueDue(){
-  const anchor = state.meta.lastDeload ? new Date(state.meta.lastDeload).getTime()
-                                       : new Date(state.meta.blockStart+"T00:00:00").getTime();
-  return (Date.now()-anchor) > 35*864e5 && Object.keys(state.sessions).length>=6;
+  if(layoffDays()>=LAYOFF_DAYS) return false;          // already resting — nothing to deload
+  return sessionsSinceAnchor()>=DELOAD_SESSIONS && (Date.now()-deloadAnchorTs())>28*864e5;
 }
 
 /* ---------- intelligence: progression advisor ---------- */
@@ -977,7 +1008,12 @@ function renderStrip(){
   }
   if(!deloadActive() && fatigueDue()){
     pills.push(`<span class="pill info">deload due</span>`);
-    details.push(`<p><b>5+ weeks without a deload.</b> <button data-deload-start>Start deload week</button></p>`);
+    details.push(`<p><b>${sessionsSinceAnchor()} hard sessions since your last reset.</b> That's enough accumulated work to warrant a week at 2 sets. <button data-deload-start>Start deload week</button></p>`);
+  }
+  if(!deloadActive() && reEntry()){
+    pills.push(`<span class="pill info">re-entry</span>`);
+    const lay=layoffDays();
+    details.push(`<p><b>${lay>=LAYOFF_DAYS?`${lay} days since your last session`:"Just back from a break"}.</b> A layoff is a deload — the fatigue clock has reset itself, so no deload is owed. Come back at ~80–85% of your last loads for the first week and let the app's suggestions climb from there. Tendons re-adapt slower than muscle: ease the knee and back work in particular.</p>`);
   }
   pills.push(`<span class="pill">${sessionsThisWeek()}/4 this week</span>`);
 
