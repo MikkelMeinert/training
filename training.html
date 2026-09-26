@@ -195,6 +195,40 @@
   .tabbar button .dot{position:absolute;top:8px;right:calc(50% - 26px);width:7px;height:7px;
     border-radius:50%;background:var(--warn);}
   .hidden{display:none;}
+  /* sport & activity */
+  .acts{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px var(--pad);margin:14px 0 2px;}
+  .acthead{display:flex;align-items:center;gap:8px;}
+  .acthead .rlbl,.addex .rlbl{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);font-weight:700;}
+  .actsum{font-size:12px;color:var(--muted);margin-left:auto;text-align:right;}
+  .btn.sm{padding:6px 11px;font-size:12px;}
+  .actlist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+  .actchip{display:inline-flex;align-items:center;gap:4px;font-size:12px;background:var(--card2);border:1px solid var(--line);
+    border-radius:999px;padding:3px 4px 3px 10px;color:var(--txt);}
+  .actchip.court{border-color:#25406b;}
+  .actchip button{background:none;border:none;color:var(--muted);font-size:15px;line-height:1;padding:0 5px;cursor:pointer;}
+  .actform{margin-top:10px;display:grid;gap:9px;}
+  .opts{display:flex;flex-wrap:wrap;gap:6px;}
+  .opts button{padding:7px 11px;border:1px solid var(--line);background:var(--card2);color:var(--muted);
+    border-radius:9px;font-size:12.5px;font-weight:600;cursor:pointer;}
+  .opts button.on{background:var(--accent);border-color:var(--accent);color:#06101f;}
+  .actform .flbl{font-size:11px;color:var(--muted);margin:0 0 4px;}
+  .actform input[type=text]{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);
+    border-radius:9px;padding:8px 10px;font-size:13px;font-family:inherit;}
+  .actok{font-size:12px;color:var(--accent2);margin:8px 0 0;}
+  /* exercise search */
+  .addex{background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);padding:12px var(--pad);margin:14px 0 4px;}
+  .addex input{width:100%;margin-top:8px;background:var(--card2);border:1px solid var(--line);color:var(--txt);
+    border-radius:9px;padding:10px 11px;font-size:14px;font-family:inherit;-webkit-appearance:none;}
+  .res{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;
+    background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-top:6px;cursor:pointer;color:var(--txt);font-family:inherit;}
+  .res .rn2{font-size:13.5px;font-weight:650;}
+  .res .rw{font-size:11.5px;color:var(--muted);margin-top:1px;}
+  .res .ra{font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap;}
+  .res.here .ra{color:var(--muted);}
+  .nores{font-size:12px;color:#5d6b7a;margin:8px 0 0;}
+  .from{font-size:11.5px;color:var(--muted);margin:3px 0 0;}
+  .from button{background:none;border:none;color:var(--right);font-size:11.5px;font-weight:600;padding:0 0 0 6px;cursor:pointer;}
+  .ex.flash{animation:prglow 1.6s ease-out;}
 </style>
 </head>
 <body>
@@ -221,6 +255,14 @@
     <div class="panel">
       <h3>Pull : push balance <span style="font-size:11px;color:var(--muted);font-weight:400">· last 28 days</span></h3>
       <div id="balanceBox"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Sport &amp; activity <span style="font-size:11px;color:var(--muted);font-weight:400">· hours per week, last 8 weeks</span></h3>
+      <div class="chartbox" id="actChart"></div>
+      <div class="legend"><span><i style="background:var(--accent)"></i>Court (squash, volleyball, padel, tennis)</span>
+        <span><i style="background:var(--accent2)"></i>Other (rides etc.)</span></div>
+      <div id="actTable" style="margin-top:8px"></div>
     </div>
 
     <div class="panel">
@@ -310,6 +352,11 @@
         line, not the printed prescription.</p>
       <p><b>Progression.</b> Hit the top of the rep range on all sets at the target RIR and the card tells you
         the next load. Below the top, chase reps. Right side leads every unilateral lift.</p>
+      <p><b>Sport &amp; activity.</b> Log anything of about an hour or more that isn't the commute — squash,
+        volleyball, padel, rides — from the card at the top of Train. Two taps: the sport, then Save (time and effort
+        prefill from last time). Court hours are the knee's biggest load, and the app warns when three days stack up.</p>
+      <p><b>Doing something that isn't on today's card?</b> Search for it at the bottom of the session and it's added
+        to today, with its full history.</p>
       <p><b>Deload</b> when the app offers it: one tap, 7 days of 2 sets per exercise, power work skipped,
         then it ends itself.</p>
       <div class="row" style="margin-top:10px">
@@ -326,7 +373,7 @@
   <button id="tab-more">More<span id="moreDot" class="hidden dot"></span></button>
 </div>
 
-<footer>Saved locally on this device · block 20 Sep 2026 · app v10</footer>
+<footer>Saved locally on this device · block 20 Sep 2026 · app v10.2</footer>
 
 <script>
 "use strict";
@@ -483,9 +530,9 @@ A:{days:[
          how:"Ankles anchored, fall forward as slowly as you can control, hands catch, push back. Band or slider to scale. Best-evidenced hamstring-injury prevention exercise in sport — weekly, low dose, forever.",
          cue:"Fight the fall the whole way down."}]},
       {label:"Same spot · superset", superset:true, items:[
-        {id:"calf", n:"Standing calf raise", rx:"3×12–15", type:"wr", st:2.5, start:{w:35,r:12}, cls:"legs",
-         how:"Full range, pause the bottom stretch. Ankle stiffness is jump return.",
-         cue:"Drive tall onto the big toes."},
+        {id:"calf-sl", n:"Single-leg calf raise — per foot", rx:"3×12–15 / foot", type:"wr", st:2.5, start:{w:17.5,r:12}, r:true, cls:"legs",
+         how:"One foot at a time so the left can't hide the right. Log the external load for ONE foot (DB in the working-side hand, other hand on the rack). Full range, pause the bottom stretch — ankle stiffness is jump return. Not comparable with the old two-foot numbers: your whole bodyweight is now on one leg.",
+         cue:"Right foot first. Drive tall onto the big toe."},
         {id:"tib", n:"Tibialis raise", rx:"2×15–20", type:"reps", start:{r:15}, cls:"legs",
          how:"Heels down, toes lifted toward the shins. Landing control and knee health, especially on hard court.",
          cue:"Slow both ways."}]},
@@ -653,7 +700,7 @@ B:{days:[
          how:"Slowest lower you can control. Weekly insurance.",
          cue:"Fight the fall."}]},
       {label:"Same spot · superset", superset:true, items:[
-        {id:"calf", n:"Standing calf raise", rx:"4×15", type:"wr", st:2.5, start:{w:35,r:15}, cls:"legs", cue:"Pause the stretch."},
+        {id:"calf-sl", n:"Single-leg calf raise — per foot", rx:"3×15 / foot", type:"wr", st:2.5, start:{w:17.5,r:15}, r:true, cls:"legs", cue:"Right foot first. Pause the stretch."},
         {id:"tib", n:"Tibialis raise", rx:"2×20", type:"reps", start:{r:20}, cls:"legs", cue:"Slow both ways."}]},
       {label:"Power (knee-gated)", items:[
         {id:"bound", n:"Lateral bound — stick the landing", rx:"3×4 / side", type:"reps", start:{r:4}, r:true, cls:"legs",
@@ -692,7 +739,8 @@ const RETIRED = {
   "press-std":{name:"DB / landmine press (retired)", type:"wr", cls:"push"},
   stepup:{name:"Step-up (retired)", type:"wr", cls:"legs"},
   "goblet-stepup":{name:"Goblet step-up (retired)", type:"wr", cls:"legs"},
-  "db-curl":{name:"DB curl (retired — barbell now)", type:"wr", cls:"pull"}
+  "db-curl":{name:"DB curl (retired — barbell now)", type:"wr", cls:"pull"},
+  calf:{name:"Standing calf raise — two feet (retired, single-leg now)", type:"wr", cls:"legs"}
 };
 Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
 
@@ -702,26 +750,42 @@ Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
 const STORE_KEY = "mikkel_training_v2";
 
 function blankState(){
-  return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{},
+  return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{},
           meta:{lastBackup:null, lastCheckin:null, lastDeload:null, deloadUntil:null,
-                blockStart:BLOCK_START, app:"v10"}, ui:{}};
+                blockStart:BLOCK_START, app:"v10.2"}, ui:{}};
 }
 function normalize(s){
   const b = blankState();
   const st = {logs:s.logs||b.logs, bw:s.bw||b.bw, done:s.done||b.done,
           notesArr:s.notesArr||b.notesArr, ready:s.ready||b.ready, sessions:s.sessions||b.sessions,
-          meta:Object.assign(b.meta, s.meta||{}), ui:s.ui||{}, legacy:s.legacy};
+          meta:Object.assign(b.meta, s.meta||{}), ui:s.ui||{}, legacy:s.legacy,
+          acts:Array.isArray(s.acts)?s.acts:b.acts, extra:(s.extra&&typeof s.extra==="object")?s.extra:b.extra};
   return migrate(st);
 }
 /* One-time repair: lying curls were logged as doubled ("two-legged") numbers
    while actually being performed one leg at a time. Halve everything before
    the first correctly-logged per-leg entry so the trend tells the truth. */
 const LC_FIX_BEFORE = 1789909132527;
+const CALF_SL_FROM = Date.parse("2026-09-26T00:00:00+02:00");
 function migrate(st){
   if(!st.meta.lcFixed && st.logs && st.logs.lyingcurl){
     st.logs.lyingcurl = st.logs.lyingcurl.map(e =>
       (e.ts < LC_FIX_BEFORE && e.w) ? Object.assign({}, e, {w: Math.round(e.w/2*10)/10}) : e);
     st.meta.lcFixed = true;
+  }
+  /* Calf raises went single-leg on 26 Sep 2026. That day's entry was logged as the
+     two-foot equivalent (35) for 17.5 kg on one foot — move it to calf-sl at the real
+     per-foot load. Older two-foot history stays under the retired "calf" id and is NOT
+     halved: one foot carries the whole bodyweight, so the lifts aren't comparable. */
+  if(!st.meta.calfSl && st.logs && st.logs.calf){
+    const keep=[], move=[];
+    st.logs.calf.forEach(e => (e.ts >= CALF_SL_FROM ? move : keep).push(e));
+    if(move.length){
+      st.logs["calf-sl"] = (st.logs["calf-sl"]||[]).concat(
+        move.map(e => Object.assign({}, e, {w: Math.round((e.w||0)/2*10)/10}))).sort((a,b)=>a.ts-b.ts);
+      st.logs.calf = keep;
+    }
+    st.meta.calfSl = true;
   }
   return st;
 }
@@ -733,14 +797,14 @@ function load(){
   }catch(e){ return blankState(); }
 }
 let state = load();
-function save(){ try{ state.meta.app="v10"; localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+function save(){ try{ state.meta.app="v10.2"; localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
 
 /* =====================================================================
    Helpers
 ===================================================================== */
 function ymd(d){ d=d||new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function fmtDate(ts){ return new Date(ts).toLocaleDateString("en-GB",{day:"numeric",month:"short"}); }
-function escapeHtml(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function round1(x){ return Math.round(x*10)/10; }
 function latestBw(){ return (state.bw && state.bw.length) ? state.bw[state.bw.length-1].kg : 83; }
 function e1rm(w,r){ return r>0 ? w*(1+r/30) : w; }
@@ -894,6 +958,66 @@ function advice(it){
   return `<span class="chip flat">→ aim ${le.w} kg × ${tgt}</span>`;
 }
 /* ---------- intelligence: readiness gates ---------- */
+/* ---------- sport & activity log ----------
+   Anything of ~1 h+ that isn't the commute. Court sports carry the jump and cutting load the knee
+   cares about, so they're flagged; minutes × effort (session RPE) gives a load number for check-ins. */
+const ACTS = {
+  squash:{n:"Squash", court:true, min:90},
+  bvb:   {n:"Beach volleyball", court:true, min:120},
+  vb:    {n:"Volleyball · hard court", court:true, min:120},
+  padel: {n:"Padel", court:true, min:90},
+  tennis:{n:"Tennis", court:true, min:90},
+  gravel:{n:"Gravel ride", court:false, min:180},
+  other: {n:"Other", court:false, min:60}
+};
+const EFFORT = [[3,"Easy"],[5,"Moderate"],[7,"Hard"],[9,"All-out"]];
+const COURT_72H_MIN = 360;   /* 6 h+ of court in 3 days = a big jump/cutting block for the knee */
+function dateShift(n,from){ const d=from?new Date(from+"T12:00"):new Date(); d.setDate(d.getDate()-n); return ymd(d); }
+function isCourt(a){ return !!(ACTS[a.type]||{}).court; }
+function actName(a){ return (a.type==="other" && a.name) ? a.name : ((ACTS[a.type]||{}).n || a.type); }
+function fmtMin(m){ return m>=60 ? round1(m/60)+" h" : m+" min"; }
+function effortName(r){ const e=EFFORT.find(x=>x[0]===r); return e?e[1]:("RPE "+r); }
+function lastActOf(type){ const a=(state.acts||[]).filter(x=>x.type===type); return a.length?a[a.length-1]:null; }
+function actsBetween(fromD,toD){ return (state.acts||[]).filter(a=>a.date>=fromD && a.date<=toD); }
+function actsSince(days){ return actsBetween(dateShift(days-1), ymd()); }
+function courtMinBetween(fromD,toD){ return actsBetween(fromD,toD).filter(isCourt).reduce((s,a)=>s+(a.min||0),0); }
+function courtMin(days){ return courtMinBetween(dateShift(days-1), ymd()); }
+function actsThisWeek(){ const wk=isoWeek(ymd()); return (state.acts||[]).filter(a=>isoWeek(a.date)===wk); }
+function peakCourt3d(days){ let best=0, when=null;
+  for(let i=0;i<days;i++){ const end=dateShift(i), m=courtMinBetween(dateShift(2,end), end); if(m>best){best=m; when=end;} }
+  return {min:best, end:when}; }
+
+/* ---------- exercise search: every exercise the app knows, current week's version first ---------- */
+const ALIASES={rfess:"bss split squat", ohp:"military shoulder press", tke:"terminal knee band", "legext-tempo":"quad",
+  csrow:"dumbbell db", "calf-sl":"calves", tib:"shin tibialis", lyingcurl:"hamstring leg curl", nordic:"hamstring",
+  hipthrust:"glute bridge", "speed-hipthrust":"glute power", slrdl:"romanian hinge", "bstance-rdl":"romanian hinge kickstand",
+  deadlift:"hinge trap bar", backext:"hyperextension lower back", hang:"dead hang decompress", facepull:"rear delt rope",
+  revpecdeck:"rear delt fly", latraise:"side delt shoulder", "cable-latraise":"side delt shoulder", "oh-triceps":"arms",
+  "bb-curl":"biceps arms", "db-curl":"biceps arms", pallof:"anti rotation core", copenhagen:"adductor groin side plank core",
+  hangraise:"abs core", wallsit:"isometric quad knee", bound:"plyo jump", pullup:"chin", latpulldown:"lats"};
+function norm(x){ return String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim(); }
+function catalog(){
+  const out=[], seen={};
+  [curWeek, curWeek==="A"?"B":"A"].forEach(w=>PROGRAM[w].days.forEach(d=>(d.blocks||[]).forEach(b=>b.items.forEach(it=>{
+    if(!it.id || it.type==="none" || seen[it.id]) return;
+    seen[it.id]=1; out.push({it, where:d.day});
+  }))));
+  Object.keys(RETIRED).forEach(id=>{
+    if(seen[id]) return; seen[id]=1;
+    const m=RETIRED[id]; out.push({it:{id, n:m.name, rx:"", type:m.type, cls:m.cls, st:2.5}, where:"retired"});
+  });
+  return out;
+}
+function catalogItem(id){ return catalog().find(c=>c.it.id===id)||null; }
+function searchExercises(q){
+  const toks=norm(q).split(" ").filter(Boolean); if(!toks.length) return [];
+  return catalog().filter(c=>{
+    const hay=" "+norm(c.it.n+" "+c.it.id+" "+(ALIASES[c.it.id]||"")+" "+c.where)+" ";
+    return toks.every(t=>hay.indexOf(t)>=0);
+  }).sort((a,b)=>(a.where==="retired")-(b.where==="retired")).slice(0,8);
+}
+function extrasFor(d){ return ((state.extra||{})[ymd()]||[]).filter(x=>x.day===d.id); }
+
 const STRUCT={lb:"lower back", knee:"knee", sh:"right shoulder", rs:"right hamstring"};
 function gateFor(it){
   if(!it.gate) return null;
@@ -1015,7 +1139,13 @@ function renderStrip(){
     const lay=layoffDays();
     details.push(`<p><b>${lay>=LAYOFF_DAYS?`${lay} days since your last session`:"Just back from a break"}.</b> A layoff is a deload — the fatigue clock has reset itself, so no deload is owed. Come back at ~80–85% of your last loads for the first week and let the app's suggestions climb from there. Tendons re-adapt slower than muscle: ease the knee and back work in particular.</p>`);
   }
-  pills.push(`<span class="pill">${sessionsThisWeek()}/4 this week</span>`);
+  const c72=courtMin(3);
+  if(c72>=COURT_72H_MIN){
+    pills.push(`<span class="pill warn">court ${fmtMin(c72)} / 3 d</span>`);
+    details.push(`<p><b>${fmtMin(c72)} of court sport in three days.</b> That's a big jump load for the knee. Rate it honestly today, and trim lunges and bounds first — keep the wall sits and TKE.</p>`);
+  }
+  const nAct=actsThisWeek().length;
+  pills.push(`<span class="pill">${sessionsThisWeek()}/4 gym${nAct?` · ${nAct} sport`:""}</span>`);
 
   el.innerHTML = pills.join("") + (details.length?`<span class="more">${stripOpen?"tap to hide":"tap for detail"}</span>`:"");
   det.innerHTML = details.join("");
@@ -1068,7 +1198,7 @@ function renderDay(){
     total++; if(state.done[exKey(d,bi,ii)]===ymd()) doneN++;
   }));
 
-  let html=`<div class="dayhead">
+  let html=activityHtml()+`<div class="dayhead">
       <div><span class="focus">${d.focus}</span>
       <h2>${d.day} — <span style="color:var(--muted);font-weight:500;font-size:13px">${d.sport}</span></h2></div>
       <span class="progress">${doneN}/${total} done</span>
@@ -1088,16 +1218,126 @@ function renderDay(){
     html+=`</div>`;
   });
 
+  const xs=extrasFor(d);
+  if(xs.length){
+    html+=`<div class="block"><p class="label">Added today</p>`;
+    xs.forEach(x=>{ const c=catalogItem(x.id); if(c) html+=exerciseHtml(d,{label:"Added today"},"x",c.it,x.id,c.where); });
+    html+=`</div>`;
+  }
+  html+=searchHtml(d);
   html+=readinessHtml(d)+notesHtml(d);
   elProgram.innerHTML=html;
 
   elProgram.querySelectorAll("[data-done]").forEach(b=>b.addEventListener("click",onDoneToggle));
   elProgram.querySelectorAll("[data-stp]").forEach(b=>b.addEventListener("click",onStep));
   elProgram.querySelectorAll("[data-logbtn]").forEach(b=>b.addEventListener("click",onLog));
-  bindTimer(); bindReadiness(d); bindNotes(d);
+  bindTimer(); bindReadiness(d); bindNotes(d); bindActs(); bindSearch(d);
 }
 
-function exerciseHtml(d,blk,bi,it,ii){
+/* ---------- sport & activity card ---------- */
+let actOpen=false, actDraft=null, actMsg="";
+function newDraft(type){
+  const la=lastActOf(type);
+  return {type, date:ymd(), min:la?la.min:ACTS[type].min, rpe:la?la.rpe:5, name:(type==="other"&&la&&la.name)||""};
+}
+function dow(dstr){ return new Date(dstr+"T12:00").toLocaleDateString("en-GB",{weekday:"short"}); }
+function activityHtml(){
+  const wk=actsThisWeek().slice().sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.ts-b.ts);
+  const court=wk.filter(isCourt).reduce((s,a)=>s+a.min,0), other=wk.filter(a=>!isCourt(a)).reduce((s,a)=>s+a.min,0);
+  const sum = wk.length ? `${wk.length} this week · court ${fmtMin(court)}${other?` · other ${fmtMin(other)}`:""}` : "none this week";
+  let h=`<div class="acts"><div class="acthead"><span class="rlbl">Sport &amp; activity</span>
+      <span class="actsum">${sum}</span>
+      <button class="btn ghost sm" data-actopen>${actOpen?"Close":"+ Log"}</button></div>`;
+  if(wk.length) h+=`<div class="actlist">${wk.map(a=>`<span class="actchip ${isCourt(a)?"court":""}">${dow(a.date)} · ${escapeHtml(actName(a))} · ${fmtMin(a.min)}<button data-actdel="${a.ts}" aria-label="delete ${escapeHtml(actName(a))}">×</button></span>`).join("")}</div>`;
+  if(actOpen){
+    const dr=actDraft;
+    h+=`<div class="actform"><div class="opts">${Object.keys(ACTS).map(k=>`<button data-acttype="${k}" class="${dr&&dr.type===k?"on":""}">${ACTS[k].n}</button>`).join("")}</div>`;
+    if(dr){
+      h+=`${dr.type==="other"?`<input type="text" data-actname placeholder="What was it? (e.g. hike, run)" value="${escapeHtml(dr.name)}">`:""}
+        <div><p class="flbl">When</p><div class="opts">${[[0,"Today"],[1,"Yesterday"],[2,"2 days ago"]].map(([n,l])=>`<button data-actdate="${dateShift(n)}" class="${dr.date===dateShift(n)?"on":""}">${l}</button>`).join("")}</div></div>
+        <div><p class="flbl">Effort</p><div class="opts">${EFFORT.map(([v,l])=>`<button data-acteff="${v}" class="${dr.rpe===v?"on":""}">${l}</button>`).join("")}</div></div>
+        <div class="log" style="margin-top:0"><span class="stp">
+          <button data-actmin="-15">−</button>
+          <input type="number" inputmode="numeric" step="15" value="${dr.min}" data-actmininput>
+          <span class="u">min</span>
+          <button data-actmin="+15">+</button></span>
+          <button class="logbtn" data-actsave>Save</button></div>`;
+    }
+    h+=`</div>`;
+  }
+  if(actMsg) h+=`<p class="actok">${actMsg}</p>`;
+  return h+`</div>`;
+}
+function bindActs(){
+  const q=s=>elProgram.querySelectorAll(s), rer=()=>{ renderDay(); renderStrip(); };
+  q("[data-actopen]").forEach(b=>b.onclick=()=>{ actOpen=!actOpen; actDraft=null; actMsg=""; rer(); });
+  q("[data-acttype]").forEach(b=>b.onclick=()=>{ actDraft=newDraft(b.dataset.acttype); rer(); });
+  q("[data-actdate]").forEach(b=>b.onclick=()=>{ actDraft.date=b.dataset.actdate; rer(); });
+  q("[data-acteff]").forEach(b=>b.onclick=()=>{ actDraft.rpe=parseInt(b.dataset.acteff,10); rer(); });
+  q("[data-actmin]").forEach(b=>b.onclick=()=>{
+    actDraft.min=Math.max(15,Math.min(600,actDraft.min+parseInt(b.dataset.actmin,10))); rer(); });
+  q("[data-actmininput]").forEach(i=>i.onchange=()=>{ const v=parseInt(i.value,10); if(v>0) actDraft.min=Math.min(600,v); });
+  q("[data-actname]").forEach(i=>i.oninput=()=>{ actDraft.name=i.value; });
+  q("[data-actsave]").forEach(b=>b.onclick=()=>{
+    const dr=actDraft; if(!dr) return;
+    const inp=elProgram.querySelector("[data-actmininput]"); const v=inp?parseInt(inp.value,10):dr.min;
+    const a={ts:Date.now(), date:dr.date, type:dr.type, min:v>0?Math.min(600,v):dr.min, rpe:dr.rpe};
+    if(dr.type==="other" && dr.name.trim()) a.name=dr.name.trim();
+    state.acts.push(a); state.acts.sort((x,y)=>x.date<y.date?-1:x.date>y.date?1:x.ts-y.ts); save();
+    actOpen=false; actDraft=null;
+    actMsg = `Logged: ${escapeHtml(actName(a))}, ${fmtMin(a.min)}.` + (isCourt(a)&&a.date===ymd() ? " Tap readiness below too — court days are the readings the log has been missing." : "");
+    rer();
+  });
+  q("[data-actdel]").forEach(b=>b.onclick=()=>{
+    const ts=Number(b.dataset.actdel), a=state.acts.find(x=>x.ts===ts); if(!a) return;
+    if(!confirm(`Delete ${actName(a)} on ${a.date}?`)) return;
+    state.acts.splice(state.acts.indexOf(a),1); save(); actMsg=""; rer();
+  });
+}
+
+/* ---------- add-an-exercise search ---------- */
+let searchQ="";
+function resultsHtml(d){
+  if(!norm(searchQ)) return "";
+  const res=searchExercises(searchQ);
+  if(!res.length) return `<p class="nores">No exercise in the app matches “${escapeHtml(searchQ)}”.</p>`;
+  const onDay=new Set(); d.blocks.forEach(b=>b.items.forEach(it=>{ if(it.id) onDay.add(it.id); }));
+  extrasFor(d).forEach(x=>onDay.add(x.id));
+  return res.map(c=>{
+    const here=onDay.has(c.it.id), le=lastEntry(c.it.id);
+    return `<button class="res ${here?"here":""}" data-xadd="${c.it.id}">
+      <span><span class="rn2">${c.it.n}</span><span class="rw" style="display:block">${c.where==="retired"?"retired":c.where}${le?` · last ${entryText(c.it.id,le)}`:""}</span></span>
+      <span class="ra">${here?"on this day ↑":"+ Add"}</span></button>`;
+  }).join("");
+}
+function searchHtml(d){
+  return `<div class="addex"><label class="rlbl" for="exSearch">Doing something else? Add it to today</label>
+    <input id="exSearch" type="search" placeholder="Search exercises — e.g. curl, rdl, calf" autocomplete="off" autocorrect="off" spellcheck="false" value="${escapeHtml(searchQ)}">
+    <div id="exResults">${resultsHtml(d)}</div></div>`;
+}
+function flashCard(id){
+  const c=elProgram.querySelector(`[data-card="${id}"]`); if(!c) return;
+  if(c.scrollIntoView) c.scrollIntoView({behavior:"smooth",block:"center"});
+  c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash");
+}
+function bindSearch(d){
+  const inp=document.getElementById("exSearch"), box=document.getElementById("exResults");
+  const bindRes=()=>box.querySelectorAll("[data-xadd]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.xadd;
+    if(b.classList.contains("here")){ flashCard(id); return; }
+    const k=ymd(); state.extra=state.extra||{}; state.extra[k]=state.extra[k]||[];
+    state.extra[k].push({id, day:d.id}); save();
+    searchQ=""; renderDay(); flashCard(id);
+  });
+  if(inp){ inp.oninput=()=>{ searchQ=inp.value; box.innerHTML=resultsHtml(d); bindRes(); }; bindRes(); }
+  elProgram.querySelectorAll("[data-xrm]").forEach(b=>b.onclick=()=>{
+    const k=ymd(), arr=(state.extra||{})[k]||[];
+    const i=arr.findIndex(x=>x.id===b.dataset.xrm && x.day===d.id);
+    if(i>=0){ arr.splice(i,1); if(!arr.length) delete state.extra[k]; save(); renderDay(); }
+  });
+}
+
+function exerciseHtml(d,blk,bi,it,ii,from){
   const key=exKey(d,bi,ii);
   const doneOn=state.done[key]===ymd();
   const g=gateFor(it);
@@ -1105,7 +1345,8 @@ function exerciseHtml(d,blk,bi,it,ii){
       <p class="name">${it.n}${it.r?'<span class="r">R first</span>':""}${prBadge(it)}</p>
       <button class="chk ${doneOn?"on":""}" data-done="${key}" aria-label="mark done"></button>
     </div>
-    <p class="rx">${it.rx}${deloadNote(blk,it)}</p>
+    ${it.rx?`<p class="rx">${it.rx}${deloadNote(blk,it)}</p>`:""}
+    ${from?`<p class="from">from ${from}<button data-xrm="${it.id}">remove</button></p>`:""}
     ${it.cue?`<p class="cue"><b>Focus:</b> ${it.cue}</p>`:""}`;
 
   if(g) inner+=`<p class="gate"><b>${g.label} at ${g.val} today →</b> ${g.act}</p>`;
@@ -1141,7 +1382,7 @@ function exerciseHtml(d,blk,bi,it,ii){
     inner+=`<button class="logbtn ${te?"saved":""}" data-logbtn="${it.id}" data-st="${it.st||2.5}" data-step="${it.type==="sec"?5:1}">${te?"✓":"Log"}</button></div>`;
     inner+=`<div class="${le?"last":"last empty"}">${lastLine(it.id)} ${advice(it)}</div>`;
   }
-  return `<div class="ex ${blk.main?"main":""} ${doneOn?"done":""} ${g?"gated":""}">${inner}</div>`;
+  return `<div class="ex ${blk.main?"main":""} ${doneOn?"done":""} ${g?"gated":""}"${it.id?` data-card="${it.id}"`:""}>${inner}</div>`;
 }
 
 function prBadge(it){
@@ -1333,8 +1574,35 @@ function sparkline(vals){
   return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><polyline points="${pts}" fill="none"
     stroke="var(--accent)" stroke-width="2"/><circle cx="${W-P}" cy="${round1(H-P-(vals[vals.length-1]-mn)/rg*(H-2*P))}" r="3" fill="var(--accent2)"/></svg>`;
 }
+function renderActivity(){
+  const box=document.getElementById("actChart"), tbl=document.getElementById("actTable"); if(!box) return;
+  const weeks=[]; for(let i=7;i>=0;i--){ const d=dateShift(7*i); weeks.push(isoWeek(d)); }
+  const agg={}; weeks.forEach(w=>agg[w]={court:0, other:0, gym:0});
+  (state.acts||[]).forEach(a=>{ const w=isoWeek(a.date); if(agg[w]) agg[w][isCourt(a)?"court":"other"]+=a.min/60; });
+  Object.keys(state.sessions).forEach(d=>{ const w=isoWeek(d); if(agg[w]) agg[w].gym++; });
+  if(!(state.acts||[]).length){ box.innerHTML=`<p style="font-size:12px;color:#5d6b7a;margin:6px 0">Log a sport session from the Train tab and weekly hours appear here.</p>`; tbl.innerHTML=""; return; }
+  const W=340,H=150,P={l:30,r:4,t:14,b:30}, pw=W-P.l-P.r, ph=H-P.t-P.b;
+  const mx=Math.max(4, ...weeks.map(w=>agg[w].court+agg[w].other)); const top=Math.ceil(mx/2)*2;
+  const y=v=>P.t+ph-(v/top)*ph, band=pw/weeks.length, bw=Math.min(22,band*.55);
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sport hours per week">`;
+  for(let v=0; v<=top; v+=top/2){ s+=`<line x1="${P.l}" x2="${W-P.r}" y1="${y(v)}" y2="${y(v)}" stroke="#2a323d"/><text x="${P.l-5}" y="${y(v)+3}" text-anchor="end" class="axis">${v} h</text>`; }
+  weeks.forEach((w,i)=>{ const a=agg[w], cx=P.l+band*i+band/2, x=cx-bw/2;
+    if(a.court>0) s+=`<rect x="${round1(x)}" y="${round1(y(a.court))}" width="${round1(bw)}" height="${round1(y(0)-y(a.court))}" fill="var(--accent)" rx="2"/>`;
+    if(a.other>0) s+=`<rect x="${round1(x)}" y="${round1(y(a.court+a.other))}" width="${round1(bw)}" height="${round1(Math.max(0,y(a.court)-y(a.court+a.other)-2))}" fill="var(--accent2)" rx="2"/>`;
+    const tot=a.court+a.other;
+    if(tot>0) s+=`<text x="${round1(cx)}" y="${round1(y(tot)-5)}" text-anchor="middle" class="axis" style="fill:var(--muted)">${round1(tot)}</text>`;
+    s+=`<text x="${round1(cx)}" y="${H-16}" text-anchor="middle" class="axis">${w.slice(-3)}</text>`;
+    s+=`<text x="${round1(cx)}" y="${H-4}" text-anchor="middle" class="axis">${a.gym} gym</text>`;
+  });
+  box.innerHTML=s+`</svg>`;
+  const by={}; actsSince(28).forEach(a=>{ const k=actName(a); by[k]=by[k]||{n:0,m:0,load:0}; by[k].n++; by[k].m+=a.min; by[k].load+=a.min*(a.rpe||5); });
+  const pk=peakCourt3d(28);
+  tbl.innerHTML = Object.keys(by).length ? `<p class="info" style="font-size:12px;margin:0">Last 28 days: `+
+    Object.entries(by).sort((a,b)=>b[1].m-a[1].m).map(([k,v])=>`<b>${escapeHtml(k)}</b> ${v.n}× · ${fmtMin(v.m)}`).join(" &nbsp;·&nbsp; ")+
+    (pk.min?` &nbsp;·&nbsp; heaviest 3 days of court: <b>${fmtMin(pk.min)}</b> (to ${fmtDate(new Date(pk.end+"T12:00").getTime())})`:"")+`</p>` : "";
+}
 function renderTrends(){
-  renderStats(); renderBalance();
+  renderStats(); renderBalance(); renderActivity();
   const rl=readyList(), tx=d=>new Date(d+"T12:00").getTime();
   const pick=k=>rl.filter(r=>r[k]!=null).map(r=>({x:tx(r.d), y:r[k]}));
   document.getElementById("readyChart").innerHTML=lineChart(pick("knee"),{
@@ -1397,6 +1665,14 @@ function buildCheckin(){
     const bad=rl.filter(r=>(r.knee||0)>=2||(r.rs||0)>=2||(r.lb||0)>=2||(r.sh||0)>=2).slice(-8);
     if(bad.length) L.push("Flagged days: "+bad.map(r=>`${r.d} (knee ${r.knee??"–"}, R ${r.rs??"–"}, LB ${r.lb??"–"}, SH ${r.sh??"–"})`).join("; "));
   }
+  const a28=actsSince(28);
+  if(a28.length){
+    const by={}; a28.forEach(a=>{ const k=actName(a); by[k]=by[k]||{n:0,m:0}; by[k].n++; by[k].m+=a.min; });
+    const pk=peakCourt3d(28), load=a28.reduce((s,a)=>s+a.min*(a.rpe||5),0);
+    L.push(`Sport (28 d): ${Object.entries(by).map(([k,v])=>`${k} ${v.n}× ${fmtMin(v.m)}`).join(", ")} · court total ${fmtMin(courtMin(28))} · heaviest 3-day court ${fmtMin(pk.min)}${pk.end?` (to ${pk.end})`:""} · sRPE load ${load}`);
+    const wks=[]; for(let i=5;i>=0;i--){ const w=isoWeek(dateShift(7*i)); if(wks.indexOf(w)<0) wks.push(w); }
+    L.push("Court hours by week: "+wks.map(w=>`${w.slice(-3)} ${round1((state.acts||[]).filter(a=>isCourt(a)&&isoWeek(a.date)===w).reduce((s,a)=>s+a.min,0)/60)}`).join(" · "));
+  }
   if(state.meta.lastDeload) L.push("Last deload: "+ymd(new Date(state.meta.lastDeload)));
   const st=stalledLifts();
   if(st.length) L.push("Stalled (3+ sessions below best): "+st.map(s=>`${s.name} ${s.now}/${s.best}`).join("; "));
@@ -1407,6 +1683,10 @@ function buildCheckin(){
     const pct=metric(id,f)>0 ? round1((metric(id,l)-metric(id,f))/metric(id,f)*100) : 0;
     L.push(`- ${EXMETA[id].name}: ${entryText(id,f)} → ${entryText(id,l)} · ${round1(metric(id,f))}→${round1(metric(id,l))} ${metricLabel(id)} (${pct>=0?"+":""}${pct}%) · best ${round1(bb.m)} · ${arr.length}×`);
   });
+  if(a28.length){
+    L.push(""); L.push("## Sport & activity (28 d)");
+    a28.forEach(a=>L.push(`- ${a.date} ${dow(a.date)}: ${actName(a)} · ${a.min} min · ${effortName(a.rpe)}`));
+  }
   const notes=state.notesArr.slice(-8);
   if(notes.length){
     L.push(""); L.push("## Recent notes");
