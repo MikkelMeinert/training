@@ -4,7 +4,7 @@
      falling back to the cached copy when offline.
    - Static assets (icons, manifest): cache-first.
    Bump CACHE when you redeploy a new program so old caches are cleared. */
-const CACHE = "training-v14";
+const CACHE = "training-v15";
 const ASSETS = [
   "training.html",
   "manifest.webmanifest",
@@ -36,9 +36,10 @@ self.addEventListener("fetch", (e) => {
     (req.headers.get("accept") || "").includes("text/html");
 
   if (isHTML) {
-    // network-first for the app page
+    // network-first for the app page, revalidated past the browser's 10-minute HTTP cache,
+    // so a new deploy shows up on the next open instead of up to 10 minutes later
     e.respondWith(
-      fetch(req)
+      fetch(req.url, { cache: "no-cache", credentials: "same-origin" })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put("training.html", copy));
