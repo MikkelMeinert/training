@@ -4,7 +4,7 @@
      falling back to the cached copy when offline.
    - Static assets (icons, manifest): cache-first.
    Bump CACHE when you redeploy a new program so old caches are cleared. */
-const CACHE = "training-v13";
+const CACHE = "training-v14";
 const ASSETS = [
   "training.html",
   "manifest.webmanifest",
@@ -28,6 +28,8 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
+  // Only this app's own files. GitHub API calls (sync) must never be cached or answered from cache.
+  if (new URL(req.url).origin !== self.location.origin) return;
 
   const isHTML =
     req.mode === "navigate" ||

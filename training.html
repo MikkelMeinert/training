@@ -296,6 +296,22 @@
 
   <section id="view-more" class="hidden">
     <div class="panel">
+      <h3>Sync <span id="syncBadge" style="font-size:11.5px;font-weight:600;color:var(--muted)"></span></h3>
+      <p class="info" style="margin-bottom:8px">Everything is saved on this phone first, then copied to your
+        <b>private</b> repo <b>MikkelMeinert/training-data</b> as <code>state.json</code>. Git history is the backup,
+        and if iOS ever wipes the app, pasting the token again brings everything back.</p>
+      <div class="bw">
+        <input id="tokenInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste your fine-grained GitHub token">
+        <button class="btn" id="tokenSave">Save</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn ghost" id="syncNowBtn">Sync now</button>
+        <button class="btn ghost hidden" id="tokenForget">Forget token</button>
+      </div>
+      <p class="info" id="syncState" style="margin:8px 0 0"></p>
+    </div>
+
+    <div class="panel">
       <h3>Monthly check-in</h3>
       <p class="info" style="margin-bottom:10px">One tap builds a full report — progression, stalls, balance,
         readiness, notes, raw data — formatted for Claude. Sharing or copying it also counts as a backup.</p>
@@ -314,9 +330,9 @@
     <div class="panel">
       <h3>Backup <span id="backupWarn" style="color:var(--warn);font-size:11.5px;font-weight:600"></span></h3>
       <p class="info" id="dataHealth" style="margin-bottom:6px;font-variant-numeric:tabular-nums"></p>
-      <p class="info" style="margin-bottom:10px">Logs live on this phone only, and iOS can wipe them after
-        ~2 weeks of not opening the app — open it weekly, back up every few sessions. Import accepts a raw
-        backup <i>or</i> a whole pasted check-in report.</p>
+      <p class="info" style="margin-bottom:10px">With sync on, every change is already backed up in the repo.
+        Without it, logs live on this phone only and iOS can wipe them after ~2 weeks of not opening the app.
+        Import accepts a raw backup <i>or</i> a whole pasted check-in report, and adds to what's here.</p>
       <div class="row">
         <button class="btn" id="backupBtn">Back up now</button>
         <button class="btn ghost" id="exportBtn">Show raw data</button>
@@ -357,6 +373,8 @@
         prefill from last time). Court hours are the knee's biggest load, and the app warns when three days stack up.</p>
       <p><b>Doing something that isn't on today's card?</b> Search for it at the bottom of the session and it's added
         to today, with its full history.</p>
+      <p><b>Sync.</b> With a token saved under More → Sync, every change is copied to your private
+        training-data repo within seconds — no backups to remember, and Claude reads it straight from there.</p>
       <p><b>Deload</b> when the app offers it: one tap, 7 days of 2 sets per exercise, power work skipped,
         then it ends itself.</p>
       <div class="row" style="margin-top:10px">
@@ -373,7 +391,7 @@
   <button id="tab-more">More<span id="moreDot" class="hidden dot"></span></button>
 </div>
 
-<footer>Saved locally on this device · block 20 Sep 2026 · app v10.2</footer>
+<footer>Saved locally on this device · block 20 Sep 2026 · app v11</footer>
 
 <script>
 "use strict";
@@ -752,7 +770,7 @@ const STORE_KEY = "mikkel_training_v2";
 function blankState(){
   return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{},
           meta:{lastBackup:null, lastCheckin:null, lastDeload:null, deloadUntil:null,
-                blockStart:BLOCK_START, app:"v10.2"}, ui:{}};
+                blockStart:BLOCK_START, app:"v11"}, ui:{}};
 }
 function normalize(s){
   const b = blankState();
@@ -797,7 +815,7 @@ function load(){
   }catch(e){ return blankState(); }
 }
 let state = load();
-function save(){ try{ state.meta.app="v10.2"; localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+function save(){ try{ state.meta.app="v11"; localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} schedulePush(); }
 
 /* =====================================================================
    Helpers
@@ -888,9 +906,11 @@ function prCountBlock(){
   });
   return n;
 }
-function dataIsSafe(){ return !!(state.meta.lastBackup || state.meta.lastCheckin); }
+function lastSyncTs(){ return (typeof syncInfo!=="undefined" && syncInfo && syncInfo.lastSyncAt) || 0; }
+function dataIsSafe(){ return !!(state.meta.lastBackup || state.meta.lastCheckin || lastSyncTs()); }
 function sessionsSinceBackup(){
-  const lb=Math.max(state.meta.lastBackup||0, state.meta.lastCheckin||0);
+  if(lastSyncTs() && !syncInfo.pending) return 0;   /* synced and nothing waiting: all of it is in the repo */
+  const lb=Math.max(state.meta.lastBackup||0, state.meta.lastCheckin||0, lastSyncTs());
   return Object.keys(state.sessions).filter(d=>new Date(d+"T23:59:00").getTime()>lb).length;
 }
 function deloadActive(){ return !!state.meta.deloadUntil && ymd() <= state.meta.deloadUntil; }
@@ -1144,6 +1164,8 @@ function renderStrip(){
     pills.push(`<span class="pill warn">court ${fmtMin(c72)} / 3 d</span>`);
     details.push(`<p><b>${fmtMin(c72)} of court sport in three days.</b> That's a big jump load for the knee. Rate it honestly today, and trim lunges and bounds first — keep the wall sits and TKE.</p>`);
   }
+  const sp=syncPill();
+  if(sp){ pills.push(`<span class="pill ${sp.cls}">${sp.txt}</span>`); details.push(sp.det); }
   const nAct=actsThisWeek().length;
   pills.push(`<span class="pill">${sessionsThisWeek()}/4 gym${nAct?` · ${nAct} sport`:""}</span>`);
 
@@ -1248,7 +1270,8 @@ function activityHtml(){
   let h=`<div class="acts"><div class="acthead"><span class="rlbl">Sport &amp; activity</span>
       <span class="actsum">${sum}</span>
       <button class="btn ghost sm" data-actopen>${actOpen?"Close":"+ Log"}</button></div>`;
-  if(wk.length) h+=`<div class="actlist">${wk.map(a=>`<span class="actchip ${isCourt(a)?"court":""}">${dow(a.date)} · ${escapeHtml(actName(a))} · ${fmtMin(a.min)}<button data-actdel="${a.ts}" aria-label="delete ${escapeHtml(actName(a))}">×</button></span>`).join("")}</div>`;
+  const recent=(state.acts||[]).filter(a=>a.date>=dateShift(6)).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.ts-b.ts);
+  if(recent.length) h+=`<div class="actlist">${recent.map(a=>`<span class="actchip ${isCourt(a)?"court":""}">${dow(a.date)} · ${escapeHtml(actName(a))} · ${fmtMin(a.min)}<button data-actdel="${a.ts}" aria-label="delete ${escapeHtml(actName(a))}">×</button></span>`).join("")}</div>`;
   if(actOpen){
     const dr=actDraft;
     h+=`<div class="actform"><div class="opts">${Object.keys(ACTS).map(k=>`<button data-acttype="${k}" class="${dr&&dr.type===k?"on":""}">${ACTS[k].n}</button>`).join("")}</div>`;
@@ -1764,7 +1787,7 @@ document.getElementById("importLoad").onclick=()=>{
     else if(txt.indexOf("{")>0) txt=txt.slice(txt.indexOf("{"), txt.lastIndexOf("}")+1);
     const s=JSON.parse(txt);
     if(typeof s!=="object"||!s) throw new Error("bad");
-    state=normalize(s); save();
+    state=normalize(s); forgetBase(); save();   /* next sync is a union: nothing in the repo is lost */
     curWeek=autoWeek(); curDay=0;
     syncWeekButtons(); renderDayTabs(); renderDay(); renderTrends(); refreshBackupUi(); renderStrip();
     document.getElementById("importBox").classList.add("hidden");
@@ -1776,8 +1799,10 @@ document.getElementById("deloadDone").onclick=()=>{
   alert("Deload logged.");
 };
 document.getElementById("resetBtn").onclick=()=>{
-  if(confirm("Clear ALL logs, notes, readiness and bodyweight? This can't be undone. (Back up first!)")){
-    state=blankState(); save(); renderDayTabs(); renderDay(); renderTrends(); refreshBackupUi(); renderStrip();
+  if(confirm(getToken()
+      ? "Clear everything on this phone? Sync is on, so the next sync brings your repo copy back. To start truly fresh, Forget token first."
+      : "Clear ALL logs, notes, readiness and bodyweight? This can't be undone. (Back up first!)")){
+    state=blankState(); forgetBase(); save(); renderDayTabs(); renderDay(); renderTrends(); refreshBackupUi(); renderStrip();
   }
 };
 
@@ -1802,11 +1827,231 @@ function showTab(which){
   document.getElementById("daySeg").style.display=isProg?"":"none";
   document.getElementById("suggestLine").style.display=isProg?"":"none";
   if(which==="trends") renderTrends();
-  if(which==="more") refreshBackupUi();
+  if(which==="more"){ refreshBackupUi(); refreshSyncUi(); }
 }
 document.getElementById("tab-program").onclick=()=>showTab("program");
 document.getElementById("tab-trends").onclick=()=>showTab("trends");
 document.getElementById("tab-more").onclick=()=>showTab("more");
+
+/* =====================================================================
+   Sync — a private GitHub repo as the store (the Tankebænken design)
+   · Every write lands on this device first; sync only carries it. Offline is
+     never an error, just "unsynced".
+   · The token and the sync bookkeeping live OUTSIDE `state`, under their own
+     keys, so they can never reach a backup, an export, a check-in or the repo.
+   · Three-way merge against the base (the copy both sides last agreed on):
+     a change on one side wins; a delete on one side sticks; if both sides
+     changed the same record, this device wins (later entry wins for a lift).
+     A wiped install has no base, so it simply takes everything back.
+===================================================================== */
+var GH_OWNER="MikkelMeinert", GH_REPO="training-data", STATE_PATH="state.json";
+var TOKEN_KEY="mikkel_training_gh_token", SYNC_KEY="mikkel_training_sync";
+var _fetch=(typeof fetch==="function")?fetch.bind(window):null;
+var _pushTimer=null, _syncing=false;
+var syncInfo=(function(){ try{ return JSON.parse(localStorage.getItem(SYNC_KEY))||{}; }catch(e){ return {}; } })();
+function saveSyncInfo(){ try{ localStorage.setItem(SYNC_KEY, JSON.stringify(syncInfo)); }catch(e){} }
+function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||""; }catch(e){ return ""; } }
+function setToken(t){ try{ if(t) localStorage.setItem(TOKEN_KEY,t); else localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+function syncReady(){ return !!(_fetch && getToken()); }
+function forgetBase(){ syncInfo.base=null; saveSyncInfo(); }
+
+/* Canonical JSON (sorted keys) — for comparing records regardless of key order. */
+function canon(v){
+  if(v===undefined) return "undefined";
+  if(v===null || typeof v!=="object") return JSON.stringify(v);
+  if(Array.isArray(v)) return "["+v.map(canon).join(",")+"]";
+  return "{"+Object.keys(v).sort().filter(k=>v[k]!==undefined).map(k=>JSON.stringify(k)+":"+canon(v[k])).join(",")+"}";
+}
+/* Diff-friendly JSON for the repo: sorted keys, one small record per line. */
+function prettyJson(v, ind){
+  ind=ind||0;
+  if(v===null || typeof v!=="object") return JSON.stringify(v);
+  const pad=" ".repeat(ind+2), end=" ".repeat(ind);
+  if(Array.isArray(v)) return v.length ? "[\n"+v.map(x=>pad+prettyJson(x,ind+2)).join(",\n")+"\n"+end+"]" : "[]";
+  const ks=Object.keys(v).sort().filter(k=>v[k]!==undefined);
+  if(!ks.length) return "{}";
+  const leaf=ks.length<=8 && ks.every(k=>v[k]===null || typeof v[k]!=="object");
+  if(leaf) return "{"+ks.map(k=>JSON.stringify(k)+":"+JSON.stringify(v[k])).join(",")+"}";
+  return "{\n"+ks.map(k=>pad+JSON.stringify(k)+": "+prettyJson(v[k],ind+2)).join(",\n")+"\n"+end+"}";
+}
+function stateForRemote(st){ const o=Object.assign({}, st); delete o.ui; delete o.legacy; return o; }
+function remoteText(st){ return prettyJson(stateForRemote(st))+"\n"; }
+
+function b64encode(str){ const b=new TextEncoder().encode(str); let s=""; for(let i=0;i<b.length;i+=0x8000) s+=String.fromCharCode.apply(null, b.subarray(i,i+0x8000)); return btoa(s); }
+function b64decode(x){ const s=atob(String(x||"").replace(/\s/g,"")); const b=new Uint8Array(s.length); for(let i=0;i<s.length;i++) b[i]=s.charCodeAt(i); return new TextDecoder().decode(b); }
+function ghUrl(path){ return "https://api.github.com/repos/"+GH_OWNER+"/"+GH_REPO+"/contents/"+path; }
+function ghHeaders(){ return {"Authorization":"Bearer "+getToken(), "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28"}; }
+function SyncAuthError(msg){ const e=new Error(msg); e.auth=true; return e; }
+function ghError(status, what){
+  if(status===401) return SyncAuthError("GitHub rejected the token (expired or mistyped) — paste a new one");
+  if(status===403) return SyncAuthError("the token can't write here — it needs Contents: read and write on training-data");
+  if(status===404) return SyncAuthError("the token can't see MikkelMeinert/training-data — check its repository access");
+  return new Error(what+" failed ("+status+")");
+}
+async function ghGet(path){
+  const res=await _fetch(ghUrl(path), {headers:ghHeaders(), cache:"no-store"});
+  if(res.status===404){
+    /* 404 means "no such file" only if the repo itself is visible; otherwise it's access. */
+    const repo=await _fetch("https://api.github.com/repos/"+GH_OWNER+"/"+GH_REPO, {headers:ghHeaders(), cache:"no-store"});
+    if(!repo.ok) throw ghError(repo.status===404?404:repo.status, "GET repo");
+    return {content:null, sha:null};
+  }
+  if(!res.ok) throw ghError(res.status, "GET "+path);
+  const j=await res.json();
+  return {content:b64decode(j.content||""), sha:j.sha};
+}
+async function ghPut(path, content, sha, message){
+  const body={message, content:b64encode(content)}; if(sha) body.sha=sha;
+  const res=await _fetch(ghUrl(path), {method:"PUT", cache:"no-store",
+    headers:Object.assign({"Content-Type":"application/json"}, ghHeaders()), body:JSON.stringify(body)});
+  if(res.status===409 || res.status===422) return {stale:true};
+  if(!res.ok) throw ghError(res.status, "PUT "+path);
+  return {stale:false};
+}
+
+/* ---------- merge ---------- */
+const dayOfTs=ts=>ymd(new Date(ts));
+/* Every collection as a Map of key → record, so one rule serves them all. */
+const KEYED={
+  logs:     st=>{ const m=new Map(); Object.keys(st.logs||{}).forEach(id=>(st.logs[id]||[]).forEach(e=>m.set(id+"|"+dayOfTs(e.ts), {id,e}))); return m; },
+  acts:     st=>new Map((st.acts||[]).map(a=>[String(a.ts), a])),
+  notesArr: st=>new Map((st.notesArr||[]).map(n=>[n.day+"|"+dayOfTs(n.ts), n])),
+  ready:    st=>new Map(Object.entries(st.ready||{})),
+  sessions: st=>new Map(Object.entries(st.sessions||{})),
+  done:     st=>new Map(Object.entries(st.done||{})),
+  bw:       st=>new Map((st.bw||[]).map(b=>[String(b.ts), b])),
+  extra:    st=>{ const m=new Map(); Object.keys(st.extra||{}).forEach(d=>(st.extra[d]||[]).forEach(x=>m.set(d+"|"+x.day+"|"+x.id, {d,x}))); return m; }
+};
+const RESOLVE={   /* both sides changed the same record */
+  logs:  (l,r)=> r.e.ts>l.e.ts ? r : l,                 // the later entry of the day
+  ready: (l,r)=> Object.assign({}, r, l)                  // this device's taps, the other's extra fields
+};
+function merge3(lm, rm, bm, resolve){
+  const out=new Map(), keys=new Set([...lm.keys(), ...rm.keys()]);
+  keys.forEach(k=>{
+    const hasL=lm.has(k), hasR=rm.has(k), hasB=!!bm && bm.has(k);
+    const l=lm.get(k), r=rm.get(k), b=hasB?canon(bm.get(k)):null;
+    if(hasL && hasR){
+      const cl=canon(l), cr=canon(r);
+      if(cl===cr || (hasB && cr===b)) out.set(k,l);       // same, or only this side changed
+      else if(hasB && cl===b) out.set(k,r);               // only the other side changed
+      else out.set(k, resolve?resolve(l,r):l);
+    } else if(hasL){
+      if(!(hasB && canon(l)===b)) out.set(k,l);           // new here (or changed here) — keep; else deleted there
+    } else {
+      if(!(hasB && canon(r)===b)) out.set(k,r);           // new there (or changed there) — keep; else deleted here
+    }
+  });
+  return out;
+}
+const META_MAX=["lastBackup","lastCheckin","lastDeload"], META_FLAG=["lcFixed","calfSl"];
+function mergeState(L, R, B){
+  if(!R || typeof R!=="object") return L;
+  const prep=x=>x?normalize(JSON.parse(JSON.stringify(x))):null;
+  R=prep(R); B=prep(B);
+  const out=Object.assign({}, L);
+  Object.keys(KEYED).forEach(name=>{
+    const m=merge3(KEYED[name](L), KEYED[name](R), B?KEYED[name](B):null, RESOLVE[name]);
+    if(name==="logs"){ out.logs={}; m.forEach(({id,e})=>(out.logs[id]=out.logs[id]||[]).push(e)); Object.values(out.logs).forEach(a=>a.sort((x,y)=>x.ts-y.ts)); }
+    else if(name==="acts") out.acts=[...m.values()].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.ts-b.ts);
+    else if(name==="notesArr" || name==="bw") out[name]=[...m.values()].sort((a,b)=>a.ts-b.ts);
+    else if(name==="extra"){ out.extra={}; m.forEach(({d,x})=>(out.extra[d]=out.extra[d]||[]).push(x)); }
+    else out[name]=Object.fromEntries([...m.entries()].sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0));
+  });
+  const lm=L.meta||{}, rm=R.meta||{}, bm=B?(B.meta||{}):null, meta={};
+  new Set([...Object.keys(lm), ...Object.keys(rm)]).forEach(k=>{
+    const l=lm[k], r=rm[k];
+    if(META_MAX.includes(k)) meta[k]=Math.max(l||0, r||0)||null;
+    else if(META_FLAG.includes(k)) meta[k]=!!(l||r);
+    else if(canon(l)===canon(r) || l===undefined) meta[k]= l===undefined ? r : l;
+    else if(bm && canon(l)===canon(bm[k])) meta[k]=r;
+    else meta[k]=l;
+  });
+  out.meta=meta;
+  return out;
+}
+
+/* ---------- the sync itself ---------- */
+async function syncNow(opts){
+  opts=opts||{};
+  if(_syncing) return {ok:false, reason:"busy"};
+  if(!syncReady()) return {ok:false, reason:"no token"};
+  _syncing=true;
+  const before=remoteText(state);
+  try{
+    let base=null; try{ base=syncInfo.base?JSON.parse(syncInfo.base):null; }catch(e){ base=null; }
+    for(let attempt=0; attempt<2; attempt++){
+      const f=await ghGet(STATE_PATH);
+      let remote=null;
+      if(f.content){ try{ remote=JSON.parse(f.content); }catch(e){ throw new Error("state.json in the repo isn't valid JSON — fix or delete it there"); } }
+      const merged=mergeState(state, remote, base), text=remoteText(merged);
+      if(f.content!==null && text===f.content){ commitSync(merged, text, before, opts); return {ok:true, pushed:false}; }
+      const n=Object.values(merged.logs).reduce((s,a)=>s+a.length,0);
+      const res=await ghPut(STATE_PATH, text, f.sha, `state · ${ymd()} · ${n} lift entries · ${(merged.acts||[]).length} sport`);
+      if(!res.stale){ commitSync(merged, text, before, opts); return {ok:true, pushed:true}; }
+    }
+    syncInfo.pending=true; syncInfo.lastFailAt=Date.now(); saveSyncInfo();
+    if(opts.render!==false){ refreshSyncUi(); renderStrip(); }
+    return {ok:false, reason:"conflict"};
+  }catch(e){
+    syncInfo.pending=true; syncInfo.lastFailAt=Date.now();
+    syncInfo.lastError = e && e.auth ? String(e.message) : "";   // offline / network: quiet, retried later
+    saveSyncInfo();
+    if(opts.render!==false){ refreshSyncUi(); renderStrip(); }
+    return {ok:false, reason:e && e.message ? e.message : String(e)};
+  }finally{ _syncing=false; }
+}
+function commitSync(merged, text, before, opts){
+  state=merged;
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  syncInfo.base=text; syncInfo.lastSyncAt=Date.now(); syncInfo.pending=false;
+  syncInfo.lastError=""; syncInfo.lastFailAt=null; saveSyncInfo();
+  if(opts.render!==false){
+    if(remoteText(state)!==before){ syncWeekButtons(); renderDayTabs(); renderDay(); }
+    renderStrip(); refreshBackupUi(); refreshSyncUi();
+  }
+}
+function schedulePush(){
+  if(!syncReady() || typeof setTimeout!=="function") return;
+  if(syncInfo.base && remoteText(state)===syncInfo.base) return;   // nothing new since the last sync
+  if(!syncInfo.pending){ syncInfo.pending=true; saveSyncInfo(); }
+  if(_pushTimer) clearTimeout(_pushTimer);
+  _pushTimer=setTimeout(()=>{ _pushTimer=null; syncNow(); }, 3000);
+}
+function syncPill(){
+  if(!getToken()) return null;
+  if(syncInfo.lastError) return {cls:"warn", txt:"sync off", det:`<p><b>Sync stopped:</b> ${escapeHtml(syncInfo.lastError)}. Everything is still saved on this phone. More → Sync.</p>`};
+  if(syncInfo.pending && syncInfo.lastFailAt) return {cls:"info", txt:"unsynced", det:`<p><b>Not synced yet</b> — probably no signal. Saved on this phone; it syncs by itself when the app is next online.</p>`};
+  return null;
+}
+function refreshSyncUi(){
+  const st=document.getElementById("syncState"), badge=document.getElementById("syncBadge"); if(!st) return;
+  const has=!!getToken(), ago=t=>{ const m=Math.round((Date.now()-t)/6e4); return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago"; };
+  document.getElementById("tokenInput").placeholder = has ? "Token saved — paste a new one to replace it" : "Paste your fine-grained GitHub token";
+  st.textContent = !has ? "Sync is off on this device." :
+    syncInfo.lastError ? "Not syncing: "+syncInfo.lastError+"." :
+    syncInfo.lastSyncAt ? "Last synced "+ago(syncInfo.lastSyncAt)+(syncInfo.pending?" · changes waiting":" · up to date")+"." :
+    "Token saved — tap Sync now.";
+  badge.textContent = !has ? "· off" : syncInfo.lastError ? "· stopped" : syncInfo.pending ? "· waiting" : "· on";
+  badge.style.color = !has ? "var(--muted)" : syncInfo.lastError ? "var(--warn)" : "var(--accent2)";
+  document.getElementById("tokenForget").classList.toggle("hidden", !has);
+}
+document.getElementById("tokenSave").onclick=async()=>{
+  const t=document.getElementById("tokenInput").value.trim(); if(!t) return;
+  setToken(t); document.getElementById("tokenInput").value=""; syncInfo.lastError=""; saveSyncInfo();
+  document.getElementById("syncState").textContent="Syncing…"; await syncNow(); refreshSyncUi();
+};
+document.getElementById("syncNowBtn").onclick=async()=>{
+  if(!getToken()){ refreshSyncUi(); return; }
+  document.getElementById("syncState").textContent="Syncing…"; await syncNow(); refreshSyncUi();
+};
+document.getElementById("tokenForget").onclick=()=>{
+  if(!confirm("Remove the GitHub token from this phone? Your data stays here and in the repo.")) return;
+  setToken(""); syncInfo={}; saveSyncInfo(); refreshSyncUi(); renderStrip();
+};
+window.__setSyncFetch=f=>{ _fetch=f; };
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden && syncReady()) syncNow(); });
+window.addEventListener("online",()=>{ if(syncReady()) syncNow(); });
 
 /* =====================================================================
    Init
@@ -1817,7 +2062,9 @@ renderStrip();
 renderDayTabs();
 renderDay();
 refreshBackupUi();
+refreshSyncUi();
 save();
+if(syncReady()) syncNow();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=>{ navigator.serviceWorker.register("service-worker.js").catch(()=>{}); });
