@@ -184,6 +184,13 @@
   .chip.up{color:var(--ok);background:var(--ok-soft);}
   .chip.amber{color:var(--warn);background:var(--warn-soft);}
   .chip.flat{color:var(--txt2);background:var(--surface2);}
+  .chip.ramp{color:var(--accent);background:var(--accent-soft);}
+  /* the dashed line: everything below it is the first thing to go on a short morning */
+  .iftime{display:flex;align-items:center;gap:10px;margin:24px 2px 0;color:var(--muted);
+    font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+  .iftime::before,.iftime::after{content:"";flex:1;border-top:1px dashed var(--raised);}
+  .block.opt{margin-top:10px;}
+  .block.opt .ex:not(.done){background:transparent;box-shadow:inset 0 0 0 1px var(--line);}
   /* a ticked card folds to one line */
   .ex.done{padding:10px 14px;}
   .ex.done > :not(.top){display:none;}
@@ -416,14 +423,17 @@
   <button id="tab-more"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/></svg>More<span id="moreDot" class="hidden dot"></span></button>
 </nav>
 
-<footer>Training · winter week 30 Sep 2026 · app v11.2</footer>
+<footer>Training · 13 Oct 2026 check-in · app v11.3</footer>
 
 <script>
 "use strict";
 /* =====================================================================
    Exercise fields
      id/n/rx/cue/how   identity, prescription, coaching
-     type  wr | wradd | reps | sec | w | none
+     type  wr | wradd | reps | sec | wsec | w | none
+           wradd = bodyweight × bwf (default 1) + kg  ·  wsec = kg held for seconds (wall sit)
+     opt   on a block: below the dashed "If you have time" line — goes first when time is short
+     pct   {of, p}: show a computed load (p × the last top set of another lift)
      st    weight increment    start {w,r}  first-time defaults
      r     right-side-first
      gate  {k:"lb"|"knee"|"sh"|"rs", lvl:2, act:"what to do instead today"}
@@ -433,6 +443,17 @@ const BLOCK_START = "2026-09-21";
 const FLOW = "Cat-cow → thread the needle → cobra/child's → downward dog → world's greatest stretch → " +
              "seated side bend → figure four → side-lying windshield → supine twist, both ways. 30–45 s each.";
 
+/* v11.3 (13 Oct 2026 check-in): sessions really run ~30 min, so each day is ordered for the 30 min that
+   happens — the hang and the face-pull open every session (that's where you already put them), the
+   physique work moved up, and a dashed "If you have time" line marks what goes first. Seated cable row
+   retired: it was the item that never happened and pull:push sat at 73%. */
+const HANG = {id:"hang", n:"Bar hang", rx:"1–2×30–45 s", type:"sec", start:{r:35}, cls:"core",
+  how:"Passive hang from the pull-up bar, shoulders relaxed, feet off. Traction for the spine and a free lat/thoracic stretch — your own find, and a good one. It opens the session because that's where you already do it.",
+  cue:"Breathe out and let the ribs hang away from the hips."};
+const FACEPULL = {id:"facepull", n:"Face-pull", rx:"2×15–20", type:"wr", st:2.5, start:{w:12.5,r:15}, cls:"pull",
+  how:"Rope at face height, pull to the bridge of the nose until the rope ends pass your ears. Cuff and rear-delt prep, done first — which is how you already use it. The single best insurance policy an overhead athlete has. Not a lift to chase: reps to 20, then +2.5 kg.",
+  cue:"Thumbs point behind you at the finish."};
+
 const PROGRAM = {
 A:{days:[
   { id:"lower-power", day:"Lower · power", focus:"Hip-dominant · concentric", sport:"Best: Tue morning — squash tonight, ~38 h before Wednesday volleyball",
@@ -440,12 +461,11 @@ A:{days:[
     blocks:[
       {label:"Warm-up", items:[
         {n:"Full-body stretch flow", rx:"~6–8 min", type:"none", cue:"Flow, don't force.", how:FLOW},
-        {n:"Ramp-up sets", rx:"2 light sets of the hip thrust", type:"none",
-         cue:"~50% then ~75% of the work weight, 5–6 smooth reps."}]},
-      {label:"Power (non-impact)", items:[
-        {id:"speed-hipthrust", n:"Hip thrust — speed sets", rx:"3×5 · ~50% of top weight", type:"wr", st:2.5, start:{w:40,r:5}, cls:"legs",
+        HANG]},
+      {label:"Power · doubles as the ramp-up", items:[
+        {id:"speed-hipthrust", n:"Hip thrust — speed sets", rx:"3×5 · ~50% of top weight", type:"wr", st:2.5, start:{w:40,r:5}, cls:"legs", pct:{of:"hipthrust",p:0.5},
          gate:{k:"lb",lvl:2,act:"Skip. Bracing hard at speed is the worst thing for an angry back."},
-         how:"Same setup as the heavy hip thrust at roughly half the load; every rep as explosive as you can. Full rest between sets.",
+         how:"Same setup as the heavy hip thrust at roughly half the load; every rep as explosive as you can. Full rest between sets. They are also your ramp-up: one bridge set of 5 at ~75% after the third, then the work sets.",
          cue:"Intent is everything — if the bar slows, it's too heavy."}]},
       {label:"Primary", main:true, items:[
         {id:"hipthrust", n:"Hip thrust", rx:"3×6–8 · RIR 2", type:"wr", st:2.5, start:{w:60,r:6}, cls:"legs",
@@ -463,79 +483,62 @@ A:{days:[
          how:"One leg at a time so the left can't hide the right. Log the stack setting — that IS the per-leg load. Right first; if it lags, it gets the extra set. Almost no spinal load, so this stays in when the back is sore.",
          cue:"Hips pinned to the pad — the right hamstring does its own work."}]},
       {label:"Lower back", items:[
-        {id:"backext", n:"45° back extension", rx:"2×12–15", type:"wr", st:2.5, start:{w:5,r:12}, cls:"core",
+        {id:"backext", n:"45° back extension", rx:"2×12–15", type:"wradd", bwf:0.5, st:2.5, start:{w:5,r:12}, cls:"core",
          gate:{k:"lb",lvl:2,act:"Bodyweight only, 2×15, stop short of full extension. Still do it — the back wants movement, not rest."},
-         how:"Hips on the pad, hinge down, rise to a straight line. kg = plate at the chest (0 = bodyweight). Weekly vitamin, but progressive — 10 kg is the standing target.",
-         cue:"Long spine, glutes to rise — no whip at the top."}]},
-      {label:"Decompress", items:[
-        {id:"hang", n:"Bar hang", rx:"2×30–45 s", type:"sec", start:{r:35}, cls:"core",
-         how:"Passive hang from the pull-up bar, shoulders relaxed, feet off. Traction for the spine and a free lat/thoracic stretch — your own find, and a good one.",
-         cue:"Breathe out and let the ribs hang away from the hips."}]}
+         how:"Hips on the pad, hinge down, rise to a straight line. kg = plate at the chest (0 = bodyweight). Weekly vitamin, but progressive — 10 kg is the standing target. Trends count about half your bodyweight plus the plate, so a bodyweight day reads as lighter, not as zero.",
+         cue:"Long spine, glutes to rise — no whip at the top."}]}
     ]},
 
   { id:"upper-vert", day:"Upper · vertical", focus:"Vertical pull + press", sport:"Best: Mon morning — volleyball tonight is fine; upper work doesn't cost it",
-    note:"Starts with the pull, always. Vertical day: pull-ups lead, overhead press is the only push.",
+    note:"Pull-ups open; the barbell press + curl comes second because it's what kept getting cut. ~30 min to the dashed line.",
     blocks:[
       {label:"Warm-up", items:[
+        HANG,
         {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none", cue:"Every upper session, no exceptions — you rate this highly and the shoulder agrees."},
-        {n:"Band pull-aparts", rx:"2×15", type:"none", cue:"Prime the scaps before hanging off them."}]},
+        FACEPULL]},
       {label:"Primary", main:true, items:[
         {id:"pullup", n:"Weighted / assisted pull-up", rx:"3×5–6 · RIR 1–2", type:"wradd", st:2.5, start:{w:0,r:5}, cls:"pull",
          gate:{k:"sh",lvl:2,act:"Neutral-grip or assisted only, and stop at the first pinch. Skip if the hang hurts."},
          how:"Full hang to chin over the bar. kg = added load (0 = bodyweight, negative = assistance). Take reps to 3×6 before adding weight.",
          cue:"Set the shoulder blades down first, then pull the chest to the bar."}]},
-      {label:"Vertical back-off", items:[
-        {id:"latpulldown", n:"Lat pulldown", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:50,r:10}, cls:"pull",
-         how:"Finishes the vertical pull the pull-ups can't yet exhaust. Same lift as elsewhere — one shared history.",
-         cue:"Chest tall, elbows down and back."}]},
       {label:"One barbell · superset", superset:true, items:[
-        {id:"ohp", n:"Overhead press (barbell)", rx:"3×8–10 · RIR 3", type:"wr", st:2.5, start:{w:22.5,r:8}, cls:"push",
+        {id:"ohp", n:"Overhead press (barbell)", rx:"3×8–10 · RIR 2–3", type:"wr", st:2.5, start:{w:22.5,r:8}, cls:"push",
          gate:{k:"sh",lvl:2,act:"No overhead pressing today. Add a set of face-pulls instead — pulling is the treatment."},
-         how:"Standing barbell press. Landmine is the fallback on a grumbly day. Loads stay frozen and reps climb until the shoulder has been quiet two weeks.",
+         how:"Standing barbell press. Landmine is the fallback on a grumbly day. The shoulder hasn't hit 2 since early September, so the load freeze is off: reps to the top of the range, then +2.5 kg — still never a grind.",
          cue:"Glutes tight, ribs down, bar over mid-foot at lockout."},
         {id:"bb-curl", n:"Barbell curl (same bar)", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:20,r:8}, cls:"pull",
          how:"Same bar as the press — your design, and the loads currently match, so the bar isn't even re-plated.",
          cue:"Elbows pinned to the ribs — curl it, don't swing it."}]},
-      {label:"One cable tower · superset", superset:true, items:[
-        {id:"facepull", n:"Face-pull", rx:"3×15–20", type:"wr", st:2.5, start:{w:12.5,r:15}, cls:"pull",
-         how:"Rope at face height, pull to the bridge of the nose until the rope ends pass your ears. The single best insurance policy an overhead athlete has.",
-         cue:"Thumbs point behind you at the finish."},
+      {label:"Vertical back-off", items:[
+        {id:"latpulldown", n:"Lat pulldown", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:50,r:10}, cls:"pull",
+         how:"Finishes the vertical pull the pull-ups can't yet exhaust. Same lift as elsewhere — one shared history.",
+         cue:"Chest tall, elbows down and back."}]},
+      {label:"Core", opt:true, items:[
         {id:"pallof", n:"Standing Pallof press", rx:"3×12 / side", type:"wr", st:2.5, start:{w:15,r:12}, r:true, cls:"core",
          gate:{k:"lb",lvl:2,act:"Keep it, but light and slow — anti-rotation is safe work for a sore back."},
-         how:"Same tower, pulley to chest height; stand side-on, press the handle out and hold.",
-         cue:"Shoulders and hips square — resist the twist. Right side first."}]},
-      {label:"Decompress", items:[
-        {id:"hang", n:"Bar hang", rx:"2×30–45 s", type:"sec", start:{r:35}, cls:"core",
-         how:"The bar is right there. Finish the session hanging.",
-         cue:"Relax into it — let the spine lengthen."}]}
+         how:"Any cable tower, pulley at chest height; stand side-on, press the handle straight out, hold 2 s, bring it back.",
+         cue:"Shoulders and hips square — resist the twist. Right side first."}]}
     ]},
 
   { id:"upper-horiz", day:"Upper · horizontal", focus:"Rows + horizontal press", sport:"Best: Sat or Sun — any time, the gym is quiet",
-    note:"Row first, press second — the ratio that counterweights a desk. Two station supersets keep it inside 45 min.",
+    note:"Row, press, then delts and arms — the physique work moved up because it never reached the end of the session. ~30 min to the dashed line.",
     blocks:[
       {label:"Warm-up", items:[
-        {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none", cue:"Full cuff prep before any pressing."}]},
+        HANG,
+        {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none", cue:"Full cuff prep before any pressing."},
+        FACEPULL]},
       {label:"Primary", main:true, items:[
         {id:"csrow", n:"Chest-supported single-arm DB row", rx:"3×10–12 / side · RIR 2", type:"wr", st:2, start:{w:20,r:10}, r:true, cls:"pull",
          how:"Chest down on a ~30° incline bench, row one DB. Alternate arms with no rest in between — each arm rests while the other works, so it supersets itself (your find). No balance tax, no lower-back load. kg = one DB.",
          cue:"Row to the hip pocket, 1 s squeeze. Right side first."}]},
-      {label:"Secondary", items:[
-        {id:"cablerow", n:"Seated cable row", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:50,r:10}, cls:"pull",
-         gate:{k:"lb",lvl:2,act:"Chest supported or very upright only — no torso swing."},
-         how:"Seated, neutral grip, pull to the sternum.",
-         cue:"Chest tall, elbows to hips — full stretch forward, no yank."}]},
       {label:"One bench · superset", superset:true, items:[
-        {id:"incline-press", n:"Incline DB press", rx:"3×8–10 · RIR 3", type:"wr", st:2, start:{w:16,r:10}, cls:"push",
+        {id:"incline-press", n:"Incline DB press", rx:"3×8–10 · RIR 2–3", type:"wr", st:2, start:{w:16,r:10}, cls:"push",
          gate:{k:"sh",lvl:2,act:"Skip, or neutral-grip and light with a shorter range. No pain, ever."},
          how:"Bench at ~30° (the second notch on most benches), press from shoulder height to above the upper chest. kg = one DB. Copenhagens go on the same bench in the rest.",
          cue:"Elbows ~45° from the body; deep stretch, no bounce."},
         {id:"copenhagen", n:"Copenhagen plank", rx:"2×8 / side", type:"reps", start:{r:8}, r:true, cls:"core",
          how:"Side plank with the top leg on the bench — inside of the knee (short lever: start here) or the ankle (long lever: harder); the bottom leg hangs free. ONE REP = lift the hips until the body is a straight line, hold 1 s, lower until the hip almost touches the floor. 8 reps, then the other side — that is one set. The best-evidenced groin-injury insurance there is; use the short lever if the hip flexor pinches. Same bench as the press, so it fills the press rest.",
          cue:"Press the top inner thigh into the bench, hips tall at the top."}]},
-      {label:"Accessory", items:[
-        {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×15", type:"wr", st:2.5, start:{w:15,r:15}, cls:"pull",
-         how:"Sit FACING the machine, chest on the pad, handles at shoulder height; sweep the arms wide and back.",
-         cue:"Arms open like saloon doors — long arms, no shoulder-blade pinch."}]},
       {label:"One cable tower · superset", superset:true, items:[
         {id:"cable-latraise", n:"Cable lateral raise — one arm", rx:"3×12–15 / side", type:"wr", st:2.5, start:{w:5,r:12}, r:true, cls:"push",
          gate:{k:"sh",lvl:2,act:"Half range, to shoulder height only, or skip."},
@@ -543,7 +546,11 @@ A:{days:[
          cue:"Lead with the elbow, lean slightly away, no swing."},
         {id:"oh-triceps", n:"Overhead cable triceps extension — one arm", rx:"3×12 / side", type:"wr", st:2.5, start:{w:5,r:12}, r:true, cls:"push",
          how:"Same low pulley and D-handle: face away, handle behind the head, elbow up by the ear, extend overhead. One arm at a time — kg = the stack for one arm. The long head only gets its stretch overhead.",
-         cue:"Elbow fixed by the ear — only the forearm moves."}]}
+         cue:"Elbow fixed by the ear — only the forearm moves."}]},
+      {label:"Rear delts", opt:true, items:[
+        {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×15", type:"wr", st:2.5, start:{w:15,r:15}, cls:"pull",
+         how:"Sit FACING the machine, chest on the pad, handles at shoulder height; sweep the arms wide and back.",
+         cue:"Arms open like saloon doors — long arms, no shoulder-blade pinch."}]}
     ]},
 
   { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Fri afternoon, after padel — ~72 h before Monday volleyball",
@@ -551,8 +558,9 @@ A:{days:[
     blocks:[
       {label:"Warm-up", items:[
         {n:"Full-body stretch flow", rx:"~6–8 min", type:"none", cue:"Don't skip the world's greatest stretch.", how:FLOW},
-        {id:"wallsit", n:"Wall-sit isometric", rx:"3×45–60 s · +10 kg", type:"sec", start:{r:45}, cls:"legs",
-         how:"Back flat on the wall, thighs near parallel, plate on the lap. 45 s at 5 kg became easy — the progression is load first (10 → 15 kg), then time. Isometrics reduce tendon pain acutely; this is knee treatment, not filler.",
+        HANG,
+        {id:"wallsit", n:"Wall-sit isometric", rx:"3×45–60 s · 15–20 kg", type:"wsec", st:2.5, start:{w:20,r:45}, cls:"legs",
+         how:"Back flat on the wall, thighs near parallel, plate on the lap — kg = the plate. Time to 60 s, then +2.5 kg and back to 45 s. Isometrics reduce tendon pain acutely; this is knee treatment, not filler.",
          cue:"Sit hard into the wall — thighs burn, knees stay quiet."},
         {id:"tke", n:"Banded terminal knee extension", rx:"2×12 / leg", type:"reps", start:{r:12}, r:true, cls:"legs",
          how:"Band round the back of the knee anchored forward at knee height; straighten the knee fully against it, one leg at a time. Your own discovery and it is NOT placebo — this is a standard patellofemoral exercise: the last 30° of extension is where joint compression is lowest, so you load the quad exactly where the knee tolerates it. Do it every session the knee is 1+, and once a fortnight even when it's quiet.",
@@ -565,8 +573,8 @@ A:{days:[
          cue:"Slow elevator down; front heel heavy, knee tracking the toes. Right first."}]},
       {label:"Hinge", items:[
         {id:"deadlift", n:"Deadlift (trap-bar or barbell)", rx:"3×6–8 · RIR 2–3", type:"wr", st:2.5, start:{w:70,r:6}, cls:"legs",
-         gate:{k:"lb",lvl:2,act:"SKIP. Do 2×15 bodyweight back extensions and an extra 45 s hang instead. The deadlift comes back when the back logs two days at 0–1."},
-         how:"From the floor, hinge and stand tall. Trap-bar if free. Moderate load, crisp reps — this is back medicine, never an ego lift.",
+         gate:{k:"lb",lvl:2,act:"SKIP. Do 2×15 bodyweight back extensions and an extra 45 s hang instead. It comes back after two days at 0–1 and your physio's OK — and the first two sessions back are ramped (the blue chip gives the load)."},
+         how:"From the floor, hinge and stand tall. Trap-bar if free — and always while the back is ramping back in: more upright, less load on the low back. Moderate load, crisp reps — this is back medicine, never an ego lift.",
          cue:"Wedge in, push the floor away — bar close, long spine, no jerk."}]},
       {label:"Eccentric hamstring", items:[
         {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–8", type:"reps", start:{r:6}, cls:"legs",
@@ -580,14 +588,11 @@ A:{days:[
         {id:"tib", n:"Tibialis raise", rx:"2×15–20", type:"reps", start:{r:15}, cls:"legs",
          how:"Heels down, toes lifted toward the shins. Landing control and knee health, especially on hard court.",
          cue:"Slow both ways."}]},
-      {label:"Power (knee-gated)", items:[
+      {label:"Power (knee-gated)", opt:true, items:[
         {id:"bound", n:"Lateral bound — stick the landing", rx:"3×4 / side", type:"reps", start:{r:4}, r:true, cls:"legs",
          gate:{k:"knee",lvl:2,act:"Skip. Sand and court give you plenty of landings already."},
          how:"Jump sideways off one leg, land on the other, freeze. The only plyo in the program — indoor season makes landings harsher, so quality over quantity.",
-         cue:"Stick every landing quietly for 1 s."}]},
-      {label:"Decompress", items:[
-        {id:"hang", n:"Bar hang", rx:"2×30–45 s", type:"sec", start:{r:35}, cls:"core",
-         cue:"Finish long."}]}
+         cue:"Stick every landing quietly for 1 s."}]}
     ]}
 ]},
 B:{days:[
@@ -596,11 +601,11 @@ B:{days:[
     blocks:[
       {label:"Warm-up", items:[
         {n:"Full-body stretch flow", rx:"~6–8 min", type:"none", cue:"Flow, don't force.", how:FLOW},
-        {n:"Ramp-up sets", rx:"2 light sets of the hip thrust", type:"none", cue:"~50% then ~75% of the work weight."}]},
-      {label:"Power (non-impact)", items:[
-        {id:"speed-hipthrust", n:"Hip thrust — speed sets", rx:"3×6 · ~50% of top weight", type:"wr", st:2.5, start:{w:40,r:6}, cls:"legs",
+        HANG]},
+      {label:"Power · doubles as the ramp-up", items:[
+        {id:"speed-hipthrust", n:"Hip thrust — speed sets", rx:"3×6 · ~50% of top weight", type:"wr", st:2.5, start:{w:40,r:6}, cls:"legs", pct:{of:"hipthrust",p:0.5},
          gate:{k:"lb",lvl:2,act:"Skip while the back is loud."},
-         how:"Half your top weight, every rep driven as fast as possible, full rest.",
+         how:"Half your top weight, every rep driven as fast as possible, full rest. They are also your ramp-up: one bridge set at ~75%, then the work sets.",
          cue:"If the bar slows, it's too heavy."}]},
       {label:"Primary", main:true, items:[
         {id:"hipthrust", n:"Hip thrust", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:60,r:10}, cls:"legs",
@@ -618,75 +623,62 @@ B:{days:[
          how:"Single leg, right first. Stack setting = per-leg load. Spine-safe, so it stays when the back is sore.",
          cue:"Hips pinned — the right hamstring does its own work."}]},
       {label:"Lower back", items:[
-        {id:"backext", n:"45° back extension", rx:"2×12–15", type:"wr", st:2.5, start:{w:5,r:12}, cls:"core",
+        {id:"backext", n:"45° back extension", rx:"2×12–15", type:"wradd", bwf:0.5, st:2.5, start:{w:5,r:12}, cls:"core",
          gate:{k:"lb",lvl:2,act:"Bodyweight, 2×15, short of full extension — but do it."},
          how:"Target 10 kg × 12–15. Progressive medicine.",
-         cue:"Long spine, glutes to rise."}]},
-      {label:"Decompress", items:[
-        {id:"hang", n:"Bar hang", rx:"2×30–45 s", type:"sec", start:{r:35}, cls:"core", cue:"Let the spine lengthen."}]}
+         cue:"Long spine, glutes to rise."}]}
     ]},
 
   { id:"upper-vert", day:"Upper · vertical", focus:"Vertical pull + press", sport:"Best: Mon morning — volleyball tonight is fine; upper work doesn't cost it",
-    note:"Higher-rep vertical day. Pull first, always.",
+    note:"Higher-rep vertical day. Pull-ups open, the barbell pair comes second. ~30 min to the dashed line.",
     blocks:[
       {label:"Warm-up", items:[
+        HANG,
         {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none", cue:"Every upper session."},
-        {n:"Band pull-aparts", rx:"2×15", type:"none"}]},
+        FACEPULL]},
       {label:"Primary", main:true, items:[
         {id:"pullup", n:"Pull-up (assist as needed)", rx:"3×8–12", type:"wradd", st:2.5, start:{w:0,r:8}, cls:"pull",
          gate:{k:"sh",lvl:2,act:"Neutral grip or assisted, stop at the first pinch."},
          how:"kg = added load (0 = bodyweight, negative = assistance).",
          cue:"Blades down first, then pull — close to failure with control."}]},
-      {label:"Vertical back-off", items:[
-        {id:"latpulldown", n:"Lat pulldown (wide)", rx:"3×12–15", type:"wr", st:2.5, start:{w:50,r:12}, cls:"pull",
-         how:"Finishes what the pull-ups start.",
-         cue:"Chest tall — elbows down and back."}]},
       {label:"One barbell · superset", superset:true, items:[
-        {id:"ohp", n:"Overhead press (barbell)", rx:"3×10–12 · RIR 3", type:"wr", st:2.5, start:{w:20,r:10}, cls:"push",
+        {id:"ohp", n:"Overhead press (barbell)", rx:"3×10–12 · RIR 2–3", type:"wr", st:2.5, start:{w:20,r:10}, cls:"push",
          gate:{k:"sh",lvl:2,act:"No pressing. Extra face-pulls instead."},
-         how:"Reps before load until the shoulder has been quiet two weeks.",
+         how:"Reps to the top of the range, then +2.5 kg. The shoulder has been quiet since early September — the freeze is off.",
          cue:"Ribs down, no lean-back."},
         {id:"bb-curl", n:"Barbell curl (same bar)", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:20,r:10}, cls:"pull",
          how:"Same bar, no re-plating.",
          cue:"Elbows pinned."}]},
-      {label:"One cable tower · superset", superset:true, items:[
-        {id:"facepull", n:"Face-pull", rx:"3×20", type:"wr", st:2.5, start:{w:12.5,r:20}, cls:"pull",
-         cue:"Thumbs behind you at the finish."},
-        {id:"pallof", n:"Standing Pallof press", rx:"3×12 / side", type:"wr", st:2.5, start:{w:15,r:12}, r:true, cls:"core",
-         gate:{k:"lb",lvl:2,act:"Light and slow — safe work for a sore back."},
-         cue:"Resist the twist. Right first."}]},
-      {label:"Core + decompress", items:[
+      {label:"Vertical back-off", items:[
+        {id:"latpulldown", n:"Lat pulldown (wide)", rx:"3×12–15", type:"wr", st:2.5, start:{w:50,r:12}, cls:"pull",
+         how:"Finishes what the pull-ups start.",
+         cue:"Chest tall — elbows down and back."}]},
+      {label:"Core", opt:true, items:[
         {id:"hangraise", n:"Hanging leg raise", rx:"3×8–12", type:"reps", start:{r:8}, cls:"core",
          gate:{k:"lb",lvl:2,act:"Knees only, slow, or just hang."},
          how:"Hang from the bar, raise knees or straight legs to hip height or above.",
-         cue:"No swing — own the way down."},
-        {id:"hang", n:"Bar hang", rx:"2×30–45 s", type:"sec", start:{r:35}, cls:"core", cue:"Finish long."}]}
+         cue:"No swing — own the way down."}]}
     ]},
 
   { id:"upper-horiz", day:"Upper · horizontal", focus:"Rows + horizontal press", sport:"Best: Sat or Sun — any time, the gym is quiet",
-    note:"Pump-oriented horizontal day — stretch and squeeze, still row-led.",
+    note:"Pump-oriented horizontal day — stretch and squeeze, still row-led. ~30 min to the dashed line.",
     blocks:[
       {label:"Warm-up", items:[
-        {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"}]},
+        HANG,
+        {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"},
+        FACEPULL]},
       {label:"Primary", main:true, items:[
         {id:"csrow", n:"Chest-supported single-arm DB row", rx:"3×12–15 / side", type:"wr", st:2, start:{w:20,r:12}, r:true, cls:"pull",
          how:"Chest on the ~30° incline bench, full stretch at the bottom. Alternate arms with no rest — each arm rests while the other works.",
          cue:"Row to the hip pocket. Right first."}]},
-      {label:"Secondary", items:[
-        {id:"cablerow", n:"Seated cable row", rx:"3×12–15", type:"wr", st:2.5, start:{w:50,r:12}, cls:"pull",
-         gate:{k:"lb",lvl:2,act:"Upright, no swing."},
-         cue:"Full stretch forward, elbows to hips."}]},
       {label:"One bench · superset", superset:true, items:[
-        {id:"chest-press", n:"DB or machine chest press", rx:"3×10–12 · RIR 3", type:"wr", st:2, start:{w:16,r:12}, cls:"push",
+        {id:"chest-press", n:"DB or machine chest press", rx:"3×10–12 · RIR 2–3", type:"wr", st:2, start:{w:16,r:12}, cls:"push",
          gate:{k:"sh",lvl:2,act:"Machine, neutral grip, light — or skip."},
          how:"Flat bench, DBs (kg = one DB) — the machine is the fallback, but then the Copenhagen needs its own bench. Chase the stretch.",
          cue:"Control the negative — no bounce."},
         {id:"copenhagen", n:"Copenhagen plank", rx:"2×8 / side", type:"reps", start:{r:8}, r:true, cls:"core",
          how:"Side plank with the top leg on the bench — inside of the knee (short lever: start here) or the ankle (long lever: harder); the bottom leg hangs free. ONE REP = lift the hips until the body is a straight line, hold 1 s, lower until the hip almost touches the floor. 8 reps, then the other side — that is one set. The best-evidenced groin-injury insurance there is; use the short lever if the hip flexor pinches. Same bench as the press, so it fills the press rest.",
          cue:"Hips tall at the top — shorten the lever if the hip flexor pinches."}]},
-      {label:"Accessory", items:[
-        {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×15–20", type:"wr", st:2.5, start:{w:15,r:15}, cls:"pull",
-         cue:"Long arms, no pinch."}]},
       {label:"One cable tower · superset", superset:true, items:[
         {id:"cable-latraise", n:"Cable lateral raise — one arm", rx:"3×15–20 / side", type:"wr", st:2.5, start:{w:5,r:15}, r:true, cls:"push",
          gate:{k:"sh",lvl:2,act:"Half range or skip."},
@@ -694,7 +686,10 @@ B:{days:[
          cue:"Strict — constant tension, no swing."},
         {id:"oh-triceps", n:"Overhead cable triceps extension — one arm", rx:"3×12–15 / side", type:"wr", st:2.5, start:{w:5,r:12}, r:true, cls:"push",
          how:"Same low pulley: face away, elbow by the ear, extend overhead. kg = one arm.",
-         cue:"Elbow fixed — only the forearm moves."}]}
+         cue:"Elbow fixed — only the forearm moves."}]},
+      {label:"Rear delts", opt:true, items:[
+        {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×15–20", type:"wr", st:2.5, start:{w:15,r:15}, cls:"pull",
+         cue:"Long arms, no pinch."}]}
     ]},
 
   { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Fri afternoon, after padel — ~72 h before Monday volleyball",
@@ -702,6 +697,7 @@ B:{days:[
     blocks:[
       {label:"Warm-up", items:[
         {n:"Full-body stretch flow", rx:"~6–8 min", type:"none", cue:"Especially before lunging.", how:FLOW},
+        HANG,
         {id:"legext-tempo", n:"Leg extension — light tempo", rx:"3×10 · 3 s down", type:"wr", st:2.5, start:{w:20,r:10}, cls:"legs",
          gate:{k:"knee",lvl:2,act:"Lighter and slower still — this is the treatment, don't skip it."},
          how:"Light weight, 3 s on the way down. Tendon medicine, not a quad workout.",
@@ -717,8 +713,8 @@ B:{days:[
          cue:"Front heel heavy, torso tall. Right first."}]},
       {label:"Hinge", items:[
         {id:"deadlift", n:"Deadlift (trap-bar or barbell)", rx:"3×8–10 · RIR 2–3", type:"wr", st:2.5, start:{w:70,r:8}, cls:"legs",
-         gate:{k:"lb",lvl:2,act:"SKIP. 2×15 bodyweight back extensions + an extra hang. Back to the bar after two days at 0–1."},
-         how:"Slightly lighter and higher-rep than week A, same crisp standard.",
+         gate:{k:"lb",lvl:2,act:"SKIP. 2×15 bodyweight back extensions + an extra hang. Back to the bar after two days at 0–1 and the physio's OK — ramped in."},
+         how:"Slightly lighter and higher-rep than week A, same crisp standard. Trap-bar while the back is ramping back in.",
          cue:"Bar close, long spine — every rep identical."}]},
       {label:"Eccentric hamstring", items:[
         {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–8", type:"reps", start:{r:6}, cls:"legs",
@@ -728,19 +724,17 @@ B:{days:[
       {label:"Same spot · superset", superset:true, items:[
         {id:"calf-sl", n:"Single-leg calf raise — per foot", rx:"3×15 / foot", type:"wr", st:2.5, start:{w:17.5,r:15}, r:true, cls:"legs", cue:"Right foot first. Pause the stretch."},
         {id:"tib", n:"Tibialis raise", rx:"2×20", type:"reps", start:{r:20}, cls:"legs", cue:"Slow both ways."}]},
-      {label:"Power (knee-gated)", items:[
+      {label:"Power (knee-gated)", opt:true, items:[
         {id:"bound", n:"Lateral bound — stick the landing", rx:"3×4 / side", type:"reps", start:{r:4}, r:true, cls:"legs",
          gate:{k:"knee",lvl:2,act:"Skip."},
-         cue:"Freeze each landing 1 s."}]},
-      {label:"Decompress", items:[
-        {id:"hang", n:"Bar hang", rx:"2×30–45 s", type:"sec", start:{r:35}, cls:"core", cue:"Finish long."}]}
+         cue:"Freeze each landing 1 s."}]}
     ]}
 ]}};
 
 /* Registry: id -> {name, type, cls} (first occurrence wins) */
 const EXMETA = {};
 ["A","B"].forEach(w => PROGRAM[w].days.forEach(d => (d.blocks||[]).forEach(b => b.items.forEach(it => {
-  if(it.id && !EXMETA[it.id]) EXMETA[it.id] = {name:it.n, type:it.type, cls:it.cls||""};
+  if(it.id && !EXMETA[it.id]) EXMETA[it.id] = {name:it.n, type:it.type, cls:it.cls||"", bwf:it.bwf};
 }))));
 /* Retired movements — logged history stays visible in trends & check-ins */
 const RETIRED = {
@@ -750,7 +744,8 @@ const RETIRED = {
   "goblet-stepup":{name:"Goblet step-up (retired)", type:"wr", cls:"legs"},
   "db-curl":{name:"DB curl (retired — barbell now)", type:"wr", cls:"pull"},
   calf:{name:"Standing calf raise — two feet (retired, single-leg now)", type:"wr", cls:"legs"},
-  latraise:{name:"Standing DB lateral raise (retired — cable now)", type:"wr", cls:"push"}
+  latraise:{name:"Standing DB lateral raise (retired — cable now)", type:"wr", cls:"push"},
+  cablerow:{name:"Seated cable row (retired — the CS row covers rows)", type:"wr", cls:"pull"}
 };
 Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
 
@@ -762,7 +757,7 @@ const STORE_KEY = "mikkel_training_v2";
 function blankState(){
   return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{},
           meta:{lastBackup:null, lastCheckin:null, lastDeload:null, deloadUntil:null,
-                blockStart:BLOCK_START, app:"v11.2"}, ui:{}};
+                blockStart:BLOCK_START, app:"v11.3"}, ui:{}};
 }
 function normalize(s){
   const b = blankState();
@@ -779,6 +774,9 @@ const LC_FIX_BEFORE = 1789909132527;
 const CALF_SL_FROM = Date.parse("2026-09-26T00:00:00+02:00");
 /* Overhead triceps went one-arm on 30 Sep 2026; entries before 28 Sep were two-arm rope work → halve (his request). */
 const OHT_ONE_BEFORE = Date.parse("2026-09-28T00:00:00+02:00");
+/* Wall sits gained a kg field in v11.3. The 4 Oct 2026 hold was 20 kg × 55 s (his note) but could only be
+   logged as seconds — restore the 20 kg. Any other kg-less hold was bodyweight. */
+const WALLSIT_20KG = [Date.parse("2026-10-04T00:00:00+02:00"), Date.parse("2026-10-05T00:00:00+02:00")];
 function migrate(st){
   if(!st.meta.lcFixed && st.logs && st.logs.lyingcurl){
     st.logs.lyingcurl = st.logs.lyingcurl.map(e =>
@@ -804,6 +802,11 @@ function migrate(st){
       (e.ts < OHT_ONE_BEFORE && e.w) ? Object.assign({}, e, {w: Math.round(e.w/2*10)/10}) : e);
     st.meta.ohtOne = true;
   }
+  if(!st.meta.wsKg && st.logs && st.logs.wallsit){
+    st.logs.wallsit = st.logs.wallsit.map(e => e.w!=null ? e :
+      Object.assign({}, e, {w: (e.ts>=WALLSIT_20KG[0] && e.ts<WALLSIT_20KG[1]) ? 20 : 0}));
+    st.meta.wsKg = true;
+  }
   return st;
 }
 function load(){
@@ -814,7 +817,7 @@ function load(){
   }catch(e){ return blankState(); }
 }
 let state = load();
-function save(){ try{ state.meta.app="v11.2"; localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} schedulePush(); }
+function save(){ try{ state.meta.app="v11.3"; localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} schedulePush(); }
 
 /* =====================================================================
    Helpers
@@ -826,21 +829,23 @@ function round1(x){ return Math.round(x*10)/10; }
 function latestBw(){ return (state.bw && state.bw.length) ? state.bw[state.bw.length-1].kg : 83; }
 function e1rm(w,r){ return r>0 ? w*(1+r/30) : w; }
 function metric(exId, e){
-  const t=(EXMETA[exId]||{}).type;
+  const m=EXMETA[exId]||{}, t=m.type;
   if(t==="wr")    return e1rm(e.w||0, e.r||0);
-  if(t==="wradd") return e1rm(latestBw()+(e.w||0), e.r||0);
+  if(t==="wradd") return e1rm((m.bwf!=null?m.bwf:1)*latestBw()+(e.w||0), e.r||0);
+  if(t==="wsec")  return (e.w||0)+(e.r||0)/1e4;      /* load first; time only breaks ties */
   if(t==="reps"||t==="sec") return e.r||0;
   if(t==="w")     return e.w||0;
   return 0;
 }
 function metricLabel(exId){
   const t=(EXMETA[exId]||{}).type;
-  return t==="reps" ? "reps" : t==="sec" ? "s" : t==="w" ? "kg" : "kg e1RM";
+  return t==="reps" ? "reps" : t==="sec" ? "s" : (t==="w"||t==="wsec") ? "kg" : "kg e1RM";
 }
 function entryText(exId, e){
   const t=(EXMETA[exId]||{}).type;
   if(t==="reps") return e.r+" reps";
   if(t==="sec")  return e.r+" s";
+  if(t==="wsec") return (e.w||0)+" kg × "+e.r+" s";
   if(t==="w")    return e.w+" kg";
   if(t==="wradd")return (e.w>0?"+":"")+e.w+" kg × "+e.r;
   return e.w+" kg × "+e.r;
@@ -936,9 +941,21 @@ function deloadAnchorTs(){
   const g = lastGapReset();
   return Math.max(a, g ? new Date(g+"T12:00").getTime() : 0);
 }
+/* Work, not attendance (v11.3): a session counts in proportion to the working lifts logged that day —
+   4+ is a full session, a ticked-but-unlogged day counts half. Thirteen-minute mornings were counting
+   the same as a 75-minute leg day, and the clock called a deload after a month of short re-entry sessions. */
+const FULL_SESSION_LIFTS=4;
+/* Warm-up, tendon and decompression work: real, but not what accumulates into a deload or a stall. */
+const NOT_WORK=["hang","tke","wallsit","legext-tempo","speed-hipthrust","facepull","bound"];
+function workingLiftsOn(d){
+  let n=0; Object.keys(state.logs).forEach(id=>{ if(NOT_WORK.includes(id)) return;
+    (state.logs[id]||[]).forEach(e=>{ if(ymd(new Date(e.ts))===d) n++; }); });
+  return n;
+}
+function sessionWork(d){ const n=workingLiftsOn(d); return n ? Math.min(1, n/FULL_SESSION_LIFTS) : 0.5; }
 function sessionsSinceAnchor(){
   const t=deloadAnchorTs();
-  return sessionDates().filter(d=>new Date(d+"T23:59:00").getTime()>t).length;
+  return round1(sessionDates().filter(d=>new Date(d+"T23:59:00").getTime()>t).reduce((s,d)=>s+sessionWork(d),0));
 }
 function reEntry(){
   if(layoffDays()>=LAYOFF_DAYS) return true;
@@ -958,13 +975,51 @@ function repRange(rx){
   return {lo, hi};
 }
 const PRESS_IDS=["ohp","incline-press","chest-press","latraise","cable-latraise"];
-const NO_ADVICE=["speed-hipthrust","legext-tempo","wallsit","tke","bound","hang"];
+const NO_ADVICE=["speed-hipthrust","legext-tempo","tke","bound","hang"];
 function shoulderAmber(){ return flagCount("sh",2,14)>0; }
+/* ---------- intelligence: ramp-in after a flare or a gap ----------
+   26 Sep 2026: the first deadlift after the back strain went straight to a 10-rep best (72.5 × 10) and the
+   back flared three days later. So: a lift whose structure was rated 2+ in the last 28 days comes back at
+   ~80% of its pre-flare load, then ~90%, then normal progression. A lift untouched for 4+ weeks (or not
+   done since a layoff) comes back at ~85%. Whichever is lighter wins; always rounded down. */
+const RAMP_FLAG_DAYS=28, RAMP_STALE_DAYS=28;
+function lastFlagDate(k,lvl){
+  const rl=readyList(); for(let i=rl.length-1;i>=0;i--) if((rl[i][k]||0)>=lvl) return rl[i].d;
+  return null;
+}
+function rampFor(it){
+  if(!it || !it.id || (it.type!=="wr" && it.type!=="wradd") || NO_ADVICE.includes(it.id)) return null;
+  const arr=state.logs[it.id]||[], le=arr[arr.length-1];
+  if(!le || !(le.w>0) || gateFor(it)) return null;          /* bodyweight work, or gated today: the amber line rules */
+  const st=it.st||2.5, down=x=>Math.floor(x/st+1e-9)*st, opts=[];
+  if(it.gate){
+    const fd=lastFlagDate(it.gate.k, it.gate.lvl);
+    if(fd && daysSince(fd)<=RAMP_FLAG_DAYS){
+      const end=new Date(fd+"T23:59:59").getTime(), n=arr.filter(e=>e.ts>end).length;
+      const ref=arr.filter(e=>e.ts<=end).pop();
+      if(n<2 && ref && ref.w>0) opts.push({w:down(ref.w*(n?0.9:0.8)), base:ref.w, pct:n?90:80,
+        why:`${STRUCT[it.gate.k]} ${n?"ramp, step 2":"2+ on "+fmtDate(new Date(fd+"T12:00").getTime())}`});
+    }
+  }
+  const gap=lastGapReset(), stale=daysSince(ymd(new Date(le.ts)))>=RAMP_STALE_DAYS ||
+    (reEntry() && gap && le.ts<new Date(gap+"T00:00").getTime());
+  if(stale) opts.push({w:down(le.w*0.85), base:le.w, pct:85, why:`last done ${fmtDate(le.ts)}`});
+  /* light accessories: rounding a 5 kg stack down a whole plate would halve it — the rep target is enough there */
+  const ok=opts.filter(o=>o.w>=o.base*(o.pct/100-0.1));
+  if(!ok.length) return null;
+  const r=ok.reduce((a,b)=>b.w<a.w?b:a); return {w:r.w, pct:r.pct, why:r.why};
+}
 function advice(it){
   if(!it.id || it.type==="none" || it.type==="w" || NO_ADVICE.includes(it.id)) return "";
   const le=lastEntry(it.id); if(!le || le.r==null) return "";
+  const rr=repRange(it.rx), rp=rampFor(it);
+  if(rp && rr) return `<span class="chip ramp">↺ ramp-in · ${rp.w} kg × ${rr.lo}</span><span class="best">≈${rp.pct}% · ${rp.why}</span>`;
   if(PRESS_IDS.includes(it.id) && shoulderAmber()) return `<span class="chip amber">reps only · shoulder</span>`;
-  const rr=repRange(it.rx); if(!rr) return "";
+  if(!rr) return "";
+  if(it.type==="wsec"){
+    if(le.r>=rr.hi) return `<span class="chip up">↑ try ${round1((le.w||0)+(it.st||2.5))} kg × ${rr.lo} s</span>`;
+    return `<span class="chip flat">→ aim ${le.w||0} kg × ${Math.min(le.r+5, rr.hi)} s</span>`;
+  }
   const unit=it.type==="sec"?"s":"";
   if(le.r>=rr.hi){
     if(it.type==="reps"||it.type==="sec")
@@ -1062,7 +1117,10 @@ function deloadNote(blk,it){
 function stalledLifts(){
   const out=[];
   Object.keys(state.logs).forEach(id=>{
-    const arr=state.logs[id]||[]; if(arr.length<4 || RETIRED[id]) return;
+    const arr=state.logs[id]||[]; if(arr.length<4 || RETIRED[id] || NOT_WORK.includes(id)) return;
+    /* a dip right after its structure was flagged is the injury talking, not the programme */
+    const c=catalogItem(id), g=c&&c.it.gate, fd=g&&lastFlagDate(g.k,g.lvl);
+    if(fd && daysSince(fd)<=RAMP_FLAG_DAYS) return;
     const ms=arr.map(e=>metric(id,e));
     const best=Math.max(...ms);
     const lastThree=ms.slice(-3);
@@ -1116,7 +1174,7 @@ function lastDoneOf(id){
 }
 function daysSince(dstr){ return dstr ? Math.round((Date.now()-new Date(dstr+"T12:00").getTime())/864e5) : 999; }
 /* Pure planner: weekday, sessions done this ISO week, days since each lower day → {id, msg}. */
-function planFor(dw, did, gaps){
+function planFor(dw, did, gaps, today){
   const todo=CORE.filter(id=>did.indexOf(id)<0);
   const sport=SPORT_DAYS[dw]?` — ${SPORT_DAYS[dw]} today`:"";
   if(!todo.length) return {id:null, msg:"All four sessions done this week — anything more is a bonus."};
@@ -1125,6 +1183,10 @@ function planFor(dw, did, gaps){
   const due=todo.filter(id=>left(id)[0]===dw);
   const skipped=todo.filter(id=>!left(id).length);
   const tail=skipped.indexOf("lower-power")>=0 && dw!==2 ? " Missed Lower · power this week? Skip it — Friday covers the legs." : "";
+  if(today && CORE.indexOf(today)>=0){
+    const pw = dw===2 && todo.indexOf("lower-power")>=0 ? " Lower · power didn't fit today — skip it this week; Friday covers the legs." : tail;
+    return {id:null, msg:`${nameOf(today)} is in for today${sport}.`+pw};
+  }
   let pick = due.indexOf(DAYMAP[dw])>=0 ? DAYMAP[dw] : due[0];
   if(due.indexOf("lower-strength")>=0 && dw===6) pick="lower-strength";      /* Sat: its last slot; horizontal still has Sunday */
   if(!pick){
@@ -1146,7 +1208,8 @@ function planFor(dw, did, gaps){
 }
 function suggestion(){
   return planFor(new Date().getDay(), doneThisWeek(),
-    {"lower-power":daysSince(lastDoneOf("lower-power")), "lower-strength":daysSince(lastDoneOf("lower-strength"))});
+    {"lower-power":daysSince(lastDoneOf("lower-power")), "lower-strength":daysSince(lastDoneOf("lower-strength"))},
+    state.sessions[ymd()]||null);
 }
 function nameOf(id){
   const d=PROGRAM.A.days.find(x=>x.id===id); return d?d.day:id;
@@ -1178,7 +1241,7 @@ function renderStrip(){
   if(!r) pills.push(`<span class="pill info">rate readiness ↓</span>`);
 
   if(anyFlag) details.push(`<p><b>Amber lines on the cards already tell you what to do today.</b> Follow them rather than the printed prescription.</p>`);
-  if(flagCount("lb",2,10)>=3) details.push(`<p><b>Lower back has been 2+ three times in 10 days.</b> That is past the self-managing threshold — get a physio to look at it, and keep moving gently in the meantime.</p>`);
+  if(flagCount("lb",2,10)>=3) details.push(`<p><b>Lower back has been 2+ three times in 10 days.</b> That is past the self-managing threshold — follow your physio's plan (book one if nobody is on it), and keep moving gently.</p>`);
   if(flagCount("sh",2,14)>0) details.push(`<p><b>Shoulder flagged within 14 days:</b> pressing loads are frozen — reps only, RIR 3.</p>`);
 
   const n=sessionsSinceBackup();
@@ -1188,7 +1251,7 @@ function renderStrip(){
   }
   if(!deloadActive() && fatigueDue()){
     pills.push(`<span class="pill info">deload due</span>`);
-    details.push(`<p><b>${sessionsSinceAnchor()} hard sessions since your last reset.</b> That's enough accumulated work to warrant a week at 2 sets. <button data-deload-start>Start deload week</button></p>`);
+    details.push(`<p><b>≈${sessionsSinceAnchor()} full sessions of work since your last reset.</b> That's enough accumulated work to warrant a week at 2 sets. <button data-deload-start>Start deload week</button></p>`);
   }
   if(!deloadActive() && reEntry()){
     pills.push(`<span class="pill info">re-entry</span>`);
@@ -1226,7 +1289,7 @@ let curDay=0;
 (function initDay(){
   const s=suggestion();
   const days=PROGRAM[curWeek].days;
-  const idx=s.id?days.findIndex(d=>d.id===s.id):-1;
+  const want=s.id||state.sessions[ymd()], idx=want?days.findIndex(d=>d.id===want):-1;
   curDay=(state.ui.dDate===ymd() && typeof state.ui.day==="number") ? state.ui.day : (idx>=0?idx:0);
 })();
 function persistUi(){ state.ui={week:curWeek, day:curDay, wDate:ymd(), dDate:ymd()}; save(); }
@@ -1255,23 +1318,27 @@ function exKey(d,bi,ii){ return curWeek+"-"+d.id+"|"+bi+"|"+ii; }
 
 function renderDay(){
   const d=PROGRAM[curWeek].days[curDay];
-  let total=0, doneN=0;
+  let total=0, doneN=0, extraN=0;
   d.blocks.forEach((blk,bi)=>blk.items.forEach((it,ii)=>{
-    total++; if(state.done[exKey(d,bi,ii)]===ymd()) doneN++;
+    const dn=state.done[exKey(d,bi,ii)]===ymd();
+    if(blk.opt){ if(dn) extraN++; return; }      /* below the line doesn't count against you */
+    total++; if(dn) doneN++;
   }));
 
   const pct=total?Math.round(doneN/total*100):0;
   let html=activityHtml()+`<div class="dayhead">
       <p class="focus">${d.focus}</p>
-      <div class="dtitle"><h2>${d.day}</h2><span class="progress">${doneN}/${total} done</span></div>
+      <div class="dtitle"><h2>${d.day}</h2><span class="progress">${doneN}/${total} done${extraN?` · +${extraN}`:""}</span></div>
       <div class="pbar"><i style="width:${pct}%"></i></div>
       <p class="dmeta">${d.sport}</p>
       ${d.note?`<p class="note">${d.note}</p>`:""}
     </div>`;
   html+=readinessHtml(d);
 
+  let lineDrawn=false;
   d.blocks.forEach((blk,bi)=>{
-    html+=`<div class="block ${blk.superset?"ss":""}"><p class="label">${blk.label}${blk.superset && !/superset/i.test(blk.label)?'<span class="ss-badge">Superset</span>':""}</p>`;
+    if(blk.opt && !lineDrawn){ lineDrawn=true; html+=`<div class="iftime"><span>If you have time</span></div>`; }
+    html+=`<div class="block ${blk.superset?"ss":""} ${blk.opt?"opt":""}"><p class="label">${blk.label}${blk.superset && !/superset/i.test(blk.label)?'<span class="ss-badge">Superset</span>':""}</p>`;
     blk.items.forEach((it,ii)=>{ html+=exerciseHtml(d,blk,bi,it,ii); });
     html+=`</div>`;
   });
@@ -1416,17 +1483,23 @@ function exerciseHtml(d,blk,bi,it,ii,from){
   if(!it.id && String(it.n).indexOf("Ramp-up")===0){
     const mainIt=((d.blocks||[]).find(b=>b.main)||{items:[{}]}).items[0];
     const le=mainIt.id?lastEntry(mainIt.id):null;
-    if(le && le.w){ const rr=x=>Math.round(le.w*x/2.5)*2.5;
-      inner+=`<p class="cue">≈ <b>${rr(0.5)} kg</b>, then ≈ <b>${rr(0.75)} kg</b> (from your last ${le.w} kg top set)</p>`; }
+    const rp=mainIt.id?rampFor(mainIt):null, base=rp?rp.w:(le&&le.w);
+    if(base){ const rr=x=>Math.round(base*x/2.5)*2.5;
+      inner+=`<p class="cue">≈ <b>${rr(0.5)} kg</b>, then ≈ <b>${rr(0.75)} kg</b> (${rp?`from today's ${base} kg ramp-in`:`from your last ${base} kg top set`})</p>`; }
   }
 
+  if(it.pct){
+    const le=lastEntry(it.pct.of), rr=x=>Math.round(le.w*x/2.5)*2.5;
+    if(le && le.w) inner+=`<p class="cue">≈ <b>${rr(it.pct.p)} kg</b> for the speed sets, then one bridge set ≈ <b>${rr(0.75)} kg</b> (your last ${le.w} kg)</p>`;
+  }
   if(it.id && it.type!=="none"){
-    const le=lastEntry(it.id), start=it.start||{};
-    const w = te? te.w : (le && le.w!=null ? le.w : (start.w!=null? start.w : 0));
-    const r = te? te.r : (start.r!=null? start.r : (le? le.r : 8));
-    const showW = (it.type==="wr"||it.type==="wradd"||it.type==="w");
+    const le=lastEntry(it.id), start=it.start||{}, rp=te?null:rampFor(it), rrx=repRange(it.rx);
+    /* a ramp-in prefills its own load, so one tap logs what the chip asked for */
+    const w = te? te.w : rp ? rp.w : (le && le.w!=null ? le.w : (start.w!=null? start.w : 0));
+    const r = te? te.r : (rp && rrx) ? rrx.lo : (start.r!=null? start.r : (le? le.r : 8));
+    const showW = (it.type==="wr"||it.type==="wradd"||it.type==="w"||it.type==="wsec");
     const showR = it.type!=="w";
-    const unit  = it.type==="sec" ? "sec" : "reps";
+    const unit  = (it.type==="sec"||it.type==="wsec") ? "sec" : "reps";
     inner+=`<div class="log ${showW&&showR?"":"one"}" data-ex="${it.id}">`;
     if(showW) inner+=`<span class="stp">
         <button data-stp="-w" data-ex="${it.id}" aria-label="less weight">−</button>
@@ -1434,9 +1507,9 @@ function exerciseHtml(d,blk,bi,it,ii,from){
         <button data-stp="+w" data-ex="${it.id}" aria-label="more weight">+</button></span>`;
     if(showR) inner+=`<span class="stp">
         <button data-stp="-r" data-ex="${it.id}" aria-label="fewer ${unit}">−</button>
-        <span class="sv"><input type="number" inputmode="numeric" step="${it.type==="sec"?5:1}" value="${r}" data-r="${it.id}" aria-label="${unit}"><span class="u">${unit.toUpperCase()}</span></span>
+        <span class="sv"><input type="number" inputmode="numeric" step="${unit==="sec"?5:1}" value="${r}" data-r="${it.id}" aria-label="${unit}"><span class="u">${unit.toUpperCase()}</span></span>
         <button data-stp="+r" data-ex="${it.id}" aria-label="more ${unit}">+</button></span>`;
-    inner+=`<button class="logbtn ${te?"saved":""}" data-logbtn="${it.id}" data-st="${it.st||2.5}" data-step="${it.type==="sec"?5:1}">${te?"✓":"Log"}</button></div>`;
+    inner+=`<button class="logbtn ${te?"saved":""}" data-logbtn="${it.id}" data-st="${it.st||2.5}" data-step="${unit==="sec"?5:1}">${te?"✓":"Log"}</button></div>`;
     inner+=`<div class="${le?"last":"last empty"}"><span>${lastLine(it.id)}</span>${advice(it)}</div>`;
   }
   if(it.cue || it.how){
@@ -1743,6 +1816,14 @@ function buildCheckin(){
   L.push("");
   L.push(`Block: 4 sessions (2 lower, 2 upper) · winter week: Mon vertical · Tue power · Fri strength · Sat/Sun horizontal · started ${state.meta.blockStart} · week ${curWeek} shown · app ${state.meta.app}`);
   L.push(`Adherence: ${days.length} sessions since ${since} (~${round1(days.length/weeks)}/week, target 4)`);
+  const d28=days.filter(d=>d>=dateShift(27));
+  if(d28.length){
+    const lifts=d28.map(workingLiftsOn);
+    L.push(`Sessions (28 d): ${CORE.map(id=>`${nameOf(id)} ${d28.filter(d=>state.sessions[d]===id).length}`).join(" · ")} · ${round1(lifts.reduce((s,x)=>s+x,0)/lifts.length)} working lifts logged per session`);
+  }
+  L.push(`Deload clock: ≈${sessionsSinceAnchor()} of ${DELOAD_SESSIONS} full sessions since the last reset${fatigueDue()?" — due":""}`);
+  const ramps=catalog().filter(c=>c.where!=="retired").map(c=>({c, r:rampFor(c.it)})).filter(x=>x.r);
+  if(ramps.length) L.push("Ramping in: "+ramps.map(x=>`${x.c.it.n} ${x.r.w} kg (≈${x.r.pct}%, ${x.r.why})`).join("; "));
   const b=balance(28), tot=b.pull+b.push;
   if(tot) L.push(`Pull:push (28 d): ${b.pull} vs ${b.push} sets — ${Math.round(b.pull/tot*100)}% pull (target 55–70%)`);
   if(state.bw.length){
@@ -2017,7 +2098,7 @@ function merge3(lm, rm, bm, resolve){
   });
   return out;
 }
-const META_MAX=["lastBackup","lastCheckin","lastDeload"], META_FLAG=["lcFixed","calfSl","ohtOne"];
+const META_MAX=["lastBackup","lastCheckin","lastDeload"], META_FLAG=["lcFixed","calfSl","ohtOne","wsKg"];
 function mergeState(L, R, B){
   if(!R || typeof R!=="object") return L;
   const prep=x=>x?normalize(JSON.parse(JSON.stringify(x))):null;
