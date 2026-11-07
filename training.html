@@ -485,7 +485,7 @@ const PULLUP_PRACTICE = {n:"Pull-up practice", rx:"2×3 easy", type:"none",
 
 const PROGRAM = {
 A:{days:[
-  { id:"lower-power", day:"Lower · posterior", focus:"Hamstrings + hinge · concentric", sport:"Best: Tue morning (squash tonight) · or Mon morning on a volleyball-free Monday",
+  { id:"lower-power", day:"Lower · posterior", focus:"Hamstrings + hinge · concentric", sport:"Best: Tue morning (squash tonight) · or Mon morning on a volleyball-free Monday · 16 Nov–20 Dec (padel on Tuesdays): Mon morning, Thu as fallback",
     note:"The hamstring day: RDL, single-leg curls, back extension. Fast-recovering, nothing that makes DOMS. The hip thrust now lives on Monday's vertical day, so if this one dies the hips are still covered.",
     blocks:[
       {label:"Warm-up", items:[
@@ -587,7 +587,7 @@ A:{days:[
          cue:"Arms open like saloon doors — long arms, no shoulder-blade pinch."}]}
     ]},
 
-  { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Fri afternoon, after padel — ~72 h before Monday volleyball",
+  { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Fri afternoon, after padel (16 Nov–20 Dec: Friday is free, any time) — ~72 h before Monday volleyball",
     note:"The long one, 60–75 min. Everything that makes DOMS lives here — Friday puts the soreness on the weekend, gone by Monday volleyball.",
     blocks:[
       {label:"Warm-up", items:[
@@ -629,7 +629,7 @@ A:{days:[
     ]}
 ]},
 B:{days:[
-  { id:"lower-power", day:"Lower · posterior", focus:"Hamstrings + hinge · concentric", sport:"Best: Tue morning (squash tonight) · or Mon morning on a volleyball-free Monday",
+  { id:"lower-power", day:"Lower · posterior", focus:"Hamstrings + hinge · concentric", sport:"Best: Tue morning (squash tonight) · or Mon morning on a volleyball-free Monday · 16 Nov–20 Dec (padel on Tuesdays): Mon morning, Thu as fallback",
     note:"Hypertrophy week of the hamstring day: B-stance RDL, single-leg curls, back extension. Nothing here makes DOMS.",
     blocks:[
       {label:"Warm-up", items:[
@@ -730,7 +730,7 @@ B:{days:[
          cue:"Long arms, no pinch."}]}
     ]},
 
-  { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Fri afternoon, after padel — ~72 h before Monday volleyball",
+  { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Fri afternoon, after padel (16 Nov–20 Dec: Friday is free, any time) — ~72 h before Monday volleyball",
     note:"Lunge-pattern week. The long session — 60–75 min, Friday after padel.",
     blocks:[
       {label:"Warm-up", items:[
@@ -1380,12 +1380,20 @@ const BVB_MON_ANCHOR="2026-11-16";        /* a volleyball Monday; every second M
 function mondayOf(dstr){ const d=new Date(dstr+"T12:00"); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d; }
 function volleyMonday(dstr){ const w=Math.round((mondayOf(dstr)-mondayOf(BVB_MON_ANCHOR))/(7*864e5)); return ((w%2)+2)%2===0; }
 function lateWednesday(dstr){ return !volleyMonday(dstr); }
+/* Dated exceptions to the standing week. 16 Nov – 20 Dec 2026 (W47–51): padel moves to Tuesday 07:00 and
+   Friday is free. Tuesday becomes a double sport day (padel AM + squash PM), so no Tuesday gym. One schedule
+   for all five weeks (his call, 7 Nov: Monday-morning legs before evening volleyball don't bother him):
+   Mon AM posterior · Wed AM vertical · Fri strength, any time · weekend horizontal. Thursday morning is the
+   posterior day's fallback (the day before Friday's legs: concentric work, RDL at RIR 3, acceptable). */
+const SCHEDULE_WINDOWS=[{from:"2026-11-16", to:"2026-12-20", padelTue:true, note:"16 Nov – 20 Dec: padel is Tuesday 07:00, so no Tuesday gym and Friday is free all day."}];
+function windowOn(dstr){ return SCHEDULE_WINDOWS.find(w=>dstr>=w.from && dstr<=w.to)||null; }
+function ctxOn(dstr){ const w=windowOn(dstr); return {monFree:!volleyMonday(dstr), padelTue:!!(w&&w.padelTue)}; }
 function sportOn(dstr){
-  const dw=new Date(dstr+"T12:00").getDay();
+  const dw=new Date(dstr+"T12:00").getDay(), w=windowOn(dstr), pt=!!(w&&w.padelTue);
   if(dw===1) return volleyMonday(dstr) ? "beach volley 18:30" : null;
-  if(dw===2) return "squash 17:00";
+  if(dw===2) return pt ? "padel 07:00 + squash 17:00" : "squash 17:00";
   if(dw===3) return lateWednesday(dstr) ? "beach volley 21:30 (late)" : "beach volley (evening)";
-  if(dw===5) return "padel 07:00";
+  if(dw===5) return pt ? null : "padel 07:00";
   return null;
 }
 const SPORT_DAYS={1:"beach volley 18:30", 2:"squash 17:00", 3:"beach volley (21:30 every other week)", 5:"padel 07:00"};   /* fallback labels */
@@ -1400,10 +1408,23 @@ const SLOTS={
   "lower-power":   [2],
   "lower-strength":[5,4,6]
 };
-function slotsFor(id, monFree){
-  if(monFree && id==="lower-power") return [1,2];
-  if(monFree && id==="upper-vert") return [2,1,3,4,6,0,5];
+/* ctx: {monFree, padelTue}. A bare boolean is the old monFree flag. */
+function asCtx(c){ return (c && typeof c==="object") ? c : {monFree:!!c, padelTue:false}; }
+function slotsFor(id, c){
+  const ctx=asCtx(c);
+  if(ctx.padelTue){
+    if(id==="lower-power")  return [1,4];
+    if(id==="upper-vert")   return [3,1,4,6,0,5];
+    if(id==="upper-horiz")  return [6,0,4,3,1,5];
+    return SLOTS[id];
+  }
+  if(ctx.monFree && id==="lower-power") return [1,2];
+  if(ctx.monFree && id==="upper-vert") return [2,1,3,4,6,0,5];
   return SLOTS[id];
+}
+function prefFor(dw, ctx){
+  if(ctx.padelTue) return ({1:"lower-power", 3:"upper-vert", 4:"lower-power", 5:"lower-strength", 6:"upper-horiz", 0:"upper-horiz"})[dw];
+  return (ctx.monFree && dw===1) ? "lower-power" : DAYMAP[dw];
 }
 const ord=dw=>dw===0?7:dw;                       /* ISO order: Mon=1 … Sun=7 */
 function lastDoneOf(id){
@@ -1412,12 +1433,13 @@ function lastDoneOf(id){
 }
 function daysSince(dstr){ return dstr ? Math.round((Date.now()-new Date(dstr+"T12:00").getTime())/864e5) : 999; }
 /* Pure planner: weekday, sessions done this ISO week, days since each lower day → {id, msg}. */
-function planFor(dw, did, gaps, today, monFree, sportLabel){
+function planFor(dw, did, gaps, today, c, sportLabel){
+  const ctx=asCtx(c), monFree=ctx.monFree;
   const todo=CORE.filter(id=>did.indexOf(id)<0);
   const sl = sportLabel!==undefined ? sportLabel : SPORT_DAYS[dw];
   const sport=sl?` — ${sl} today`:"";
   if(!todo.length) return {id:null, msg:"All four sessions done this week — anything more is a bonus."};
-  const left=id=>slotsFor(id,monFree).filter(d=>ord(d)>=ord(dw));  /* remaining slots, best first */
+  const left=id=>slotsFor(id,ctx).filter(d=>ord(d)>=ord(dw));  /* remaining slots, best first */
   const lowGap=id=>{ const other=id==="lower-power"?"lower-strength":"lower-power"; return gaps[other]; };
   const due=todo.filter(id=>left(id)[0]===dw);
   const skipped=todo.filter(id=>!left(id).length);
@@ -1426,16 +1448,19 @@ function planFor(dw, did, gaps, today, monFree, sportLabel){
     const pw = dw===2 && todo.indexOf("lower-power")>=0 ? ` ${nameOf("lower-power")} didn't fit today — skip it this week; Friday covers the legs.` : tail;
     return {id:null, msg:`${nameOf(today)} is in for today${sport}.`+pw};
   }
-  const pref = (monFree && dw===1) ? "lower-power" : DAYMAP[dw];
+  const pref = prefFor(dw, ctx);
   let pick = due.indexOf(pref)>=0 ? pref : due[0];
   if(due.indexOf("lower-strength")>=0 && dw===6) pick="lower-strength";      /* Sat: its last slot; horizontal still has Sunday */
   if(!pick){
     if(dw===4 && todo.indexOf("lower-strength")>=0)
-      return {id:null, msg:"Rest day. Lower · strength is tomorrow after padel — do it today only if Friday won't happen."+tail};
+      return {id:null, msg:`Rest day. Lower · strength is tomorrow${ctx.padelTue?"":" after padel"} — do it today only if Friday won't happen.`+tail};
     return {id:null, msg:"Rest day by plan"+sport+"."+tail};
   }
   if(pick.indexOf("lower")===0){
     const gap=lowGap(pick);
+    /* padel-Tuesday weeks: the posterior day sits on Thursday, the day before Friday's legs — by design */
+    if(ctx.padelTue && pick==="lower-strength" && gap<3 && gap>=1)
+      return {id:pick, msg:`Suggested today: ${nameOf(pick)}${sport}. ${nameOf("lower-power")} was ${gap} d ago — fine, it was concentric; deadlift as planned.`};
     if(gap<3){
       const alt=due.find(t=>t.indexOf("lower")!==0);
       if(alt) return {id:alt, msg:`Only ${gap} d since the other leg day — do ${nameOf(alt)} instead.`};
@@ -1444,14 +1469,21 @@ function planFor(dw, did, gaps, today, monFree, sportLabel){
   }
   if(pick==="lower-strength" && dw===6)
     return {id:pick, msg:"Lower · strength — Friday was missed. Saturday is the last resort (~56 h before Monday volleyball): split squat/lunge and Nordics at 2 sets."+tail};
-  const free = pick==="lower-power" && dw===1 ? " Volleyball-free Monday, so the hamstring day fits here." : "";
+  const free = pick==="lower-power" && dw===1 && ctx.padelTue ? (monFree ? " Monday morning is the hamstring day in the padel-Tuesday weeks." : " Hamstring day before tonight's volleyball: concentric work, RDL at RIR 3, nothing to failure.")
+             : pick==="lower-power" && dw===1 ? " Volleyball-free Monday, so the hamstring day fits here."
+             : pick==="lower-power" && dw===4 ? " Monday was missed: the hamstring day sits here, the day before Friday's legs — RDL at RIR 3, nothing to failure."
+             : pick==="upper-vert" && dw===3 && ctx.padelTue ? " Hip thrusts this morning cost tonight's volleyball nothing." : "";
   return {id:pick, msg:`Suggested today: ${nameOf(pick)}${sport}.`+free+tail};
 }
+function scheduleNote(){
+  const t=ymd(), w=windowOn(t) || windowOn(dateShift(-7));
+  return (w && w.note) ? " "+w.note : "";
+}
 function suggestion(){
-  const t=ymd();
-  return planFor(new Date().getDay(), doneThisWeek(),
+  const t=ymd(), s=planFor(new Date().getDay(), doneThisWeek(),
     {"lower-power":daysSince(lastDoneOf("lower-power")), "lower-strength":daysSince(lastDoneOf("lower-strength"))},
-    state.sessions[t]||null, !volleyMonday(t), sportOn(t));
+    state.sessions[t]||null, ctxOn(t), sportOn(t));
+  s.msg+=scheduleNote(); return s;
 }
 function nameOf(id){
   const d=PROGRAM.A.days.find(x=>x.id===id); return d?d.day:id;
@@ -1546,7 +1578,7 @@ function renderDayTabs(){
   elDaySeg.innerHTML="";
   days.forEach((d,i)=>{
     const b=document.createElement("button");
-    b.textContent=({"lower-power":"Power","upper-vert":"Vertical","upper-horiz":"Horizontal","lower-strength":"Strength"})[d.id]||d.day;
+    b.textContent=({"lower-power":"Posterior","upper-vert":"Vertical","upper-horiz":"Horizontal","lower-strength":"Strength"})[d.id]||d.day;
     b.title=d.day;
     if(d.opt) b.classList.add("opt");
     if(did.indexOf(d.id)>=0) b.classList.add("did");
@@ -1556,7 +1588,7 @@ function renderDayTabs(){
     elDaySeg.appendChild(b);
   });
   const sl=document.getElementById("suggestLine"), cur=days[curDay];
-  sl.textContent = (!sug.id || sug.id!==cur.id || /leg day/.test(sug.msg)) ? sug.msg : "";
+  sl.textContent = (!sug.id || sug.id!==cur.id || /leg day|was \d d ago/.test(sug.msg)) ? sug.msg : scheduleNote().trim();
   sl.classList.toggle("hidden", !sl.textContent || !isProgTab());
   document.getElementById("hTitle").textContent=new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
 }
