@@ -76,7 +76,13 @@
   .days button.opt{color:var(--muted);font-style:italic;}
   .days button.did::after{content:"";position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--ok);}
   .days button.next:not(.on){color:var(--accent);}
-  .suggest{font-size:12px;color:var(--txt2);margin:7px 2px 0;}
+  .suggest{font-size:12px;color:var(--txt2);margin:7px 2px 0;cursor:pointer;}
+  .suggest .srest{display:none;}
+  .suggest.open .srest{display:inline;}
+  .suggest .smore{background:none;border:0;color:var(--accent);font-size:12px;font-weight:600;padding:0 0 0 6px;cursor:pointer;}
+  .suggest .smore.flag::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--warn);margin-right:4px;vertical-align:middle;}
+  .stillopen{margin:14px 2px 0;padding:9px 12px;border-radius:10px;background:var(--surface);border-left:3px solid var(--warn);font-size:12.5px;color:var(--txt2);}
+  .stillopen button{background:none;border:0;color:var(--accent);font-size:12.5px;font-weight:600;padding:0 2px;cursor:pointer;}
 
   /* ---------- sport quick card ---------- */
   .acts{background:var(--surface);border-radius:var(--radius);padding:10px 12px;margin:14px 0 0;}
@@ -443,7 +449,7 @@
   <button id="tab-more"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/></svg>More<span id="moreDot" class="hidden dot"></span></button>
 </nav>
 
-<footer>Training · 17 Nov 2026 check-in · app v13</footer>
+<footer>Training · 17 Nov 2026 check-in · app v13.1</footer>
 
 <script>
 "use strict";
@@ -484,8 +490,8 @@ const FACEPULL = {id:"facepull", n:"Face-pull", rx:"2×15–20", type:"wr", st:2
 /* v11.4: pull-ups were 5–6 reps for three months at one exposure a week. Frequency is what moves a stuck
    pull-up, and you're already hanging from the bar at the start of every session — so the other three
    sessions get two easy sets there. Not logged: practice, not a workout. */
-const PULLUP_PRACTICE = {n:"Pull-up practice", rx:"2×3 easy", type:"none",
-  cue:"You're at the bar anyway: two sets of 3, stopping at least 3 reps short of failure. Crisp reps, full hang to chin over — practice, not a workout. Frequency is what moves a stuck pull-up."};
+const PULLUP_PRACTICE = {n:"Pull-up practice", rx:"3×3 easy", type:"none",
+  cue:"You're at the bar anyway: three sets of 3, a minute apart, stopping at least 3 reps short of failure. Crisp reps, full hang to chin over: practice, not a workout. Frequency is what moves a stuck pull-up, and it stays in the gym, so each visit carries a little more (three sets since 17 Nov). When the first set on the vertical day reaches 8, make these 3×4."};
 
 const PROGRAM = {
 A:{days:[
@@ -797,7 +803,7 @@ Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
    State
 ===================================================================== */
 const STORE_KEY = "mikkel_training_v2";
-const APP_VER = "v13";
+const APP_VER = "v13.1";
 
 function blankState(){
   return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{}, prac:{}, off:[],
@@ -1475,7 +1481,7 @@ function leadCount(days){
   const since=[dateShift(days-1), LEAD_FROM].sort().pop(), ds=sessionDates().filter(d=>d>=since && LEAD[state.sessions[d]]);
   return {done:ds.filter(d=>(state.logs[LEAD[state.sessions[d]]]||[]).some(e=>ymd(new Date(e.ts))===d)).length, of:ds.length};
 }
-/* Pull-up practice (2×3 easy on the six non-vertical sessions) is ticked, not logged; v12 records the tick dates. */
+/* Pull-up practice (3×3 easy on the six non-vertical sessions; 2×3 until 17 Nov 2026) is ticked, not logged; v12 records the tick dates. */
 function pracCount(days){
   const since=[dateShift(days-1), state.meta.pracSince||"0"].sort().pop(), ds=sessionDates().filter(d=>d>=since && state.sessions[d]!=="upper-vert");
   return {done:ds.filter(d=>(state.prac||{})[d]).length, of:ds.length};
@@ -1718,6 +1724,7 @@ let curDay=0;
 })();
 function persistUi(){ state.ui={week:curWeek, day:curDay, wDate:ymd(), dDate:ymd()}; save(); }
 
+let suggestOpen=false;
 function renderDayTabs(){
   const days=PROGRAM[curWeek].days, did=doneThisWeek(), sug=suggestion();
   elDaySeg.innerHTML="";
@@ -1733,8 +1740,13 @@ function renderDayTabs(){
     elDaySeg.appendChild(b);
   });
   const sl=document.getElementById("suggestLine"), cur=days[curDay];
-  sl.textContent = (!sug.id || sug.id!==cur.id || /leg day|was \d d ago/.test(sug.msg)) ? sug.msg : (sug.nudge+scheduleNote()).trim();
-  sl.classList.toggle("hidden", !sl.textContent || !isProgTab());
+  /* v13.1 (his note, 17 Nov): the line sits in the sticky header and had grown to four sentences. It now shows the first
+     sentence; a tap unfolds the rest. An amber dot on "more" says a stale-session nudge is waiting inside. */
+  const m=sug.msg.match(/^(.*?[.?!])\s+(.+)$/s), first=m?m[1]:sug.msg, rest=m?m[2]:"";
+  sl.innerHTML=`<span class="sfirst">${escapeHtml(first)}</span>`+(rest?`<span class="srest"> ${escapeHtml(rest)}</span><button class="smore${sug.nudge?" flag":""}" aria-expanded="${suggestOpen}">${suggestOpen?"less":"more"}</button>`:"");
+  sl.classList.toggle("open", suggestOpen && !!rest);
+  sl.onclick = rest ? ()=>{ suggestOpen=!suggestOpen; renderDayTabs(); } : null;
+  sl.classList.toggle("hidden", !sug.msg || !isProgTab());
   document.getElementById("hTitle").textContent=new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
 }
 
@@ -1767,6 +1779,12 @@ function renderDay(){
     html+=`</div>`;
   });
 
+  /* v13.1: on 15 Nov the lying-curl lead was skipped because the machine was taken, and then forgotten. Working lifts
+     above the line that were passed over (a later lift is already ticked) are named where the session ends. */
+  { const flat=[]; d.blocks.forEach((blk,bi)=>{ if(blk.opt || blk.label==="Warm-up") return; blk.items.forEach((it,ii)=>{
+      if(it.id && it.type!=="none" && !NOT_WORK.includes(it.id)) flat.push({it, key:exKey(d,bi,ii), dn:state.done[exKey(d,bi,ii)]===ymd()}); }); });
+    const lastDone=flat.map(x=>x.dn).lastIndexOf(true), open=flat.filter((x,i)=>!x.dn && i<lastDone);
+    if(open.length) html+=`<div class="stillopen">Still open: ${open.map(x=>`<button data-stillopen="${x.key}">${x.it.n.split(" — ")[0]}</button>`).join(" · ")}</div>`; }
   const xs=extrasFor(d);
   if(xs.length){
     html+=`<div class="block"><p class="label">Added today</p>`;
@@ -1781,6 +1799,11 @@ function renderDay(){
   elProgram.querySelectorAll("[data-stp]").forEach(b=>b.addEventListener("click",onStep));
   elProgram.querySelectorAll("[data-logbtn]").forEach(b=>b.addEventListener("click",onLog));
   bindTimer(); bindReadiness(d); bindNotes(d); bindActs(); bindSearch(d);
+  elProgram.querySelectorAll("[data-stillopen]").forEach(b=>b.onclick=()=>{
+    const dn=elProgram.querySelector(`[data-done="${b.dataset.stillopen}"]`), c=dn&&dn.closest(".ex"); if(!c) return;
+    if(c.scrollIntoView) c.scrollIntoView({behavior:"smooth",block:"center"});
+    c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash");
+  });
   elProgram.querySelectorAll("[data-clear]").forEach(b=>b.onclick=()=>{
     const k=b.dataset.clear;
     if(!confirm(`Has a physio cleared your ${STRUCT[k]}? Ramp-ins from flags up to today stop. A new 2+ starts them again.`)) return;
