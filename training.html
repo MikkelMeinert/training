@@ -95,9 +95,13 @@
     border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;}
   .opts button.on{background:var(--accent);color:var(--accent-ink);}
   .actform .flbl{font-size:11.5px;color:var(--muted);margin:0 0 5px;}
-  .actform input[type=text]{width:100%;background:var(--surface2);border:1px solid var(--line);color:var(--txt);
+  .actform input[type=text], .actform input[type=date]{width:100%;background:var(--surface2);border:1px solid var(--line);color:var(--txt);
     border-radius:10px;padding:9px 11px;}
   .actok{font-size:12.5px;color:var(--ok);margin:8px 0 0;}
+  .offrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .offnow{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px;color:var(--warn);}
+  .offnow button{margin-left:auto;}
+  .actchip.off{color:var(--txt2);}
 
   /* ---------- session header ---------- */
   .dayhead{margin:20px 2px 4px;}
@@ -439,7 +443,7 @@
   <button id="tab-more"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/></svg>More<span id="moreDot" class="hidden dot"></span></button>
 </nav>
 
-<footer>Training · 4 Nov 2026 check-in · app v12</footer>
+<footer>Training · 17 Nov 2026 check-in · app v13</footer>
 
 <script>
 "use strict";
@@ -458,7 +462,7 @@
      grp   dose group for the weekly meter: hips | hams | quads | hinge | pull | press (default from cls)
      ramp  true: print ramp-up loads (~50% / ~75% of today's target) inside the card
 ===================================================================== */
-const BLOCK_START = "2026-09-21";
+const BLOCK_START = "2026-09-21";   /* only seeds meta.blockStart on a FRESH install; an existing install keeps its own (6 July 2026), and that date sets the A/B parity */
 /* v12 (4 Nov 2026 check-in): since the 2-lower/2-upper block began on 20 Sep the log held 12 upper
    sessions, 4 lower and not one Lower · power. The weekend leg day lingers into Mon–Wed, so the early-week
    leg slot never happens. Fix: a LOWER-BODY LIFT LEADS EVERY SESSION. Hip thrust opens Upper · vertical,
@@ -485,8 +489,8 @@ const PULLUP_PRACTICE = {n:"Pull-up practice", rx:"2×3 easy", type:"none",
 
 const PROGRAM = {
 A:{days:[
-  { id:"lower-power", day:"Lower · posterior", focus:"Hamstrings + hinge · concentric", sport:"Best: Tue morning (squash tonight) · or Mon morning on a volleyball-free Monday · 16 Nov–20 Dec (padel on Tuesdays): Mon morning, Thu as fallback",
-    note:"The hamstring day: RDL, single-leg curls, back extension. Fast-recovering, nothing that makes DOMS. The hip thrust now lives on Monday's vertical day, so if this one dies the hips are still covered.",
+  { id:"lower-power", day:"Lower · posterior", focus:"Hamstrings + hinge · concentric", sport:"Best: Mon morning, also on a volleyball Monday (concentric work, nothing to failure) · missed: Tue morning outside the padel weeks, else the weekend",
+    note:"The hamstring day: RDL, single-leg curls, back extension. Fast-recovering, nothing that makes DOMS. The hip thrust lives on Wednesday's vertical day, so if this one dies the hips are still covered.",
     blocks:[
       {label:"Warm-up", items:[
         {n:"Full-body stretch flow", rx:"~6–8 min", type:"none", cue:"Flow, don't force.", how:FLOW},
@@ -494,7 +498,7 @@ A:{days:[
       {label:"Power", items:[
         {id:"speed-hipthrust", n:"Hip thrust — speed sets", rx:"3×5 · ~50% of top weight", type:"wr", st:2.5, start:{w:40,r:5}, cls:"legs", grp:"hips", pct:{of:"hipthrust",p:0.5},
          gate:{k:"lb",lvl:2,act:"Skip. Bracing hard at speed is the worst thing for an angry back."},
-         how:"Same setup as the heavy hip thrust at roughly half the load; every rep as explosive as you can, full rest between sets. The only power work in the program: intent, not fatigue. Three sets, done in six minutes.",
+         how:"Same setup as the heavy hip thrust at roughly half the load; every rep as explosive as you can, full rest between sets. The only power work in the program: intent, not fatigue. Three sets, done in six minutes. Why not the full weight (your 10 Nov question)? The heavy sets are Wednesday's lead. Here the same movement at half the load and full speed trains the fast end of the jump and leaves nothing behind for Thursday. If the bar is already loaded heavier, strip it: a slow rep is a strength rep in the wrong place.",
          cue:"Intent is everything — if the bar slows, it's too heavy."}]},
       {label:"Primary", main:true, items:[
         {id:"slrdl", n:"Single-leg RDL — 1 DB, rack-supported", rx:"3×8 / leg · RIR 2–3", type:"wr", st:2, start:{w:20,r:8}, r:true, cls:"legs", grp:"hams", ramp:true,
@@ -518,8 +522,8 @@ A:{days:[
          cue:"Shoulders and hips square — resist the twist. Right side first."}]}
     ]},
 
-  { id:"upper-vert", day:"Upper · vertical", focus:"Hip thrust lead · vertical pull + press", sport:"Best: Mon morning — volleyball tonight on alternate Mondays is fine; hip thrusts are concentric and leave nothing behind",
-    note:"Hip thrust opens (the jump lift, untrained for eleven weeks because Tuesday never happened), then pull-ups and the barbell pair. ~30 min to the dashed line.",
+  { id:"upper-vert", day:"Upper · vertical", focus:"Hip thrust lead · vertical pull + press", sport:"Best: Wed morning. Hip thrusts are concentric, so a game tonight costs nothing · missed: Thu, Fri or the weekend",
+    note:"Hip thrust opens (the jump lift), then pull-ups and the barbell pair. ~30 min to the dashed line.",
     blocks:[
       {label:"Warm-up", items:[
         HANG,
@@ -587,8 +591,8 @@ A:{days:[
          cue:"Arms open like saloon doors — long arms, no shoulder-blade pinch."}]}
     ]},
 
-  { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Fri afternoon, after padel (16 Nov–20 Dec: Friday is free, any time) — ~72 h before Monday volleyball",
-    note:"The long one, 60–75 min. Everything that makes DOMS lives here — Friday puts the soreness on the weekend, gone by Monday volleyball.",
+  { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Thu morning: 3 days after Monday's posterior, 2–3 days clear of a weekend game, 4 before Monday volleyball · missed: Fri, then the weekend",
+    note:"The knee and hinge day: wall sit and TKE, split squat, the weekly deadlift, Nordics. ~40 min to the dashed line, so it fits a weekday morning; calves and tibialis sit below it. It makes the soreness, which is why it is Thursday: clear of a weekend game and of Monday volleyball.",
     blocks:[
       {label:"Warm-up", items:[
         {n:"Full-body stretch flow", rx:"~6–8 min", type:"none", cue:"Don't skip the world's greatest stretch.", how:FLOW},
@@ -614,7 +618,7 @@ A:{days:[
          gate:{k:"rs",lvl:2,act:"Band-assisted, 2×4, stop well short of failure."},
          how:"Ankles anchored, fall forward as slowly as you can control, hands catch, push back. Band or slider to scale. Best-evidenced hamstring-injury prevention exercise in sport — weekly, low dose, forever.",
          cue:"Fight the fall the whole way down."}]},
-      {label:"Same spot · superset", superset:true, items:[
+      {label:"Same spot · superset", superset:true, opt:true, items:[
         {id:"calf-sl", n:"Single-leg calf raise — per foot", rx:"3×12–15 / foot", type:"wr", st:2.5, start:{w:17.5,r:12}, r:true, cls:"legs",
          how:"One foot at a time so the left can't hide the right. Log the external load for ONE foot (DB in the working-side hand, other hand on the rack). Full range, pause the bottom stretch — ankle stiffness is jump return. Not comparable with the old two-foot numbers: your whole bodyweight is now on one leg.",
          cue:"Right foot first. Drive tall onto the big toe."},
@@ -629,7 +633,7 @@ A:{days:[
     ]}
 ]},
 B:{days:[
-  { id:"lower-power", day:"Lower · posterior", focus:"Hamstrings + hinge · concentric", sport:"Best: Tue morning (squash tonight) · or Mon morning on a volleyball-free Monday · 16 Nov–20 Dec (padel on Tuesdays): Mon morning, Thu as fallback",
+  { id:"lower-power", day:"Lower · posterior", focus:"Hamstrings + hinge · concentric", sport:"Best: Mon morning, also on a volleyball Monday (concentric work, nothing to failure) · missed: Tue morning outside the padel weeks, else the weekend",
     note:"Hypertrophy week of the hamstring day: B-stance RDL, single-leg curls, back extension. Nothing here makes DOMS.",
     blocks:[
       {label:"Warm-up", items:[
@@ -643,7 +647,7 @@ B:{days:[
       {label:"Primary", main:true, items:[
         {id:"bstance-rdl", n:"B-stance RDL", rx:"3×10 · RIR 3", type:"wr", st:2.5, start:{w:40,r:10}, r:true, cls:"legs", grp:"hams", ramp:true,
          gate:{k:"lb",lvl:2,act:"Skip — loaded hinge. Lying curls cover the hamstring today."},
-         how:"An RDL with the non-working foot half a step back on tiptoe, ~70% of the load on the front (right) leg. kg = the bar or both DBs. RIR 3 on purpose: the hamstring at length is the target, the back is along for the ride, and Friday's deadlift is three days away.",
+         how:"An RDL with the non-working foot half a step back on tiptoe, ~70% of the load on the front (right) leg. kg = the bar or both DBs. RIR 3 on purpose: the hamstring at length is the target, the back is along for the ride, and Thursday's deadlift is three days away.",
          cue:"Hips back until the front hamstring pulls; squeeze the glute to stand."}]},
       {label:"Accessory", items:[
         {id:"lyingcurl", n:"Lying hamstring curl — per leg", rx:"3×12 / leg · RIR 2", type:"wr", st:2.5, start:{w:17.5,r:12}, r:true, cls:"legs", grp:"hams",
@@ -662,7 +666,7 @@ B:{days:[
          cue:"No swing — own the way down."}]}
     ]},
 
-  { id:"upper-vert", day:"Upper · vertical", focus:"Hip thrust lead · vertical pull + press", sport:"Best: Mon morning — volleyball tonight on alternate Mondays is fine; hip thrusts are concentric and leave nothing behind",
+  { id:"upper-vert", day:"Upper · vertical", focus:"Hip thrust lead · vertical pull + press", sport:"Best: Wed morning. Hip thrusts are concentric, so a game tonight costs nothing · missed: Thu, Fri or the weekend",
     note:"Higher-rep week. Hip thrust opens, then pull-ups and the barbell pair. ~30 min to the dashed line.",
     blocks:[
       {label:"Warm-up", items:[
@@ -730,8 +734,8 @@ B:{days:[
          cue:"Long arms, no pinch."}]}
     ]},
 
-  { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Fri afternoon, after padel (16 Nov–20 Dec: Friday is free, any time) — ~72 h before Monday volleyball",
-    note:"Lunge-pattern week. The long session — 60–75 min, Friday after padel.",
+  { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Thu morning: 3 days after Monday's posterior, 2–3 days clear of a weekend game, 4 before Monday volleyball · missed: Fri, then the weekend",
+    note:"Lunge-pattern week: tempo leg extension and TKE, reverse lunge, sumo deadlift, Nordics. ~40 min to the dashed line.",
     blocks:[
       {label:"Warm-up", items:[
         {n:"Full-body stretch flow", rx:"~6–8 min", type:"none", cue:"Especially before lunging.", how:FLOW},
@@ -759,7 +763,7 @@ B:{days:[
          gate:{k:"rs",lvl:2,act:"Band-assisted, 2×4."},
          how:"Slowest lower you can control. Weekly insurance.",
          cue:"Fight the fall."}]},
-      {label:"Same spot · superset", superset:true, items:[
+      {label:"Same spot · superset", superset:true, opt:true, items:[
         {id:"calf-sl", n:"Single-leg calf raise — per foot", rx:"3×15 / foot", type:"wr", st:2.5, start:{w:17.5,r:15}, r:true, cls:"legs", cue:"Right foot first. Pause the stretch."},
         {id:"tib", n:"Tibialis raise", rx:"2×20", type:"reps", start:{r:20}, cls:"legs", cue:"Slow both ways."}]},
       {label:"Power (knee-gated)", opt:true, items:[
@@ -793,11 +797,12 @@ Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
    State
 ===================================================================== */
 const STORE_KEY = "mikkel_training_v2";
+const APP_VER = "v13";
 
 function blankState(){
-  return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{}, prac:{},
+  return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{}, prac:{}, off:[],
           meta:{lastBackup:null, lastCheckin:null, lastDeload:null, deloadUntil:null,
-                blockStart:BLOCK_START, app:"v12"}, ui:{}};
+                blockStart:BLOCK_START, app:APP_VER}, ui:{}};
 }
 function normalize(s){
   const b = blankState();
@@ -805,7 +810,7 @@ function normalize(s){
           notesArr:s.notesArr||b.notesArr, ready:s.ready||b.ready, sessions:s.sessions||b.sessions,
           meta:Object.assign(b.meta, s.meta||{}), ui:s.ui||{}, legacy:s.legacy,
           acts:Array.isArray(s.acts)?s.acts:b.acts, extra:(s.extra&&typeof s.extra==="object")?s.extra:b.extra,
-          prac:(s.prac&&typeof s.prac==="object")?s.prac:b.prac};
+          prac:(s.prac&&typeof s.prac==="object")?s.prac:b.prac, off:Array.isArray(s.off)?s.off:b.off};
   return migrate(st);
 }
 /* One-time repair: lying curls were logged as doubled ("two-legged") numbers
@@ -870,7 +875,7 @@ function load(){
   }catch(e){ return blankState(); }
 }
 let state = load();
-function save(){ try{ state.meta.app="v12"; localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} schedulePush(); }
+function save(){ try{ state.meta.app=APP_VER; localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} schedulePush(); }
 
 /* =====================================================================
    Helpers
@@ -971,6 +976,31 @@ function sessionsSinceBackup(){
   return Object.keys(state.sessions).filter(d=>new Date(d+"T23:59:00").getTime()>lb).length;
 }
 function deloadActive(){ return !!state.meta.deloadUntil && ymd() <= state.meta.deloadUntil; }
+/* ---------- off periods (v13, his request 17 Nov 2026) ----------
+   Illness, injury and travel explain most of the empty weeks (the 28 Oct crash, the illness after it), and the log
+   could not say so: the adherence line read them as missed sessions and the planner kept nagging through them.
+   One record per period: {ts, kind:"ill"|"injured"|"away", from, to|null}. An open period (to = null) runs until
+   "I'm back". While one is running nothing is due. Days inside one are left out of the session rates. An ill or
+   injured period of five days or more counts as a layoff: the fatigue clock resets and the first session back is
+   lighter by itself. */
+const OFF_KINDS={ill:"Ill", injured:"Injured", away:"Away"};
+const OFF_REENTRY_DAYS=5;
+function dayDiff(a,b){ return Math.round((new Date(b+"T12:00")-new Date(a+"T12:00"))/864e5); }
+function offOn(dstr){ return (state.off||[]).find(o=>o.from<=dstr && (!o.to || o.to>=dstr))||null; }
+function offDaysBetween(fromD,toD){
+  let n=0; for(let d=fromD; d<=toD; d=dateShift(-1,d)) if(offOn(d)) n++;
+  return n;
+}
+function fmtD(dstr){ return new Date(dstr+"T12:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"}); }
+function offText(o){ return `${OFF_KINDS[o.kind]||"Off"} ${fmtD(o.from)}${!o.to?" →":o.to!==o.from?"–"+fmtD(o.to):""}`; }
+/* the first day back after the latest finished ill/injured period of 5+ days */
+function offReset(){
+  const t=ymd(); let best=null;
+  (state.off||[]).forEach(o=>{ if(o.kind==="away" || !o.to || o.to>=t) return;
+    const days=dayDiff(o.from,o.to)+1; if(days<OFF_REENTRY_DAYS) return;
+    const back=dateShift(-1,o.to); if(!best || back>best.date) best={date:back, days, kind:o.kind}; });
+  return best;
+}
 /* A layoff IS a deload. Fatigue accumulates per session, not per calendar week — so the
    deload clock counts sessions since the last reset, and any 10+ day gap resets it. */
 const LAYOFF_DAYS = 10, DELOAD_SESSIONS = 18;
@@ -987,6 +1017,7 @@ function lastGapReset(){
     if(gap>=LAYOFF_DAYS) reset=ds[i];
   }
   if(layoffDays()>=LAYOFF_DAYS) reset=ymd();
+  const o=offReset(); if(o && (!reset || o.date>reset)) reset=o.date;       /* back from a week ill = back from a layoff */
   return reset;
 }
 function deloadAnchorTs(){
@@ -1047,17 +1078,26 @@ function shoulderAmber(){ return flagCount("sh",2,14)>0; }
 /* Epley, capped at 12 reps: a 15-rep set is endurance and says little about a 1RM. Used for capacity, PRs and trends. */
 function e1rmCap(w,r){ return (w||0)*(1+Math.min(r||0,12)/30); }
 const ZONE_SLACK=1;
-function inZone(e,rr){ return e.r!=null && e.r>=rr.lo-ZONE_SLACK && e.r<=rr.hi+ZONE_SLACK; }
+/* v13: where one plate is 15%+ of the load (a 12.5 kg leg curl, a 5 kg lateral raise) the reps run four past the
+   top of the range before a plate goes on, so those sets still count as "in the zone" (v12 lost track of them and
+   bounced between the top of the range and two over it). */
+const COARSE_EXT=4;
+function coarseAt(it,w){ return !!it && it.type!=="wradd" && (it.st||2.5) >= 0.15*(w||0); }
+function inZone(e,rr,it){ return e.r!=null && e.r>=rr.lo-ZONE_SLACK && e.r<=rr.hi+(coarseAt(it,e.w)?COARSE_EXT:ZONE_SLACK); }
 /* Relative increments: a plate is 4% on the trap bar and 50% on a 5 kg lateral raise. Legs jump ~5%, upper ~2.5%,
    never less than the plate step, always rounded to it. */
 function incFor(it,w){
   const st=it.st||2.5; if(!(w>0)) return st;
   return Math.max(st, Math.round(w*(it.cls==="legs"?0.05:0.025)/st)*st);
 }
-function zoneEntries(it,rr){ return (state.logs[it.id]||[]).filter(e=>inZone(e,rr)); }
+function zoneEntries(it,rr){ return (state.logs[it.id]||[]).filter(e=>inZone(e,rr,it)); }
+const CAP_MEMORY_DAYS=120;
 function recentBest(it,days){
-  const arr=(state.logs[it.id]||[]).filter(e=>e.r!=null), cutoff=Date.now()-days*864e5;
-  let pool=arr.filter(e=>e.ts>cutoff); if(!pool.length) pool=arr.slice(-3);
+  const arr=(state.logs[it.id]||[]).filter(e=>e.r!=null), now=Date.now();
+  let pool=arr.filter(e=>e.ts>now-days*864e5);
+  /* v13: thin evidence (a lift just back from a gap) reaches back to the last three entries inside four months,
+     so the capacity from before the gap is remembered and the rebuild after a ramp-in has something to climb to */
+  if(pool.length<3){ const wide=arr.filter(e=>e.ts>now-CAP_MEMORY_DAYS*864e5).slice(-3); pool=wide.length?wide:arr.slice(-3); }
   return pool.reduce((b,e)=>Math.max(b, e1rmCap(e.w,e.r)),0);
 }
 /* Plateau: 4+ sessions in today's zone at one load, spanning 3+ weeks, the last no higher than any earlier one and
@@ -1069,6 +1109,12 @@ function plateau(it,rr){
   if(same.length<4) return null;
   const span=(last.ts-same[0].ts)/864e5, earlier=Math.max(...same.slice(0,-1).map(e=>e.r));
   if(span<21 || last.r>earlier || earlier>=rr.hi) return null;
+  /* v13: a plateau is four RECENT sessions (inside 13 weeks, not July + October + last week), and it is no plateau
+     if the other week's zone or a heavier load moved in the meantime */
+  if((last.ts-same[same.length-4].ts)/864e5>91) return null;
+  const moved=(state.logs[it.id]||[]).some(e=>e.ts>same[0].ts && e.r!=null && ((e.w||0)>(last.w||0)
+    ? (it.type==="wradd" || e1rmCap(e.w,e.r)>e1rmCap(last.w,earlier)) : false));
+  if(moved) return null;
   return {n:same.length, w:last.w||0, lo:Math.min(...same.map(e=>e.r)), hi:earlier, since:same[0].ts};
 }
 /* Court sport the day before pre-fatigues the legs: hold the load, RIR 3, and let the reps tell the story. */
@@ -1089,11 +1135,16 @@ function target(it){
   if(PRESS_IDS.includes(it.id) && shoulderAmber()) return {w:le.w, r:le.r, chip:"amber", txt:"reps only · shoulder"};
   if(!rr) return null;
   if(it.type==="wsec"){
+    /* v13: a tendon isometric after a month away comes back at the same plate and the short end of the hold, not a plate up */
+    if(daysSince(ymd(new Date(le.ts)))>=RAMP_STALE_DAYS) return {w:le.w||0, r:rr.lo, chip:"ramp", txt:`↺ back in · ${le.w||0} kg × ${rr.lo} s`, why:`last done ${fmtDate(le.ts)}: same plate, short hold`};
     if(le.r>=rr.hi) return {w:round1((le.w||0)+st), r:rr.lo, chip:"up", txt:`↑ try ${round1((le.w||0)+st)} kg × ${rr.lo} s`};
     const r=Math.min(le.r+5, rr.hi); return {w:le.w||0, r, chip:"flat", txt:`→ aim ${le.w||0} kg × ${r} s`};
   }
   const unit=it.type==="sec"?" s":"";
   if(it.type==="reps"||it.type==="sec"){
+    /* v13: Nordics after a month off are a DOMS bomb at the old number: restart at the bottom of the range */
+    if(it.type==="reps" && it.cls==="legs" && le.r>rr.lo && daysSince(ymd(new Date(le.ts)))>=RAMP_STALE_DAYS)
+      return {r:rr.lo, chip:"ramp", txt:`↺ back in · ${rr.lo}`, why:`last done ${fmtDate(le.ts)}: restart at the bottom of the range`};
     if(le.r>=rr.hi) return {r:le.r, chip:"up", txt:"↑ add load or extend the range"};
     const r=Math.min(le.r+1, rr.hi); return {r, chip:"flat", txt:`→ aim ${r}${unit}`};
   }
@@ -1102,40 +1153,56 @@ function target(it){
     if(it.type==="wradd" && !(le.w>0))
       return {w:le.w, r:le.r, chip:"reset", txt:`plateau · ${pl.n} sessions at ${pl.lo}–${pl.hi}`, why:`since ${fmtDate(pl.since)}. Frequency is the fix: practice sets every session, log the first set, weight only at ${rr.hi}`};
     const w2=Math.round(pl.w*0.9/st)*st;
+    /* v13: a 10% reset that rounds back onto the same plate is no reset (5 kg on the back extension): add a rep */
+    if(w2>=pl.w){ const r=Math.min(le.r+1, rr.hi);
+      return {w:le.w, r, chip:"flat", txt:`→ aim ${le.w} kg × ${r}`, why:`${pl.n} sessions at ${pl.w} kg × ${pl.lo===pl.hi?pl.lo:pl.lo+"–"+pl.hi}: the plate is too big a step here, so add a rep`}; }
     return {w:w2, r:rr.lo, chip:"reset", txt:`↓ reset · ${w2} kg × ${rr.lo}`, why:`${pl.n} sessions at ${pl.w} kg since ${fmtDate(pl.since)}: drop 10%, rebuild a rep a session`};
   }
   const small = it.type!=="wradd" && st > 0.2*(le.w||0);      /* light accessories: reps before plates */
   let t;
-  /* after a ramp-in the last entry sits well under recent capacity: climb back in two-plate steps rather than a
-     rep a session, otherwise a 13-day layoff would cost a month of progression */
+  /* v13: progress from the last set in TODAY's rep zone (ze), not from the last set overall. With A/B weeks the
+     last set is nearly always the other zone; v12 then prescribed the bottom of the range at a capacity-derived load
+     every time, capacity only grew when he beat the prescription, and he logs the prefill. Twelve simulated weeks of
+     doing exactly what the card said went nowhere and ended in a "plateau" reset. Now each zone runs its own double
+     progression, and the other zone can only pull it UP (a clearly better recent e1RM buys a heavier start). */
+  const ze = inZone(le,rr,it) ? le : zoneEntries(it,rr).filter(e=>daysSince(ymd(new Date(e.ts)))<=42).pop();
   const cap=(!small && it.type!=="wradd") ? recentBest(it,42) : 0;
-  if(cap>0 && le.r>=rr.lo && e1rmCap(le.w,le.r)<0.9*cap && inZone(le,rr)){
-    const w2=Math.min(down(cap/(1+rr.lo/30)), round1((le.w||0)+2*incFor(it,le.w)));
-    if(w2>le.w) t={w:w2, r:rr.lo, chip:"up", txt:`↑ ${w2} kg × ${rr.lo}`, why:`rebuilding toward your recent best (${round1(cap)} kg e1RM)`};
-  }
-  if(t){ /* decided */ }
-  else if(inZone(le,rr)){
-    if(le.r>=rr.hi){
-      if(small && le.r<rr.hi+4) t={w:le.w, r:le.r+2, chip:"up", txt:`↑ aim ${le.w} kg × ${le.r+2}`, why:"a plate here is a big jump: extend the reps first"};
-      else { const nxt=round1((le.w||0)+incFor(it,le.w)); t={w:nxt, r:rr.lo, chip:"up", txt:`↑ try ${nxt} kg × ${rr.lo}`}; }
-    } else if(le.r<rr.lo){
-      const z=zoneEntries(it,rr), prev=z[z.length-2];
-      if(prev && (prev.w||0)===(le.w||0) && prev.r<rr.lo && le.w>0 && !small){
-        const w2=round1(le.w-incFor(it,le.w)); t={w:w2, r:rr.lo, chip:"amber", txt:`↓ ${w2} kg × ${rr.lo}`, why:"two sessions under the range: step back, then climb"};
-      } else t={w:le.w, r:rr.lo, chip:"flat", txt:`→ aim ${le.w} kg × ${rr.lo}`};
-    } else { const r=Math.min(le.r+1, rr.hi); t={w:le.w, r, chip:"flat", txt:`→ aim ${le.w} kg × ${r}`}; }
+  if(ze){
+    /* after a ramp-in the last entry sits well under recent capacity: climb back in two-plate steps rather than a
+       rep a session, otherwise a 13-day layoff would cost a month of progression */
+    if(cap>0 && ze===le && le.r>=rr.lo && e1rmCap(le.w,le.r)<0.9*cap){
+      const w2=Math.min(down(cap/(1+rr.lo/30)), round1((le.w||0)+2*incFor(it,le.w)));
+      if(w2>le.w) t={w:w2, r:rr.lo, chip:"up", txt:`↑ ${w2} kg × ${rr.lo}`, why:`rebuilding toward your recent best (${round1(cap)} kg e1RM)`};
+    }
+    if(!t){
+      if(ze.r>=rr.hi){
+        if(coarseAt(it,ze.w) && ze.r<rr.hi+COARSE_EXT) t={w:ze.w, r:Math.min(ze.r+2, rr.hi+COARSE_EXT), chip:"up", txt:`↑ aim ${ze.w} kg × ${Math.min(ze.r+2, rr.hi+COARSE_EXT)}`, why:"a plate here is a big jump: extend the reps first"};
+        else { const nxt=round1((ze.w||0)+incFor(it,ze.w)); t={w:nxt, r:rr.lo, chip:"up", txt:`↑ try ${nxt} kg × ${rr.lo}`}; }
+      } else if(ze.r<rr.lo){
+        const z=zoneEntries(it,rr), prev=z[z.length-2];
+        if(prev && (prev.w||0)===(ze.w||0) && prev.r<rr.lo && ze.w>0 && !small){
+          const w2=round1(ze.w-incFor(it,ze.w)); t={w:w2, r:rr.lo, chip:"amber", txt:`↓ ${w2} kg × ${rr.lo}`, why:"two sessions under the range: step back, then climb"};
+        } else t={w:ze.w, r:rr.lo, chip:"flat", txt:`→ aim ${ze.w} kg × ${rr.lo}`};
+      } else { const r=Math.min(ze.r+1, rr.hi); t={w:ze.w, r, chip:"flat", txt:`→ aim ${ze.w} kg × ${r}`}; }
+      /* the other week's zone since then: if it showed clearly more capacity, start this zone heavier */
+      if(ze!==le && cap>0 && t.chip!=="amber"){
+        const wc=Math.min(down(cap/(1+rr.lo/30)), round1((ze.w||0)+2*incFor(it,ze.w)));
+        if(wc>(ze.w||0) && wc>(t.w||0) && e1rmCap(wc,rr.lo)>e1rmCap(t.w,t.r))
+          t={w:wc, r:rr.lo, chip:"up", txt:`↑ ${wc} kg × ${rr.lo}`, why:`from your recent best (${round1(cap)} kg e1RM)`};
+      }
+    }
   } else if(it.type==="wradd" || small){
     t={w:le.w, r:rr.lo, chip:"flat", txt:`→ aim ${le.w} kg × ${rr.lo}`};
   } else {
-    /* the other week's rep zone last time: derive today's load from recent capacity, clamped to the last same-zone load */
-    const cap=recentBest(it,42), zl=zoneEntries(it,rr).pop();
+    /* no set in this zone inside six weeks: derive today's load from recent capacity, clamped to the last same-zone load */
+    const zl=zoneEntries(it,rr).pop();
     let w2=down(cap/(1+rr.lo/30));
-    if(zl && zl.w>0){ const inc=incFor(it,zl.w), fresh=daysSince(ymd(new Date(zl.ts)))<=42;
-      /* recent same-zone evidence outranks the estimate: never below what you did there within six weeks */
-      w2=Math.max(fresh ? zl.w : round1(zl.w-inc), Math.min(w2, round1(zl.w+2*inc))); }
+    if(zl && zl.w>0){ const inc=incFor(it,zl.w); w2=Math.max(round1(zl.w-inc), Math.min(w2, round1(zl.w+2*inc))); }
     t={w:w2, r:rr.lo, chip:"flat", txt:`→ ${w2} kg × ${rr.lo}`, why:`from your recent best (${round1(cap)} kg e1RM)`};
   }
-  const cy = it.cls==="legs" && !NOT_WORK.includes(it.id) ? courtYesterday() : null;
+  /* v13: not the hip thrust. It is concentric and glute-led, and its slot (Wednesday) follows the Tuesday court double:
+     with the hold on it, it could never progress. Knee, hinge and hamstring lifts still hold. */
+  const cy = it.cls==="legs" && it.grp!=="hips" && !NOT_WORK.includes(it.id) ? courtYesterday() : null;
   if(cy && t.chip!=="amber"){
     const w=Math.min(t.w, le.w||t.w);
     return {w, r:rr.lo, chip:"amber", txt:`hold · ${w} kg × ${rr.lo}`, why:`${fmtMin(cy.min)} of court yesterday: same load, RIR 3, let the reps decide`};
@@ -1168,29 +1235,64 @@ function seedFor(it){
   const st=it.st||2.5, pct=Math.round(it.seed.p*100);
   return {w:Math.floor(src.w*it.seed.p/st+1e-9)*st, pct, why:`first time · ${pct}% of your ${src.w} kg barbell pull`};
 }
+/* v13: interchangeable variants share a family. A lift is fully stale (85%) only when the whole family has been
+   idle four weeks. When a sister variant was trained inside four weeks, the pattern is alive: nothing for six weeks,
+   then one mild session (~92%). Alternating Bulgarian / reverse lunge or trap bar / sumo by week would otherwise
+   ramp in at 85% every single time. */
+const FAMILY_STALE_DAYS=42;
+const FAMILY={rfess:"ssq", revlunge:"ssq", "trapbar-dl":"dl", "sumo-dl":"dl", deadlift:"dl", slrdl:"rdl", "bstance-rdl":"rdl", "incline-press":"hpress", "chest-press":"hpress"};
+function famLastTs(id){
+  const f=FAMILY[id], ids=f ? Object.keys(FAMILY).filter(k=>FAMILY[k]===f) : [id];
+  return Math.max(0, ...ids.map(k=>{ const a=state.logs[k]||[]; return a.length ? a[a.length-1].ts : 0; }));
+}
+/* length in days of the most recent layoff: the one still running, or the gap that ended at lastGapReset() */
+function lastLayoffDays(){
+  if(layoffDays()>=LAYOFF_DAYS) return layoffDays();
+  const ds=sessionDates(); let len=0, at=null;
+  for(let i=1;i<ds.length;i++){ const g=Math.round((new Date(ds[i]+"T12:00")-new Date(ds[i-1]+"T12:00"))/864e5); if(g>=LAYOFF_DAYS){ len=g; at=ds[i]; } }
+  const o=offReset(); if(o && (!at || o.date>at)) return o.days;
+  return len;
+}
 function rampFor(it){
-  if(!it || !it.id || (it.type!=="wr" && it.type!=="wradd") || NO_ADVICE.includes(it.id)) return null;
+  if(!it || !it.id || (it.type!=="wr" && it.type!=="wradd") || NO_ADVICE.includes(it.id) || NOT_WORK.includes(it.id)) return null;
   const arr=state.logs[it.id]||[], le=arr[arr.length-1];
   if(!le || !(le.w>0) || gateFor(it)) return null;          /* bodyweight work, or gated today: the amber line rules */
-  const st=it.st||2.5, down=x=>Math.floor(x/st+1e-9)*st, opts=[];
+  const st=it.st||2.5, down=x=>Math.floor(x/st+1e-9)*st, opts=[], rr=repRange(it.rx);
+  /* One option: p of the reference load, and (v13) never more than p of the reference CAPACITY in today's rep zone:
+     92% of an 8-rep load is a far harder set at 10–12 reps than at 6–8. Light accessories are skipped: rounding a
+     5 kg stack down a whole plate would halve it, and the rep target is enough there. */
+  const opt=(ref,p,o)=>{ const wl=down(ref.w*p); if(wl<ref.w*(p-0.1)) return null;
+    const wc=(it.type==="wr" && rr && ref.r!=null) ? Math.round(p*e1rmCap(ref.w,ref.r)/(1+Math.min(rr.lo,12)/30)/st)*st : wl;
+    return Object.assign({w:wc>0?Math.min(wl,wc):wl, base:ref.w}, o); };
   if(it.gate){
     const fd=lastFlagDate(it.gate.k, it.gate.lvl);
     if(fd && daysSince(fd)<=RAMP_FLAG_DAYS){
       const end=new Date(fd+"T23:59:59").getTime(), n=arr.filter(e=>e.ts>end).length;
       const ref=arr.filter(e=>e.ts<=end).pop();
-      if(n<2 && ref && ref.w>0) opts.push({w:down(ref.w*(n?0.9:0.8)), base:ref.w, pct:n?90:80, k:it.gate.k,
-        why:`${STRUCT[it.gate.k]} ${n?"ramp, step 2":"2+ on "+fmtDate(new Date(fd+"T12:00").getTime())}`});
+      if(n<2 && ref && ref.w>0) opts.push(opt(ref, n?0.9:0.8, {pct:n?90:80, k:it.gate.k,
+        why:`${STRUCT[it.gate.k]} ${n?"ramp, step 2":"2+ on "+fmtDate(new Date(fd+"T12:00").getTime())}`}));
     }
   }
-  /* a gap: ~85% on the first session back, ~92% on the second, then normal progression */
-  const gap=lastGapReset(), stale=daysSince(ymd(new Date(le.ts)))>=RAMP_STALE_DAYS ||
-    (reEntry() && gap && le.ts<new Date(gap+"T00:00").getTime());
+  const gap=lastGapReset(), gapTs=gap ? new Date(gap+"T00:00").getTime() : 0, fam=famLastTs(it.id);
+  const dLe=daysSince(ymd(new Date(le.ts))), dFam=daysSince(ymd(new Date(fam)));
   const prev=arr[arr.length-2], dGap=prev ? Math.round((le.ts-prev.ts)/864e5) : 0;
-  if(stale) opts.push({w:down(le.w*0.85), base:le.w, pct:85, why:`last done ${fmtDate(le.ts)}`});
-  else if(prev && prev.w>0 && dGap>=RAMP_STALE_DAYS && daysSince(ymd(new Date(le.ts)))<RAMP_STALE_DAYS)
-    opts.push({w:down(prev.w*0.925), base:prev.w, pct:92, why:`back from a ${dGap}-day gap, step 2`});
-  /* light accessories: rounding a 5 kg stack down a whole plate would halve it — the rep target is enough there */
-  const ok=opts.filter(o=>o.w>=o.base*(o.pct/100-0.1));
+  if(dLe>=RAMP_STALE_DAYS && dFam>=RAMP_STALE_DAYS)
+    /* four weeks without the pattern: ~85%, then ~92%, then normal progression */
+    opts.push(opt(le, 0.85, {pct:85, why:`last done ${fmtDate(le.ts)}`}));
+  else if(dLe>=FAMILY_STALE_DAYS && dFam<RAMP_STALE_DAYS && fam>le.ts)
+    opts.push(opt(le, 0.925, {pct:92, why:`last done ${fmtDate(le.ts)}, but its sister lift ${dFam} d ago`}));
+  else if(reEntry() && gap && le.ts<gapTs && fam<gapTs){
+    /* first session back from a layoff. A break under three weeks costs little strength: one session at ~92%.
+       Longer, or a lift that loads the knee or the back (tendons re-adapt slowest): ~85%. */
+    const lay=lastLayoffDays(), slow=lay>=21 || !!(it.gate && (it.gate.k==="knee"||it.gate.k==="lb"));
+    opts.push(opt(le, slow?0.85:0.925, {pct:slow?85:92, why:`${lay} days off`+(slow&&lay<21?": knee and back lifts come back slowest":"")}));
+  }
+  else if(prev && prev.w>0 && le.w<prev.w && dGap>=RAMP_STALE_DAYS && dLe<RAMP_STALE_DAYS){
+    const o=opt(prev, 0.925, {pct:92, why:`back from a ${dGap}-day gap, step 2`});
+    /* only a step if it asks for more than the last session did (12.5 kg → 12.5 kg is not one) */
+    if(o && (rr ? e1rmCap(o.w,rr.lo)>e1rmCap(le.w,le.r) : o.w>le.w)) opts.push(o);
+  }
+  const ok=opts.filter(Boolean);
   if(!ok.length) return null;
   const r=ok.reduce((a,b)=>b.w<a.w?b:a); return r.k ? {w:r.w, pct:r.pct, why:r.why, k:r.k} : {w:r.w, pct:r.pct, why:r.why};
 }
@@ -1217,7 +1319,8 @@ const EFFORT_GUIDE = [
   [9,"Max","Match or tournament. Nothing left; legs still heavy the next day."]];
 const COURT_72H_MIN = 360;   /* 6 h+ of court in 3 days = a big jump/cutting block for the knee */
 function dateShift(n,from){ const d=from?new Date(from+"T12:00"):new Date(); d.setDate(d.getDate()-n); return ymd(d); }
-function isCourt(a){ return !!(ACTS[a.type]||{}).court; }
+const COURT_NAME=/tennis|badminton|volley|padel|squash|basket|handball|football|floorball/i;   /* "Other" entries named after a court sport count as court */
+function isCourt(a){ return !!(ACTS[a.type]||{}).court || (a.type==="other" && COURT_NAME.test(a.name||"")); }
 function actName(a){ return (a.type==="other" && a.name) ? a.name : ((ACTS[a.type]||{}).n || a.type); }
 function fmtMin(m){ return m>=60 ? round1(m/60)+" h" : m+" min"; }
 function effortName(r){ const e=EFFORT.find(x=>x[0]===r); return e?e[1]:("RPE "+r); }
@@ -1260,7 +1363,9 @@ function phaseStatus(dstr){
   const t=phaseTarget(p,dstr), dev=le ? round1(le.kg-t) : null;
   const stale=!le || daysSince(ymd(new Date(le.ts)))>=7;
   const verdict = dev==null ? "no weigh-in yet" : Math.abs(dev)<=0.5 ? "on track" : dev>0 ? (p.rate>0?"ahead: trim ~150 kcal if it holds two weeks":"behind: trim ~150 kcal") : (p.rate>0?"behind: add ~150 kcal":"ahead: ease off ~150 kcal");
-  return {p, wk, t, start:phaseStartKg(p), le, dev, stale, verdict};
+  /* v13: a surplus without the training buys fat. Under 5 sessions in 14 days the gain phase says "hold". */
+  const sess14=sessionDates().filter(d=>d>dateShift(14,dstr) && d<=dstr).length, hold=p.rate>0 && sess14<5;
+  return {p, wk, t, start:phaseStartKg(p), le, dev, stale, verdict, sess14, hold};
 }
 
 /* ---------- exercise search: every exercise the app knows, current week's version first ---------- */
@@ -1317,6 +1422,8 @@ function stalledLifts(){
     /* a dip right after its structure was flagged is the injury talking, not the programme */
     const c=catalogItem(id), g=c&&c.it.gate, fd=g&&lastFlagDate(g.k,g.lvl);
     if(fd && daysSince(fd)<=RAMP_FLAG_DAYS) return;
+    /* v13: a load cut of 7%+ inside the last three sessions is a ramp-in or a reset, not a stall */
+    if(arr.slice(-3).some((e,i)=>{ const p=arr[arr.length-3+i-1]; return p && p.w>0 && e.w>0 && e.w<=0.93*p.w; })) return;
     const ms=arr.map(e=>metric(id,e));
     const best=Math.max(...ms);
     const lastThree=ms.slice(-3);
@@ -1362,6 +1469,12 @@ function dose(days){
   });
   return out;
 }
+/* v13: did the leg lead actually open the upper sessions? Counted from the v12 install (4 Nov 2026). */
+const LEAD={"upper-vert":"hipthrust", "upper-horiz":"lyingcurl"}, LEAD_FROM="2026-11-04";
+function leadCount(days){
+  const since=[dateShift(days-1), LEAD_FROM].sort().pop(), ds=sessionDates().filter(d=>d>=since && LEAD[state.sessions[d]]);
+  return {done:ds.filter(d=>(state.logs[LEAD[state.sessions[d]]]||[]).some(e=>ymd(new Date(e.ts))===d)).length, of:ds.length};
+}
 /* Pull-up practice (2×3 easy on the six non-vertical sessions) is ticked, not logged; v12 records the tick dates. */
 function pracCount(days){
   const since=[dateShift(days-1), state.meta.pracSince||"0"].sort().pop(), ds=sessionDates().filter(d=>d>=since && state.sessions[d]!=="upper-vert");
@@ -1372,58 +1485,57 @@ function pracCount(days){
    Week planner
 ===================================================================== */
 const CORE=["lower-power","upper-vert","upper-horiz","lower-strength"];
-/* Winter 2026/27 (updated 4 Nov): beach volley on ALTERNATE Mondays 18:30 and every Wednesday (the late
-   21:30 slot in the other weeks), squash Tue 17:00, padel Fri 07:00. Leg days sit beside the fun sports so the
-   volleyball nights get fresh legs; weekday sessions are mornings (the gym is quiet), Fri/weekend any time.
-   On a volleyball-free Monday the posterior day may take Monday morning (3 days after Friday's legs). */
+/* Winter 2026/27. Until 15 Nov: beach volley on alternate Mondays 18:30 and every Wednesday (the late 21:30
+   slot in the other weeks), squash Tue 17:00, padel Fri 07:00; that week (Mon vertical · Tue posterior · Fri
+   strength) still answers for dates before WEEK_V13_FROM, so history and the dated tests read right.
+   v13, from 16 Nov 2026 (his message, 17 Nov): volleyball is ONLY the alternate Monday 18:30 plus ONE floating game a
+   week (Wednesday evening or the weekend); the late Wednesday is cancelled. The week is now
+     Mon AM posterior · Wed AM vertical · Thu AM strength · Sat/Sun horizontal.
+   Strength moved from Friday to Thursday so a weekend game gets legs 48–72 h clear and Monday volleyball is four
+   days off, whichever day the floating game lands on: the planner needs no "game planned" input. */
 const BVB_MON_ANCHOR="2026-11-16";        /* a volleyball Monday; every second Monday from here */
+const WEEK_V13_FROM="2026-11-16";
 function mondayOf(dstr){ const d=new Date(dstr+"T12:00"); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d; }
 function volleyMonday(dstr){ const w=Math.round((mondayOf(dstr)-mondayOf(BVB_MON_ANCHOR))/(7*864e5)); return ((w%2)+2)%2===0; }
-function lateWednesday(dstr){ return !volleyMonday(dstr); }
-/* Dated exceptions to the standing week. 16 Nov – 20 Dec 2026 (W47–51): padel moves to Tuesday 07:00 and
-   Friday is free. Tuesday becomes a double sport day (padel AM + squash PM), so no Tuesday gym. One schedule
-   for all five weeks (his call, 7 Nov: Monday-morning legs before evening volleyball don't bother him):
-   Mon AM posterior · Wed AM vertical · Fri strength, any time · weekend horizontal. Thursday morning is the
-   posterior day's fallback (the day before Friday's legs: concentric work, RDL at RIR 3, acceptable). */
+function lateWednesday(dstr){ return !volleyMonday(dstr); }   /* history only: the late Wednesday ended on 15 Nov 2026 */
+/* Dated exceptions to the standing week. 16 Nov – 20 Dec 2026 (W47–51): padel moves to Tuesday 07:00 and Friday
+   is free. Tuesday becomes a double sport day (padel AM + squash PM), so no Tuesday gym in those weeks. */
 const SCHEDULE_WINDOWS=[{from:"2026-11-16", to:"2026-12-20", padelTue:true, note:"16 Nov – 20 Dec: padel is Tuesday 07:00, so no Tuesday gym and Friday is free all day."}];
 function windowOn(dstr){ return SCHEDULE_WINDOWS.find(w=>dstr>=w.from && dstr<=w.to)||null; }
-function ctxOn(dstr){ const w=windowOn(dstr); return {monFree:!volleyMonday(dstr), padelTue:!!(w&&w.padelTue)}; }
+function ctxOn(dstr){ const w=windowOn(dstr); return {monFree:!volleyMonday(dstr), padelTue:!!(w&&w.padelTue), thu:dstr>=WEEK_V13_FROM}; }
 function sportOn(dstr){
   const dw=new Date(dstr+"T12:00").getDay(), w=windowOn(dstr), pt=!!(w&&w.padelTue);
   if(dw===1) return volleyMonday(dstr) ? "beach volley 18:30" : null;
   if(dw===2) return pt ? "padel 07:00 + squash 17:00" : "squash 17:00";
-  if(dw===3) return lateWednesday(dstr) ? "beach volley 21:30 (late)" : "beach volley (evening)";
+  if(dw===3) return dstr>=WEEK_V13_FROM ? null : (lateWednesday(dstr) ? "beach volley 21:30 (late)" : "beach volley (evening)");
   if(dw===5) return pt ? null : "padel 07:00";
   return null;
 }
-const SPORT_DAYS={1:"beach volley 18:30", 2:"squash 17:00", 3:"beach volley (21:30 every other week)", 5:"padel 07:00"};   /* fallback labels */
-const DAYMAP={1:"upper-vert", 2:"lower-power", 5:"lower-strength", 6:"upper-horiz", 0:"upper-horiz"};
-/* Where each session may go, best first (0 = Sun). A day missing from a list is off-limits:
-   lower-power fits Tue, plus Mon when Monday is volleyball-free (Wed is volleyball, Thu is the eve of Friday's
-   strength day, the weekend is too close to Monday) — missed, it is skipped and Friday covers the week.
-   Lower-strength never lands within ~60 h of a volleyball night: Fri, Thu as fallback, Sat as the trimmed last resort. */
+const SPORT_DAYS={1:"beach volley 18:30", 2:"squash 17:00", 3:"beach volley (21:30 every other week)", 5:"padel 07:00"};   /* fallback labels, old week */
+const DAYMAP={1:"upper-vert", 2:"lower-power", 5:"lower-strength", 6:"upper-horiz", 0:"upper-horiz"};                      /* old week */
+/* Where each session may go, best first (0 = Sun). A day missing from a list is off-limits. Old week (before 16 Nov). */
 const SLOTS={
   "upper-vert":    [1,2,3,4,6,0,5],
   "upper-horiz":   [6,0,4,2,3,1,5],
   "lower-power":   [2],
   "lower-strength":[5,4,6]
 };
-/* ctx: {monFree, padelTue}. A bare boolean is the old monFree flag. */
-function asCtx(c){ return (c && typeof c==="object") ? c : {monFree:!!c, padelTue:false}; }
+/* ctx: {monFree, padelTue, thu}. A bare boolean is the old monFree flag (old week). thu = the v13 week. */
+function asCtx(c){ return (c && typeof c==="object") ? c : {monFree:!!c, padelTue:false, thu:false}; }
 function slotsFor(id, c){
   const ctx=asCtx(c);
-  if(ctx.padelTue){
-    if(id==="lower-power")  return [1,4];
-    if(id==="upper-vert")   return [3,1,4,6,0,5];
-    if(id==="upper-horiz")  return [6,0,4,3,1,5];
-    return SLOTS[id];
+  if(ctx.thu){
+    if(id==="lower-power")    return ctx.padelTue ? [1,6,0] : [1,2,6,0];   /* Monday; missed: Tuesday (not in the padel weeks), else the weekend */
+    if(id==="upper-vert")     return [3,4,5,6,0];
+    if(id==="lower-strength") return ctx.monFree ? [4,5,6] : [4,5,6,0];    /* Thursday; Friday fallback; then the weekend, Sunday only when the next Monday has no volleyball (this one did) */
+    return [6,0];
   }
   if(ctx.monFree && id==="lower-power") return [1,2];
   if(ctx.monFree && id==="upper-vert") return [2,1,3,4,6,0,5];
   return SLOTS[id];
 }
 function prefFor(dw, ctx){
-  if(ctx.padelTue) return ({1:"lower-power", 3:"upper-vert", 4:"lower-power", 5:"lower-strength", 6:"upper-horiz", 0:"upper-horiz"})[dw];
+  if(ctx.thu) return ({1:"lower-power", 2:"lower-power", 3:"upper-vert", 4:"lower-strength", 5:"lower-strength", 6:"upper-horiz", 0:"upper-horiz"})[dw];
   return (ctx.monFree && dw===1) ? "lower-power" : DAYMAP[dw];
 }
 const ord=dw=>dw===0?7:dw;                       /* ISO order: Mon=1 … Sun=7 */
@@ -1434,7 +1546,7 @@ function lastDoneOf(id){
 function daysSince(dstr){ return dstr ? Math.round((Date.now()-new Date(dstr+"T12:00").getTime())/864e5) : 999; }
 /* Pure planner: weekday, sessions done this ISO week, days since each lower day → {id, msg}. */
 function planFor(dw, did, gaps, today, c, sportLabel){
-  const ctx=asCtx(c), monFree=ctx.monFree;
+  const ctx=asCtx(c), monFree=ctx.monFree, v13=!!ctx.thu;
   const todo=CORE.filter(id=>did.indexOf(id)<0);
   const sl = sportLabel!==undefined ? sportLabel : SPORT_DAYS[dw];
   const sport=sl?` — ${sl} today`:"";
@@ -1443,47 +1555,75 @@ function planFor(dw, did, gaps, today, c, sportLabel){
   const lowGap=id=>{ const other=id==="lower-power"?"lower-strength":"lower-power"; return gaps[other]; };
   const due=todo.filter(id=>left(id)[0]===dw);
   const skipped=todo.filter(id=>!left(id).length);
-  const tail=skipped.indexOf("lower-power")>=0 && dw!==2 ? ` Missed ${nameOf("lower-power")} this week? Skip it — Friday covers the legs.` : "";
+  const tail = v13
+    ? (todo.indexOf("lower-power")>=0 && dw>=2 && dw<=5 && left("lower-power")[0]!==dw ? ` ${nameOf("lower-power")} was missed on Monday: the weekend has room for it.` : "")
+    : (skipped.indexOf("lower-power")>=0 && dw!==2 ? ` Missed ${nameOf("lower-power")} this week? Skip it — Friday covers the legs.` : "");
   if(today && CORE.indexOf(today)>=0){
-    const pw = dw===2 && todo.indexOf("lower-power")>=0 ? ` ${nameOf("lower-power")} didn't fit today — skip it this week; Friday covers the legs.` : tail;
+    const pw = !v13 && dw===2 && todo.indexOf("lower-power")>=0 ? ` ${nameOf("lower-power")} didn't fit today — skip it this week; Friday covers the legs.` : tail;
     return {id:null, msg:`${nameOf(today)} is in for today${sport}.`+pw};
   }
   const pref = prefFor(dw, ctx);
   let pick = due.indexOf(pref)>=0 ? pref : due[0];
-  if(due.indexOf("lower-strength")>=0 && dw===6) pick="lower-strength";      /* Sat: its last slot; horizontal still has Sunday */
+  if(due.indexOf("lower-strength")>=0 && left("lower-strength").length===1) pick="lower-strength";      /* its last slot of the week (Sat, or Sun in the v13 week before a free Monday) outranks the upper day */
   if(!pick){
-    if(dw===4 && todo.indexOf("lower-strength")>=0)
-      return {id:null, msg:`Rest day. Lower · strength is tomorrow${ctx.padelTue?"":" after padel"} — do it today only if Friday won't happen.`+tail};
+    if(v13 && dw===3 && todo.indexOf("lower-strength")>=0)
+      return {id:null, msg:`Rest day by plan${sport}. Lower · strength is tomorrow morning.`+tail};
+    if(!v13 && dw===4 && todo.indexOf("lower-strength")>=0)
+      return {id:null, msg:`Rest day. Lower · strength is tomorrow after padel — do it today only if Friday won't happen.`+tail};
     return {id:null, msg:"Rest day by plan"+sport+"."+tail};
   }
   if(pick.indexOf("lower")===0){
     const gap=lowGap(pick);
-    /* padel-Tuesday weeks: the posterior day sits on Thursday, the day before Friday's legs — by design */
-    if(ctx.padelTue && pick==="lower-strength" && gap<3 && gap>=1)
-      return {id:pick, msg:`Suggested today: ${nameOf(pick)}${sport}. ${nameOf("lower-power")} was ${gap} d ago — fine, it was concentric; deadlift as planned.`};
+    /* v13: strength may follow the posterior day by a day or two (a Tuesday or Sunday fallback): that one is concentric */
+    if(v13 && pick==="lower-strength" && gap<3 && gap>=1)
+      return {id:pick, msg:`Suggested today: ${nameOf(pick)}${sport}. ${nameOf("lower-power")} was ${gap} d ago: fine, it was concentric; deadlift as planned.`+tail};
     if(gap<3){
       const alt=due.find(t=>t.indexOf("lower")!==0);
       if(alt) return {id:alt, msg:`Only ${gap} d since the other leg day — do ${nameOf(alt)} instead.`};
       return {id:pick, msg:`Heads-up: only ${gap} d since the other leg day. Go easy or wait a day.`};
     }
   }
-  if(pick==="lower-strength" && dw===6)
-    return {id:pick, msg:"Lower · strength — Friday was missed. Saturday is the last resort (~56 h before Monday volleyball): split squat/lunge and Nordics at 2 sets."+tail};
-  const free = pick==="lower-power" && dw===1 && ctx.padelTue ? (monFree ? " Monday morning is the hamstring day in the padel-Tuesday weeks." : " Hamstring day before tonight's volleyball: concentric work, RDL at RIR 3, nothing to failure.")
-             : pick==="lower-power" && dw===1 ? " Volleyball-free Monday, so the hamstring day fits here."
-             : pick==="lower-power" && dw===4 ? " Monday was missed: the hamstring day sits here, the day before Friday's legs — RDL at RIR 3, nothing to failure."
-             : pick==="upper-vert" && dw===3 && ctx.padelTue ? " Hip thrusts this morning cost tonight's volleyball nothing." : "";
+  if(pick==="lower-strength" && (dw===6 || (v13 && dw===0)))
+    return {id:pick, msg: v13
+      ? "Lower · strength: Thursday and Friday were missed"+(left("lower-strength").length===1 ? ", today is its last slot." : ".")+(monFree ? " Volleyball on Monday is ~56 h away: split squat/lunge and Nordics at 2 sets." : ` No volleyball ${dw===0?"tomorrow":"on Monday"}, so run it as written.`)+tail
+      : "Lower · strength — Friday was missed. Saturday is the last resort (~56 h before Monday volleyball): split squat/lunge and Nordics at 2 sets."+tail};
+  const free = v13
+    ? ( pick==="lower-power" && dw===1 ? (monFree ? " Monday morning is the hamstring day." : " Hamstring day before tonight's volleyball: concentric work, RDL at RIR 3, nothing to failure.")
+      : pick==="lower-power" && dw===2 ? " Monday was missed, so the hamstring day sits here."
+      : pick==="lower-power"           ? " Monday's hamstring day, moved to the weekend: concentric work, nothing that reaches next week. You have the time today: take the items below the line too."
+      : pick==="lower-strength" && dw===4 ? " Thursday keeps the soreness clear of a weekend game and of Monday volleyball."
+      : pick==="lower-strength" && dw===5 ? " Thursday was missed. Playing volleyball this weekend? Then split squat/lunge and Nordics at 2 sets today; deadlift as planned."
+      : pick==="upper-vert" && dw===3 ? " A game tonight? Hip thrusts this morning cost it nothing." : "" )
+    : ( pick==="lower-power" && dw===1 ? " Volleyball-free Monday, so the hamstring day fits here." : "" );
   return {id:pick, msg:`Suggested today: ${nameOf(pick)}${sport}.`+free+tail};
 }
 function scheduleNote(){
   const t=ymd(), w=windowOn(t) || windowOn(dateShift(-7));
   return (w && w.note) ? " "+w.note : "";
 }
+/* v13: the planner forgets on Monday; this does not. A session untouched for two weeks is named until it is done. */
+const STALE_SESSION_DAYS=14;
+function staleNudge(pick){
+  const c=CORE.map(id=>({id, n:daysSince(lastDoneOf(id))})).filter(x=>x.n>=STALE_SESSION_DAYS && x.n<999).sort((a,b)=>b.n-a.n)[0];
+  if(!c) return "";
+  return c.id===pick ? ` Last done ${c.n} days ago: this is the one to protect.` : ` ${nameOf(c.id)} was last done ${c.n} days ago: it is the one to protect this week.`;
+}
+/* A posterior day done on the Saturday or Sunday just before this week (Monday's, moved to the weekend, or his own
+   weekend leg session) covers this Monday's slot: the same session two days running is not a plan. */
+function didForPlan(){
+  const t=ymd(), did=doneThisWeek(), lp=lastDoneOf("lower-power"), mon=ymd(mondayOf(t));
+  if(ctxOn(t).thu && lp && lp<mon && lp>=dateShift(2,mon) && did.indexOf("lower-power")<0) return {did:did.concat("lower-power"), carried:true};
+  return {did, carried:false};
+}
 function suggestion(){
-  const t=ymd(), s=planFor(new Date().getDay(), doneThisWeek(),
+  const off=offOn(ymd());
+  if(off) return {id:null, nudge:"", msg:`${OFF_KINDS[off.kind]||"Off"} since ${fmtD(off.from)}: nothing is due. Tap "I'm back" in the Sport card when you are`+(off.kind==="away"?".":off.kind==="injured"?". Train around it if it allows; the amber lines on the cards still apply.":"; the first session back is lighter by itself.")};
+  const dp=didForPlan();
+  const t=ymd(), s=planFor(new Date().getDay(), dp.did,
     {"lower-power":daysSince(lastDoneOf("lower-power")), "lower-strength":daysSince(lastDoneOf("lower-strength"))},
     state.sessions[t]||null, ctxOn(t), sportOn(t));
-  s.msg+=scheduleNote(); return s;
+  if(dp.carried && new Date().getDay()===1) s.msg+=` ${nameOf("lower-power")} was done at the weekend, so this Monday is free.`;
+  s.nudge=staleNudge(s.id); s.msg+=s.nudge+scheduleNote(); return s;
 }
 function nameOf(id){
   const d=PROGRAM.A.days.find(x=>x.id===id); return d?d.day:id;
@@ -1501,6 +1641,11 @@ function renderStrip(){
   if(deloadActive()){
     pills.push(`<span class="pill warn">deload week</span>`);
     details.push(`<p><b>Deload until ${state.meta.deloadUntil}.</b> Every lift: 2 sets, keep the loads. Power and plyo blocks: skip. It ends itself.</p>`);
+  }
+  const offNow=offOn(ymd());
+  if(offNow){
+    pills.push(`<span class="pill info">${(OFF_KINDS[offNow.kind]||"off").toLowerCase()} · day ${dayDiff(offNow.from,ymd())+1}</span>`);
+    details.push(`<p><b>${offText(offNow)}.</b> Nothing is due and these days are left out of your session rates. ${offNow.kind==="away"?"":"Five days or more counts as a layoff: the cards come back lighter for one session. "}Close it in the Sport card when you are back.</p>`);
   }
   const flags=[["lb",2],["knee",2],["sh",2],["rs",2]];
   let anyFlag=false;
@@ -1535,7 +1680,7 @@ function renderStrip(){
   if(!deloadActive() && reEntry()){
     pills.push(`<span class="pill info">re-entry</span>`);
     const lay=layoffDays();
-    details.push(`<p><b>${lay>=LAYOFF_DAYS?`${lay} days since your last session`:"Just back from a break"}.</b> A layoff is a deload — the fatigue clock has reset itself, so no deload is owed. Come back at ~80–85% of your last loads for the first week and let the app's suggestions climb from there. Tendons re-adapt slower than muscle: ease the knee and back work in particular.</p>`);
+    details.push(`<p><b>${lay>=LAYOFF_DAYS?`${lay} days since your last session`:"Just back from a break"}.</b> A layoff is a deload: the fatigue clock has reset itself, so no deload is owed. The cards already carry the reduced loads: ~92% after a break under three weeks, ~85% after a longer one and on knee and back lifts (tendons re-adapt slower than muscle). One session each, then they climb back.</p>`);
   }
   const c72=courtMin(3);
   if(c72>=COURT_72H_MIN){
@@ -1588,7 +1733,7 @@ function renderDayTabs(){
     elDaySeg.appendChild(b);
   });
   const sl=document.getElementById("suggestLine"), cur=days[curDay];
-  sl.textContent = (!sug.id || sug.id!==cur.id || /leg day|was \d d ago/.test(sug.msg)) ? sug.msg : scheduleNote().trim();
+  sl.textContent = (!sug.id || sug.id!==cur.id || /leg day|was \d d ago/.test(sug.msg)) ? sug.msg : (sug.nudge+scheduleNote()).trim();
   sl.classList.toggle("hidden", !sl.textContent || !isProgTab());
   document.getElementById("hTitle").textContent=new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
 }
@@ -1644,7 +1789,7 @@ function renderDay(){
 }
 
 /* ---------- sport & activity card ---------- */
-let actOpen=false, actDraft=null, actMsg="", effGuideOpen=false;
+let actOpen=false, actDraft=null, actMsg="", effGuideOpen=false, offOpen=false, offDraft=null;
 function newDraft(type){
   const la=lastActOf(type);
   return {type, date:ymd(), min:la?la.min:ACTS[type].min, rpe:la?la.rpe:(ACTS[type].rpe||5), name:(type==="other"&&la&&la.name)||""};
@@ -1656,7 +1801,19 @@ function activityHtml(){
   const sum = wk.length ? `${wk.length} this week · court ${fmtMin(court)}${other?` · other ${fmtMin(other)}`:""}` : "nothing logged this week";
   let h=`<div class="acts"><div class="acthead"><span class="rlbl">Sport</span>
       <span class="actsum">${sum}</span>
+      <button class="btn ghost sm" data-offopen>${offOpen?"Close":"Ill / away"}</button>
       <button class="btn ghost sm" data-actopen>${actOpen?"Close":"+ Log"}</button></div>`;
+  const offCur=offOn(ymd());
+  if(offCur) h+=`<div class="offnow"><span>${offText(offCur)} · day ${dayDiff(offCur.from,ymd())+1}</span><button class="btn ghost sm" data-offback="${offCur.ts}">I'm back</button></div>`;
+  if(offOpen){
+    const od=offDraft, past=(state.off||[]).filter(o=>!o.to || o.to>=dateShift(120)).slice().sort((a,b)=>a.from<b.from?-1:1);
+    h+=`<div class="actform"><div class="opts">${Object.keys(OFF_KINDS).map(k=>`<button data-offkind="${k}" class="${od.kind===k?"on":""}">${OFF_KINDS[k]}</button>`).join("")}</div>
+      <div class="offrow"><div><p class="flbl">From</p><input type="date" data-offfrom value="${od.from}" max="${ymd()}"></div>
+        <div><p class="flbl">To (empty = still going)</p><input type="date" data-offto value="${od.to||""}" max="${ymd()}"></div></div>
+      <div class="log one" style="margin-top:0"><span class="actsum" style="margin:0;text-align:left">Nothing is due while it runs; these days leave the session rates. Past periods can be added too.</span>
+        <button class="logbtn" data-offsave>Save</button></div>
+      ${past.length?`<div class="actlist">${past.map(o=>`<span class="actchip off">${offText(o)}<button data-offdel="${o.ts}" aria-label="delete ${offText(o)}">×</button></span>`).join("")}</div>`:""}</div>`;
+  }
   const recent=(state.acts||[]).filter(a=>a.date>=dateShift(6)).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.ts-b.ts);
   if(recent.length) h+=`<div class="actlist">${recent.map(a=>`<span class="actchip ${isCourt(a)?"court":""}">${dow(a.date)} · ${escapeHtml(actName(a))} · ${fmtMin(a.min)}<button data-actdel="${a.ts}" aria-label="delete ${escapeHtml(actName(a))}">×</button></span>`).join("")}</div>`;
   if(actOpen){
@@ -1682,7 +1839,30 @@ function activityHtml(){
 }
 function bindActs(){
   const q=s=>elProgram.querySelectorAll(s), rer=()=>{ renderDay(); renderStrip(); };
-  q("[data-actopen]").forEach(b=>b.onclick=()=>{ actOpen=!actOpen; actDraft=null; actMsg=""; rer(); });
+  q("[data-actopen]").forEach(b=>b.onclick=()=>{ actOpen=!actOpen; offOpen=false; actDraft=null; actMsg=""; rer(); });
+  q("[data-offopen]").forEach(b=>b.onclick=()=>{ offOpen=!offOpen; actOpen=false; offDraft={kind:"ill", from:ymd(), to:""}; actMsg=""; rer(); });
+  q("[data-offkind]").forEach(b=>b.onclick=()=>{ offDraft.kind=b.dataset.offkind; rer(); });
+  q("[data-offfrom]").forEach(i=>i.onchange=()=>{ if(i.value) offDraft.from=i.value; });
+  q("[data-offto]").forEach(i=>i.onchange=()=>{ offDraft.to=i.value||""; });
+  q("[data-offsave]").forEach(b=>b.onclick=()=>{
+    const od=offDraft; if(!od || !od.from || od.from>ymd()) return;
+    const to = od.to && od.to>=od.from ? (od.to>ymd()?ymd():od.to) : null;
+    state.off=(state.off||[]).concat({ts:Date.now(), kind:od.kind, from:od.from, to}).sort((a,b)=>a.from<b.from?-1:a.from>b.from?1:a.ts-b.ts);
+    save(); offOpen=false; offDraft=null;
+    actMsg=`Logged: ${escapeHtml(offText(state.off.find(o=>o.from===od.from && o.kind===od.kind)))}.`+(to?"":" Tap \"I'm back\" when it is over.");
+    renderDayTabs(); rer();
+  });
+  q("[data-offback]").forEach(b=>b.onclick=()=>{
+    const o=(state.off||[]).find(x=>String(x.ts)===b.dataset.offback); if(!o) return;
+    const y=dateShift(1);
+    if(y<o.from) state.off.splice(state.off.indexOf(o),1); else o.to=y;       /* back today: yesterday was the last day off */
+    save(); actMsg="Welcome back."+(offReset()?" The cards are lighter for the first session.":""); renderDayTabs(); rer();
+  });
+  q("[data-offdel]").forEach(b=>b.onclick=()=>{
+    const o=(state.off||[]).find(x=>String(x.ts)===b.dataset.offdel); if(!o) return;
+    if(!confirm(`Delete ${offText(o)}?`)) return;
+    state.off.splice(state.off.indexOf(o),1); save(); renderDayTabs(); rer();
+  });
   q("[data-acttype]").forEach(b=>b.onclick=()=>{ actDraft=newDraft(b.dataset.acttype); rer(); });
   q("[data-actdate]").forEach(b=>b.onclick=()=>{ actDraft.date=b.dataset.actdate; rer(); });
   q("[data-acteff]").forEach(b=>b.onclick=()=>{ actDraft.rpe=parseInt(b.dataset.acteff,10); rer(); });
@@ -1985,13 +2165,14 @@ function renderPhase(){
   const ph=phaseStatus(), t=ymd(), nx=nextPhase(t);
   if(ph){
     const p=ph.p;
-    box.innerHTML=`<p class="phase"><b>${p.n}</b> · week ${ph.wk} · ${fmtDate(new Date(p.from+"T12:00").getTime())} → ${fmtDate(new Date(p.to+"T12:00").getTime())} · target today <b>${round1(ph.t)} kg</b> (±0.5)${ph.le?` · last <b>${ph.le.kg} kg</b> ${fmtDate(ph.le.ts)} · ${ph.verdict}`:" · no weigh-in yet"}</p>`;
+    box.innerHTML=`<p class="phase"><b>${p.n}</b> · week ${ph.wk} · ${fmtDate(new Date(p.from+"T12:00").getTime())} → ${fmtDate(new Date(p.to+"T12:00").getTime())} · target today <b>${round1(ph.t)} kg</b> (±0.5)${ph.le?` · last <b>${ph.le.kg} kg</b> ${fmtDate(ph.le.ts)} · ${ph.verdict}`:" · no weigh-in yet"}</p>`+
+      (ph.hold?`<p class="info" style="margin:6px 0 0;color:var(--warn)">Surplus on hold: ${ph.sess14} sessions in the last 14 days. Eat at maintenance, keep the protein, and add the ~250 kcal once two weeks reach 5 sessions.</p>`:"");
   } else if(nx){
     box.innerHTML=`<p class="phase"><b>${nx.n}</b> starts ${fmtDate(new Date(nx.from+"T12:00").getTime())}: weigh in that week to set the start line.</p>`;
   } else box.innerHTML="";
   if(eat) eat.innerHTML=`<details class="how"><summary>What to eat in each phase</summary>
     ${PHASES.map(p=>`<p><b>${p.n}</b> (${fmtDate(new Date(p.from+"T12:00").getTime())} → ${fmtDate(new Date(p.to+"T12:00").getTime())}, ${p.rate>0?"+":""}${p.rate} kg/week): ${p.kcal}. ${p.macros}.</p>`).join("")}
-    <p>Anchors, not counting: hit the protein per meal, keep the smoothie and the creatine, let hunger set the carbs. The scale decides the rest: two weeks outside the band, move 150 kcal. Double days (Tue lift + squash, Fri padel + legs) are never light days.</p></details>`;
+    <p>Anchors, not counting: hit the protein per meal, keep the smoothie and the creatine, let hunger set the carbs. The scale decides the rest: two weeks outside the band, move 150 kcal. Double days (padel + squash on a Tuesday) are never light days.</p></details>`;
 }
 function lineChart(points, opts){
   const W=640, H=opts.h||150, P={l:34,r:10,t:10,b:20};
@@ -2129,15 +2310,20 @@ function buildCheckin(){
   const weeks=Math.max(1,Math.round((Date.now()-new Date(since).getTime())/(7*864e5)));
   L.push("# Training check-in — "+ymd());
   L.push("");
-  L.push(`Block: 4 sessions, a leg lift leads each (v12) · winter week: Mon vertical (hip thrust lead) · Tue posterior · Fri strength · Sat/Sun horizontal (curl lead) · volleyball Mondays alternate from ${BVB_MON_ANCHOR} · week ${curWeek} shown · app ${state.meta.app}`);
-  L.push(`Adherence: ${days.length} sessions since ${since} (~${round1(days.length/weeks)}/week, target 4)`);
+  L.push(`Block: 4 sessions, a leg lift leads each (${APP_VER}) · week from 16 Nov: Mon posterior · Wed vertical (hip thrust lead) · Thu strength · Sat/Sun horizontal (curl lead) · volleyball on alternate Mondays from ${BVB_MON_ANCHOR} plus one floating game a week · week ${curWeek} shown · app ${state.meta.app}`);
   const d28=days.filter(d=>d>=dateShift(27));
+  L.push(`Adherence: ${days.length} sessions since ${since} (~${round1(days.length/weeks)}/week, target 4) · last 28 d: ${d28.length} (${round1(d28.length/4)}/week)`);
+  { const from28=dateShift(27), off28=offDaysBetween(from28, ymd()), per=(state.off||[]).filter(o=>!o.to || o.to>=dateShift(89));
+    if(per.length){ const av=28-off28, in28=d28.filter(d=>!offOn(d)).length;
+      L.push(`Off periods (90 d): ${per.map(o=>`${offText(o)} (${dayDiff(o.from, o.to||ymd())+1} d)`).join("; ")} · ${off28} of the last 28 days off`+(av>=7?` · ${in28} sessions in the ${av} available days (${round1(in28/(av/7))}/week)`:"")); } }
+  L.push("Days since each session: "+CORE.map(id=>{ const n=daysSince(lastDoneOf(id)); return `${nameOf(id)} ${n>=999?"never":n}`; }).join(" · "));
   if(d28.length){
     const lifts=d28.map(workingLiftsOn);
     L.push(`Sessions (28 d): ${CORE.map(id=>`${nameOf(id)} ${d28.filter(d=>state.sessions[d]===id).length}`).join(" · ")} · ${round1(lifts.reduce((s,x)=>s+x,0)/lifts.length)} working lifts logged per session`);
   }
   L.push(`Fatigue: ${fatigueScore()} of ${FATIGUE_DUE} (decayed work, 21-day half-life; ≈${sessionsSinceAnchor()} full sessions since the last reset)${fatigueDue()?" — deload due":""}${reEntry()?" — re-entry":""}`);
   const pc=pracCount(28); if(pc.of) L.push(`Pull-up practice: ticked on ${pc.done} of ${pc.of} non-vertical sessions (28 d)`);
+  const lc=leadCount(28); if(lc.of) L.push(`Leg lead: logged on ${lc.done} of ${lc.of} upper sessions (28 d)`);
   const ramps=catalog().filter(c=>c.where!=="retired").map(c=>({c, r:rampFor(c.it)||seedFor(c.it)})).filter(x=>x.r);
   const plats=catalog().filter(c=>c.where!=="retired").map(c=>({c, t:target(c.it)})).filter(x=>x.t && x.t.chip==="reset");
   if(plats.length) L.push("Plateaus: "+plats.map(x=>`${(EXMETA[x.c.it.id]||{}).name||x.c.it.n} (${x.t.txt}${x.t.why?"; "+x.t.why:""})`).join("; "));
@@ -2153,7 +2339,7 @@ function buildCheckin(){
     const f=state.bw[0], l=state.bw[state.bw.length-1];
     L.push(`Bodyweight: ${f.kg} → ${l.kg} kg (${l.kg-f.kg>=0?"+":""}${round1(l.kg-f.kg)} kg, ${state.bw.length} logs)`);
   }
-  { const ph=phaseStatus(); if(ph) L.push(`Phase: ${ph.p.n} week ${ph.wk} (${ph.p.from} → ${ph.p.to}, ${ph.p.rate>0?"+":""}${ph.p.rate} kg/wk) · start ${ph.start} kg · target today ${round1(ph.t)} kg · ${ph.verdict}`); }
+  { const ph=phaseStatus(); if(ph) L.push(`Phase: ${ph.p.n} week ${ph.wk} (${ph.p.from} → ${ph.p.to}, ${ph.p.rate>0?"+":""}${ph.p.rate} kg/wk) · start ${ph.start} kg · target today ${round1(ph.t)} kg · ${ph.verdict}${ph.hold?` · surplus on hold: ${ph.sess14} sessions in 14 days (5+ wanted)`:""}`); }
   const rl=readyList();
   if(rl.length){
     const avg=a=>round1(a.reduce((s,x)=>s+x,0)/a.length);
@@ -2188,7 +2374,8 @@ function buildCheckin(){
   const notes=state.notesArr.slice(-8);
   if(notes.length){
     L.push(""); L.push("## Recent notes");
-    notes.forEach(n=>L.push(`- ${ymd(new Date(n.ts))} (${n.day}): ${n.text}`));
+    /* a note written on a day without a session carries the tab that happened to be open: say so instead */
+    notes.forEach(n=>{ const d=ymd(new Date(n.ts)); L.push(`- ${d} (${state.sessions[d]?n.day:"rest day"}): ${n.text}`); });
   }
   L.push(""); L.push("## Raw data"); L.push("```json");
   L.push(JSON.stringify(state)); L.push("```");
@@ -2399,7 +2586,8 @@ const KEYED={
   done:     st=>new Map(Object.entries(st.done||{})),
   bw:       st=>new Map((st.bw||[]).map(b=>[String(b.ts), b])),
   extra:    st=>{ const m=new Map(); Object.keys(st.extra||{}).forEach(d=>(st.extra[d]||[]).forEach(x=>m.set(d+"|"+x.day+"|"+x.id, {d,x}))); return m; },
-  prac:     st=>new Map(Object.entries(st.prac||{}))
+  prac:     st=>new Map(Object.entries(st.prac||{})),
+  off:      st=>new Map((st.off||[]).map(o=>[String(o.ts), o]))
 };
 const RESOLVE={   /* both sides changed the same record */
   logs:  (l,r)=> r.e.ts>l.e.ts ? r : l,                 // the later entry of the day
@@ -2434,6 +2622,7 @@ function mergeState(L, R, B){
     if(name==="logs"){ out.logs={}; m.forEach(({id,e})=>(out.logs[id]=out.logs[id]||[]).push(e)); Object.values(out.logs).forEach(a=>a.sort((x,y)=>x.ts-y.ts)); }
     else if(name==="acts") out.acts=[...m.values()].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.ts-b.ts);
     else if(name==="notesArr" || name==="bw") out[name]=[...m.values()].sort((a,b)=>a.ts-b.ts);
+    else if(name==="off") out.off=[...m.values()].sort((a,b)=>a.from<b.from?-1:a.from>b.from?1:a.ts-b.ts);
     else if(name==="extra"){ out.extra={}; m.forEach(({d,x})=>(out.extra[d]=out.extra[d]||[]).push(x)); }
     else out[name]=Object.fromEntries([...m.entries()].sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0));
   });
