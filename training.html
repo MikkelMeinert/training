@@ -449,7 +449,7 @@
   <button id="tab-more"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/></svg>More<span id="moreDot" class="hidden dot"></span></button>
 </nav>
 
-<footer>Training · 17 Nov 2026 check-in · app v13.1</footer>
+<footer>Training · 17 Nov 2026 check-in · app v13.2</footer>
 
 <script>
 "use strict";
@@ -803,7 +803,7 @@ Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
    State
 ===================================================================== */
 const STORE_KEY = "mikkel_training_v2";
-const APP_VER = "v13.1";
+const APP_VER = "v13.2";
 
 function blankState(){
   return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{}, prac:{}, off:[],
@@ -2662,6 +2662,77 @@ function mergeState(L, R, B){
   return out;
 }
 
+/* ---------- plan card for Overblik (v13.2, 18 Nov 2026) ----------
+   plan.json at the root of training-data (private, never in app/): today and the next 13 days, one entry per planned
+   gym session, read by the Overblik planner. The planner here is today-only, so this walks forward over the pure
+   planFor(): each day sees the sessions the walk has already placed and assumes each suggestion gets done on its day.
+   Day 0 gets exactly the inputs suggestion() gives planFor, so the card never disagrees with the header.
+   Privacy contract: nothing about his health beyond four 0/1 flags (latest tap inside three days is 2+). "reason"
+   comes from the slot tables only: no off-period kind, no stale nudge, no planner message, no notes. A day inside a
+   logged off period is {hold:true, reason:"off"}; an open-ended period holds today only, so a forgotten "I'm back"
+   cannot blank a fortnight. "opens" (lead working lift + target) sits on the next occurrence of each session only:
+   target() is exact there and a guess after it. Written after a successful state sync, at most once per day unless
+   the plan itself changed; a failed write is swallowed and retried at the next sync. State first, plan second. */
+var PLAN_PATH="plan.json", PLAN_DAYS=14, _planP=Promise.resolve();
+const PLAN_SHORT={slrdl:"SL-RDL", "bstance-rdl":"B-stance RDL", hipthrust:"Hip thrust", lyingcurl:"Lying curl", rfess:"Bulgarian split squat", revlunge:"Reverse lunge"};
+const PLAN_DOW=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+function weekOn(dstr){
+  const bs=new Date(state.meta.blockStart+"T00:00:00"), w=Math.floor((new Date(dstr+"T12:00").getTime()-bs.getTime())/(7*864e5));
+  return (w<0 || w%2===0) ? "A" : "B";
+}
+function planLead(id, dstr){
+  const day=PROGRAM[weekOn(dstr)].days.find(x=>x.id===id); if(!day) return null;
+  for(const b of day.blocks){ if(b.opt) continue; for(const it of b.items){ if(it.id && it.type!=="none" && !NOT_WORK.includes(it.id)) return it; } }
+  return null;
+}
+function planOpens(id, dstr){
+  const it=planLead(id, dstr); if(!it) return null;
+  const n=PLAN_SHORT[it.id] || it.n.split(/ — | \(/)[0];
+  if(gateFor(it)) return n;                                   /* gated today: the name only, no load */
+  let t=null; try{ t=target(it); }catch(e){ t=null; }
+  return (t && t.r) ? n+" "+(t.w>0?t.w:"")+"×"+t.r : n;
+}
+function planReason(id, dw, dstr, c, lastLower){
+  const best=slotsFor(id,c)[0], day=PLAN_DOW[dw];
+  let s = (id==="upper-horiz" && (dw===6||dw===0)) ? "Weekend slot" : dw===best ? day+" slot" : day+" fallback for the "+PLAN_DOW[best]+" slot";
+  if(id==="lower-strength" && lastLower){ const g=dayDiff(lastLower,dstr); if(g>=1 && g<=6) s+=", "+g+" day"+(g===1?"":"s")+" after "+nameOf("lower-power"); }
+  return s;
+}
+function planCard(){
+  const t=ymd(), sim=Object.assign({}, state.sessions), days=[], opened={};
+  const lastOf=(id,d)=>{ const ds=Object.keys(sim).filter(x=>sim[x]===id && x<=d).sort(); return ds.length?ds[ds.length-1]:null; };
+  for(let i=0;i<PLAN_DAYS;i++){
+    const d=dateShift(-i,t), dw=new Date(d+"T12:00").getDay();
+    if((state.off||[]).some(o=>o.from<=d && (o.to ? o.to>=d : d===t))){ days.push({date:d, reason:"off", hold:true}); continue; }
+    const wk=isoWeek(d), mon=ymd(mondayOf(d)), c=ctxOn(d), lp=lastOf("lower-power",d);
+    let did=Object.keys(sim).filter(x=>isoWeek(x)===wk && x<=d).map(x=>sim[x]);
+    if(c.thu && lp && lp<mon && lp>=dateShift(2,mon) && did.indexOf("lower-power")<0) did=did.concat("lower-power");   /* as didForPlan() */
+    const gap=id=>{ const l=lastOf(id,d); return l?dayDiff(l,d):999; };
+    const logged=(i===0 && sim[d] && CORE.indexOf(sim[d])>=0) ? sim[d] : null;   /* only today can already be logged */
+    const id=logged || planFor(dw, did, {"lower-power":gap("lower-power"), "lower-strength":gap("lower-strength")}, sim[d]||null, c, sportOn(d)).id;
+    if(!id) continue;
+    const e={date:d, session:nameOf(id)};
+    if(!logged && !opened[id]){ const o=planOpens(id,d); if(o) e.opens=o; opened[id]=1; }
+    e.reason = logged ? "Logged today" : planReason(id, dw, d, c, id==="lower-strength" ? lp : null);
+    e.hold=false; days.push(e); sim[d]=id;
+  }
+  const r=activeReady(), f=k=>(r && (r[k]||0)>=2) ? 1 : 0;
+  return {generated:new Date().toISOString(), days, flags:{knee:f("knee"), lowback:f("lb"), hamstring:f("rs"), shoulder:f("sh")}};
+}
+async function pushPlan(){
+  if(!syncReady()) return;
+  try{
+    const card=planCard(), body=JSON.stringify({days:card.days, flags:card.flags}), key=ymd()+"|"+body;
+    if(syncInfo.planKey===key) return;                        /* same plan, same day: no request at all */
+    const f=await ghGet(PLAN_PATH);
+    if(f.content){ try{ const o=JSON.parse(f.content);        /* another device already wrote today's card */
+      if(JSON.stringify({days:o.days, flags:o.flags})===body && ymd(new Date(o.generated))===ymd()){ syncInfo.planKey=key; saveSyncInfo(); return; } }catch(e){} }
+    const res=await ghPut(PLAN_PATH, JSON.stringify(card,null,2)+"\n", f.sha, "plan · "+ymd());
+    if(!res.stale){ syncInfo.planKey=key; saveSyncInfo(); }
+  }catch(e){ /* never the state sync's problem: retried after the next one */ }
+}
+function planSoon(){ _planP=_planP.then(pushPlan, pushPlan); }
+
 /* ---------- the sync itself ---------- */
 async function syncNow(opts){
   opts=opts||{};
@@ -2676,10 +2747,10 @@ async function syncNow(opts){
       let remote=null;
       if(f.content){ try{ remote=JSON.parse(f.content); }catch(e){ throw new Error("state.json in the repo isn't valid JSON — fix or delete it there"); } }
       const merged=mergeState(state, remote, base), text=remoteText(merged);
-      if(f.content!==null && text===f.content){ commitSync(merged, text, before, opts); return {ok:true, pushed:false}; }
+      if(f.content!==null && text===f.content){ commitSync(merged, text, before, opts); planSoon(); return {ok:true, pushed:false}; }
       const n=Object.values(merged.logs).reduce((s,a)=>s+a.length,0);
       const res=await ghPut(STATE_PATH, text, f.sha, `state · ${ymd()} · ${n} lift entries · ${(merged.acts||[]).length} sport`);
-      if(!res.stale){ commitSync(merged, text, before, opts); return {ok:true, pushed:true}; }
+      if(!res.stale){ commitSync(merged, text, before, opts); planSoon(); return {ok:true, pushed:true}; }
     }
     syncInfo.pending=true; syncInfo.lastFailAt=Date.now(); saveSyncInfo();
     if(opts.render!==false){ refreshSyncUi(); renderStrip(); }
