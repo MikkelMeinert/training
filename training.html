@@ -449,7 +449,7 @@
   <button id="tab-more"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/></svg>More<span id="moreDot" class="hidden dot"></span></button>
 </nav>
 
-<footer>Training · 17 Nov 2026 check-in · app v13.2</footer>
+<footer>Training · 17 Nov 2026 check-in · app v13.3</footer>
 
 <script>
 "use strict";
@@ -803,7 +803,7 @@ Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
    State
 ===================================================================== */
 const STORE_KEY = "mikkel_training_v2";
-const APP_VER = "v13.2";
+const APP_VER = "v13.3";
 
 function blankState(){
   return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{}, prac:{}, off:[],
@@ -1508,7 +1508,84 @@ function lateWednesday(dstr){ return !volleyMonday(dstr); }   /* history only: t
    is free. Tuesday becomes a double sport day (padel AM + squash PM), so no Tuesday gym in those weeks. */
 const SCHEDULE_WINDOWS=[{from:"2026-11-16", to:"2026-12-20", padelTue:true, note:"16 Nov – 20 Dec: padel is Tuesday 07:00, so no Tuesday gym and Friday is free all day."}];
 function windowOn(dstr){ return SCHEDULE_WINDOWS.find(w=>dstr>=w.from && dstr<=w.to)||null; }
-function ctxOn(dstr){ const w=windowOn(dstr); return {monFree:!volleyMonday(dstr), padelTue:!!(w&&w.padelTue), thu:dstr>=WEEK_V13_FROM}; }
+/* v13.3 (20 Nov 2026): the calendar decides the week. Overblik's planner writes week.json to the root of training-data
+   (contract: ~/Claude/overblik/data/HUB.md, "week.json"): per day his work hours, sport by kind and time, workouts
+   already in the calendar, other busy times, and free windows of 45+ min inside his training windows. The app only
+   reads it, after each state sync, and keeps the last good copy on the phone. For the dates it covers it replaces the
+   standing sport week (sportOn, the alternate Mondays, the padel window) as the planner's input, and each session is
+   placed in a window on its day. The sport log stays the record of what happened (court hold, court warning).
+   Missing, invalid or more than two days old: the standing week, and the planner line says so.
+   His rules, 20 Nov: an upper day sits before or after any sport with no gap, and the line reminds him to eat extra;
+   a lower day ends 2 h before sport, or goes in the afternoon (13:00 on) after sport that ends by 12:00; Lower ·
+   strength never goes before sport on the same day. Weekdays: 45 min from the window start. Weekends: 75 min (lower)
+   or 60 (upper) in the earliest window that holds it, else the first fit from 45 min up. A workout already in the
+   calendar is a reserved slot: that day's session goes there at the calendar's time, so the two apps cannot loop;
+   one that overlaps sport or a busy time is ignored. Today's slots count until they end. */
+var WEEK_PATH="week.json", WEEK_KEY="mikkel_training_week", WEEK_MAX_AGE=2;
+const HHMM_RE=/^([01]\d|2[0-3]):[0-5]\d$/;
+function validWeek(w){
+  const span=x=>!!x && HHMM_RE.test(x.start) && HHMM_RE.test(x.end) && (x.start<x.end || x.end==="00:00");
+  const list=(d,k)=>d[k]===undefined || (Array.isArray(d[k]) && d[k].every(span));
+  return !!(w && typeof w==="object" && typeof w.generated==="string" && !isNaN(Date.parse(w.generated)) && Array.isArray(w.days)
+    && w.days.every(d=>!!d && /^\d{4}-\d\d-\d\d$/.test(d.date) && ["sport","workouts","busy","windows"].every(k=>list(d,k))
+      && (d.sport||[]).every(x=>typeof x.kind==="string")));
+}
+var weekFile=(function(){ try{ const w=JSON.parse(localStorage.getItem(WEEK_KEY)); return validWeek(w)?w:null; }catch(e){ return null; } })();
+function weekState(){
+  if(!weekFile) return {ok:false, why:"missing"};
+  const age=dayDiff(ymd(new Date(weekFile.generated)), ymd());
+  return age<=WEEK_MAX_AGE ? {ok:true, why:"", age} : {ok:false, why:"old", age};
+}
+function weekDay(dstr){ return weekState().ok ? (weekFile.days.find(x=>x.date===dstr)||null) : null; }
+function volleyOn(dstr){ const x=weekDay(dstr); return x ? (x.sport||[]).some(p=>/volley/.test(p.kind)) : null; }
+const SPORT_NAME={padel:"padel", squash:"squash", beachvolley:"beach volley", volleyball:"volleyball", tennis:"tennis", cycling:"bike ride", running:"run"};
+function sportLabelOn(dstr){
+  const x=weekDay(dstr); if(!x) return sportOn(dstr);
+  const l=(x.sport||[]).map(p=>(SPORT_NAME[p.kind]||p.kind)+" "+p.start);
+  return l.length ? l.join(" + ") : null;
+}
+const toMin=(t,end)=>{ const v=+t.slice(0,2)*60 + +t.slice(3); return end && v===0 ? 1440 : v; };
+const toHHMM=v=>String(Math.floor(v/60)).padStart(2,"0")+":"+String(v%60).padStart(2,"0");
+function nowMin(){ const n=new Date(); return n.getHours()*60+n.getMinutes(); }
+/* Where session id goes on dstr: {start, end, fuel}; null = no room that day; undefined = a day the file does not
+   cover (the standing week decides). On today a slot counts until it ends. */
+function fitOn(id, dstr){
+  const x=weekDay(dstr); if(!x) return undefined;
+  const now=dstr===ymd() ? nowMin() : null, dw=new Date(dstr+"T12:00").getDay(), lower=id.indexOf("lower")===0;
+  const least=weekFile.min_minutes||45, want=Math.max(least, (dw===0||dw===6) ? (lower?75:60) : 45);
+  const iv=a=>(a||[]).map(b=>({s:toMin(b.start), e:toMin(b.end,1)}));
+  const sport=iv(x.sport), taken=sport.concat(iv(x.busy));
+  const fits=(s,e)=>taken.every(b=>e<=b.s || s>=b.e) && (!lower || sport.every(b=>
+      e<=b.s ? (id!=="lower-strength" && b.s-e>=120)          /* before sport: 2 h clear, and never Lower · strength */
+             : (b.e<=720 && s>=780)));                         /* after sport: morning sport, afternoon session */
+  const out=(s,e)=>({start:toHHMM(s), end:toHHMM(e), fuel:sport.length>0});
+  for(const w of iv(x.workouts)) if((now===null || now<w.e) && fits(w.s,w.e)) return out(w.s,w.e);
+  const wins=iv(x.windows).filter(w=>now===null || now<w.e);
+  for(const full of [true,false]) for(const w of wins)
+    for(let s=w.s; s+(full?want:least)<=w.e; s+=15){ const e=Math.min(s+want, w.e); if(fits(s,e)) return out(s,e); }
+  return null;
+}
+/* The planner's view of one ISO week: may session id go on weekday dw of the week holding dstr? */
+function fitsFor(dstr){ const mon=ymd(mondayOf(dstr)); return (id,dw)=>fitOn(id, dateShift(-(ord(dw)-1), mon))!==null; }
+function weekNote(){
+  if(!(syncReady() || weekFile)) return "";
+  const w=weekState(); if(w.ok) return "";
+  return w.why==="old" ? ` The calendar week is ${w.age} days old, so this is the standing week.` : " No calendar week from Overblik yet, so this is the standing week.";
+}
+function ctxOn(dstr){
+  const w=windowOn(dstr), c={monFree:!volleyMonday(dstr), padelTue:!!(w&&w.padelTue), thu:dstr>=WEEK_V13_FROM};
+  if(!c.thu || !weekState().ok) return c;
+  /* v13.3: what the calendar knows overrides the alternation and the padel window; unknown days keep them */
+  const mon=ymd(mondayOf(dstr)), vm=volleyOn(mon), vn=volleyOn(dateShift(-7,mon)), vt=volleyOn(dateShift(-1,dstr));
+  const sat=volleyOn(dateShift(-5,mon)), sun=volleyOn(dateShift(-6,mon)), tue=weekDay(dateShift(-1,mon));
+  if(vm===null && vn===null && vt===null && sat===null && sun===null && !tue) return c;
+  c.nextMonVolley = vn!==null ? vn : c.monFree;     /* alternate Mondays: a free one means volleyball the next */
+  if(vm!==null) c.monFree=!vm;
+  if(tue) c.padelTue=false;                         /* the calendar covers this Tuesday: its windows decide */
+  if(vt!==null) c.volTomorrow=vt;
+  if(sat||sun) c.volWeekend=true; else if(sat===false && sun===false) c.volWeekend=false;
+  return c;
+}
 function sportOn(dstr){
   const dw=new Date(dstr+"T12:00").getDay(), w=windowOn(dstr), pt=!!(w&&w.padelTue);
   if(dw===1) return volleyMonday(dstr) ? "beach volley 18:30" : null;
@@ -1526,14 +1603,18 @@ const SLOTS={
   "lower-power":   [2],
   "lower-strength":[5,4,6]
 };
-/* ctx: {monFree, padelTue, thu}. A bare boolean is the old monFree flag (old week). thu = the v13 week. */
-function asCtx(c){ return (c && typeof c==="object") ? c : {monFree:!!c, padelTue:false, thu:false}; }
+/* ctx: {monFree, padelTue, thu, nextMonVolley?, volTomorrow?, volWeekend?}. A bare boolean is the old monFree flag (old
+   week). thu = the v13 week. nextMonVolley defaults to monFree (the alternation); the other two come from the calendar. */
+function asCtx(c){
+  if(!(c && typeof c==="object")) return {monFree:!!c, padelTue:false, thu:false, nextMonVolley:!!c};
+  return c.nextMonVolley===undefined ? Object.assign({}, c, {nextMonVolley:!!c.monFree}) : c;
+}
 function slotsFor(id, c){
   const ctx=asCtx(c);
   if(ctx.thu){
     if(id==="lower-power")    return ctx.padelTue ? [1,6,0] : [1,2,6,0];   /* Monday; missed: Tuesday (not in the padel weeks), else the weekend */
     if(id==="upper-vert")     return [3,4,5,6,0];
-    if(id==="lower-strength") return ctx.monFree ? [4,5,6] : [4,5,6,0];    /* Thursday; Friday fallback; then the weekend, Sunday only when the next Monday has no volleyball (this one did) */
+    if(id==="lower-strength") return ctx.nextMonVolley ? [4,5,6] : [4,5,6,0];    /* Thursday; Friday fallback; then the weekend, Sunday only when the next Monday has no volleyball (this one did) */
     return [6,0];
   }
   if(ctx.monFree && id==="lower-power") return [1,2];
@@ -1551,18 +1632,20 @@ function lastDoneOf(id){
 }
 function daysSince(dstr){ return dstr ? Math.round((Date.now()-new Date(dstr+"T12:00").getTime())/864e5) : 999; }
 /* Pure planner: weekday, sessions done this ISO week, days since each lower day → {id, msg}. */
-function planFor(dw, did, gaps, today, c, sportLabel){
-  const ctx=asCtx(c), monFree=ctx.monFree, v13=!!ctx.thu;
+function planFor(dw, did, gaps, today, c, sportLabel, fits){
+  const ctx=asCtx(c), monFree=ctx.monFree, v13=!!ctx.thu, can=fits||(()=>true);
   const todo=CORE.filter(id=>did.indexOf(id)<0);
   const sl = sportLabel!==undefined ? sportLabel : SPORT_DAYS[dw];
   const sport=sl?` — ${sl} today`:"";
   if(!todo.length) return {id:null, msg:"All four sessions done this week — anything more is a bonus."};
-  const left=id=>slotsFor(id,ctx).filter(d=>ord(d)>=ord(dw));  /* remaining slots, best first */
+  const left=id=>slotsFor(id,ctx).filter(d=>ord(d)>=ord(dw) && can(id,d));  /* remaining slots with room, best first */
+  const nowin=fits ? todo.filter(id=>!left(id).length && slotsFor(id,ctx).some(d=>ord(d)>=ord(dw))) : [];   /* v13.3: the calendar took them */
   const lowGap=id=>{ const other=id==="lower-power"?"lower-strength":"lower-power"; return gaps[other]; };
   const due=todo.filter(id=>left(id)[0]===dw);
   const skipped=todo.filter(id=>!left(id).length);
   const tail = v13
-    ? (todo.indexOf("lower-power")>=0 && dw>=2 && dw<=5 && left("lower-power")[0]!==dw ? ` ${nameOf("lower-power")} was missed on Monday: the weekend has room for it.` : "")
+    ? (todo.indexOf("lower-power")>=0 && dw>=2 && dw<=5 && left("lower-power").length && left("lower-power")[0]!==dw ? ` ${nameOf("lower-power")} was missed on Monday: the weekend has room for it.` : "")
+      + (nowin.length ? ` No window this week for ${nowin.map(nameOf).join(" or ")}.` : "")
     : (skipped.indexOf("lower-power")>=0 && dw!==2 ? ` Missed ${nameOf("lower-power")} this week? Skip it — Friday covers the legs.` : "");
   if(today && CORE.indexOf(today)>=0){
     const pw = !v13 && dw===2 && todo.indexOf("lower-power")>=0 ? ` ${nameOf("lower-power")} didn't fit today — skip it this week; Friday covers the legs.` : tail;
@@ -1591,20 +1674,23 @@ function planFor(dw, did, gaps, today, c, sportLabel){
   }
   if(pick==="lower-strength" && (dw===6 || (v13 && dw===0)))
     return {id:pick, msg: v13
-      ? "Lower · strength: Thursday and Friday were missed"+(left("lower-strength").length===1 ? ", today is its last slot." : ".")+(monFree ? " Volleyball on Monday is ~56 h away: split squat/lunge and Nordics at 2 sets." : ` No volleyball ${dw===0?"tomorrow":"on Monday"}, so run it as written.`)+tail
+      ? "Lower · strength: Thursday and Friday were missed"+(left("lower-strength").length===1 ? ", today is its last slot." : ".")+(ctx.volTomorrow===true ? " Volleyball tomorrow: split squat/lunge and Nordics at 2 sets." : ctx.nextMonVolley ? " Volleyball on Monday is ~56 h away: split squat/lunge and Nordics at 2 sets." : ` No volleyball ${dw===0?"tomorrow":"on Monday"}, so run it as written.`)+tail
       : "Lower · strength — Friday was missed. Saturday is the last resort (~56 h before Monday volleyball): split squat/lunge and Nordics at 2 sets."+tail};
   const free = v13
     ? ( pick==="lower-power" && dw===1 ? (monFree ? " Monday morning is the hamstring day." : " Hamstring day before tonight's volleyball: concentric work, RDL at RIR 3, nothing to failure.")
       : pick==="lower-power" && dw===2 ? " Monday was missed, so the hamstring day sits here."
       : pick==="lower-power"           ? " Monday's hamstring day, moved to the weekend: concentric work, nothing that reaches next week. You have the time today: take the items below the line too."
-      : pick==="lower-strength" && dw===4 ? " Thursday keeps the soreness clear of a weekend game and of Monday volleyball."
-      : pick==="lower-strength" && dw===5 ? " Thursday was missed. Playing volleyball this weekend? Then split squat/lunge and Nordics at 2 sets today; deadlift as planned."
+      : pick==="lower-strength" && dw===4 ? " Thursday keeps the soreness clear of a weekend game and of Monday volleyball."+(ctx.volTomorrow===true ? " Volleyball tomorrow: split squat/lunge and Nordics at 2 sets; deadlift as planned." : "")
+      : pick==="lower-strength" && dw===5 ? (ctx.volWeekend===true ? " Thursday was missed. Volleyball this weekend: split squat/lunge and Nordics at 2 sets today; deadlift as planned."
+                                          : ctx.volWeekend===false ? " Thursday was missed. No volleyball in the calendar this weekend: run it as written."
+                                          : " Thursday was missed. Playing volleyball this weekend? Then split squat/lunge and Nordics at 2 sets today; deadlift as planned.")
       : pick==="upper-vert" && dw===3 ? " A game tonight? Hip thrusts this morning cost it nothing." : "" )
     : ( pick==="lower-power" && dw===1 ? " Volleyball-free Monday, so the hamstring day fits here." : "" );
   return {id:pick, msg:`Suggested today: ${nameOf(pick)}${sport}.`+free+tail};
 }
 function scheduleNote(){
   const t=ymd(), w=windowOn(t) || windowOn(dateShift(-7));
+  if(weekDay(t)) return "";                                   /* v13.3: the calendar says what this week holds */
   return (w && w.note) ? " "+w.note : "";
 }
 /* v13: the planner forgets on Monday; this does not. A session untouched for two weeks is named until it is done. */
@@ -1627,9 +1713,13 @@ function suggestion(){
   const dp=didForPlan();
   const t=ymd(), s=planFor(new Date().getDay(), dp.did,
     {"lower-power":daysSince(lastDoneOf("lower-power")), "lower-strength":daysSince(lastDoneOf("lower-strength"))},
-    state.sessions[t]||null, ctxOn(t), sportOn(t));
+    state.sessions[t]||null, ctxOn(t), sportLabelOn(t), weekState().ok ? fitsFor(t) : undefined);
   if(dp.carried && new Date().getDay()===1) s.msg+=` ${nameOf("lower-power")} was done at the weekend, so this Monday is free.`;
-  s.nudge=staleNudge(s.id); s.msg+=s.nudge+scheduleNote(); return s;
+  const f=s.id ? fitOn(s.id, t) : null;                       /* v13.3: the time, from the calendar week */
+  if(f){ s.at={start:f.start, end:f.end}; s.msg=s.msg.replace(nameOf(s.id), nameOf(s.id)+", "+f.start+" to "+f.end);
+         if(f.fuel) s.msg+=" Sport today too: eat extra before and through the day."; }
+  const wn=weekNote(); s.weekNote=!!wn;
+  s.nudge=staleNudge(s.id); s.msg+=s.nudge+scheduleNote()+wn; return s;
 }
 function nameOf(id){
   const d=PROGRAM.A.days.find(x=>x.id===id); return d?d.day:id;
@@ -1743,7 +1833,7 @@ function renderDayTabs(){
   /* v13.1 (his note, 17 Nov): the line sits in the sticky header and had grown to four sentences. It now shows the first
      sentence; a tap unfolds the rest. An amber dot on "more" says a stale-session nudge is waiting inside. */
   const m=sug.msg.match(/^(.*?[.?!])\s+(.+)$/s), first=m?m[1]:sug.msg, rest=m?m[2]:"";
-  sl.innerHTML=`<span class="sfirst">${escapeHtml(first)}</span>`+(rest?`<span class="srest"> ${escapeHtml(rest)}</span><button class="smore${sug.nudge?" flag":""}" aria-expanded="${suggestOpen}">${suggestOpen?"less":"more"}</button>`:"");
+  sl.innerHTML=`<span class="sfirst">${escapeHtml(first)}</span>`+(rest?`<span class="srest"> ${escapeHtml(rest)}</span><button class="smore${(sug.nudge||sug.weekNote)?" flag":""}" aria-expanded="${suggestOpen}">${suggestOpen?"less":"more"}</button>`:"");
   sl.classList.toggle("open", suggestOpen && !!rest);
   sl.onclick = rest ? ()=>{ suggestOpen=!suggestOpen; renderDayTabs(); } : null;
   sl.classList.toggle("hidden", !sug.msg || !isProgTab());
@@ -2672,7 +2762,9 @@ function mergeState(L, R, B){
    logged off period is {hold:true, reason:"off"}; an open-ended period holds today only, so a forgotten "I'm back"
    cannot blank a fortnight. "opens" (lead working lift + target) sits on the next occurrence of each session only:
    target() is exact there and a guess after it. Written after a successful state sync, at most once per day unless
-   the plan itself changed; a failed write is swallowed and retried at the next sync. State first, plan second. */
+   the plan itself changed; a failed write is swallowed and retried at the next sync. State first, plan second.
+   v13.3: on days a fresh week.json covers, an entry also has "start" and "end" (HH:MM, the slot from fitOn) and
+   "fuel": true when the day has sport. Days the calendar does not cover keep the standing week and carry no times. */
 var PLAN_PATH="plan.json", PLAN_DAYS=14, _planP=Promise.resolve();
 const PLAN_SHORT={slrdl:"SL-RDL", "bstance-rdl":"B-stance RDL", hipthrust:"Hip thrust", lyingcurl:"Lying curl", rfess:"Bulgarian split squat", revlunge:"Reverse lunge"};
 const PLAN_DOW=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -2699,7 +2791,7 @@ function planReason(id, dw, dstr, c, lastLower){
   return s;
 }
 function planCard(){
-  const t=ymd(), sim=Object.assign({}, state.sessions), days=[], opened={};
+  const t=ymd(), sim=Object.assign({}, state.sessions), days=[], opened={}, wk=weekState().ok;
   const lastOf=(id,d)=>{ const ds=Object.keys(sim).filter(x=>sim[x]===id && x<=d).sort(); return ds.length?ds[ds.length-1]:null; };
   for(let i=0;i<PLAN_DAYS;i++){
     const d=dateShift(-i,t), dw=new Date(d+"T12:00").getDay();
@@ -2709,10 +2801,12 @@ function planCard(){
     if(c.thu && lp && lp<mon && lp>=dateShift(2,mon) && did.indexOf("lower-power")<0) did=did.concat("lower-power");   /* as didForPlan() */
     const gap=id=>{ const l=lastOf(id,d); return l?dayDiff(l,d):999; };
     const logged=(i===0 && sim[d] && CORE.indexOf(sim[d])>=0) ? sim[d] : null;   /* only today can already be logged */
-    const id=logged || planFor(dw, did, {"lower-power":gap("lower-power"), "lower-strength":gap("lower-strength")}, sim[d]||null, c, sportOn(d)).id;
+    const id=logged || planFor(dw, did, {"lower-power":gap("lower-power"), "lower-strength":gap("lower-strength")}, sim[d]||null, c, sportLabelOn(d), wk ? fitsFor(d) : undefined).id;
     if(!id) continue;
     const e={date:d, session:nameOf(id)};
     if(!logged && !opened[id]){ const o=planOpens(id,d); if(o) e.opens=o; opened[id]=1; }
+    const f=logged ? null : fitOn(id,d);                      /* v13.3: start and end, only on days the calendar week covers */
+    if(f){ e.start=f.start; e.end=f.end; if(f.fuel) e.fuel=true; }
     e.reason = logged ? "Logged today" : planReason(id, dw, d, c, id==="lower-strength" ? lp : null);
     e.hold=false; days.push(e); sim[d]=id;
   }
@@ -2731,7 +2825,18 @@ async function pushPlan(){
     if(!res.stale){ syncInfo.planKey=key; saveSyncInfo(); }
   }catch(e){ /* never the state sync's problem: retried after the next one */ }
 }
-function planSoon(){ _planP=_planP.then(pushPlan, pushPlan); }
+/* v13.3: week.json is Overblik's file; read it after the state sync, before the plan is built. Never written from here.
+   Missing, unreadable or invalid: the last good copy stays in use and ages into the standing week by itself. */
+async function pullWeek(){
+  if(!syncReady()) return;
+  try{
+    const f=await ghGet(WEEK_PATH);
+    if(f.content){ let w=null; try{ w=JSON.parse(f.content); }catch(e){ w=null; }
+      if(validWeek(w)){ weekFile=w; try{ localStorage.setItem(WEEK_KEY, JSON.stringify(w)); }catch(e){} } }
+  }catch(e){ /* offline or no access: never the state sync's problem */ }
+  try{ renderDayTabs(); }catch(e){}
+}
+function planSoon(){ _planP=_planP.then(pullWeek, pullWeek).then(pushPlan, pushPlan); }
 
 /* ---------- the sync itself ---------- */
 async function syncNow(opts){
