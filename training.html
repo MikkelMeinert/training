@@ -449,7 +449,7 @@
   <button id="tab-more"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/></svg>More<span id="moreDot" class="hidden dot"></span></button>
 </nav>
 
-<footer>Training · 17 Nov 2026 check-in · app v13.4</footer>
+<footer>Training · 17 Nov 2026 check-in · app v13.5</footer>
 
 <script>
 "use strict";
@@ -617,7 +617,7 @@ A:{days:[
       {label:"Hinge", items:[
         {id:"trapbar-dl", n:"Trap-bar deadlift", rx:"3×6–8 · RIR 2", type:"wr", st:5, start:{w:65,r:6}, cls:"legs", grp:"hinge", ramp:true, seed:{from:"deadlift",p:0.9},
          gate:{k:"lb",lvl:2,act:"SKIP. Do 2×15 bodyweight back extensions and an extra 45 s hang instead. Back to the bar after two days at 0–1."},
-         how:"Stand centred in the hex bar, handles at your sides; start on the HIGH handles (shorter range). Hips a little lower and chest taller than a barbell pull — the load sits in line with you, so less shear on the low back and more quad. A-week pull; the sumo deadlift takes B weeks — your physio's idea: same job, load spread differently. kg = bar + plates (hex bars are often 20–25 kg — check yours). +5 kg when all three sets reach 8.",
+         how:"Stand centred in the hex bar, handles at your sides; start on the HIGH handles (shorter range). Hips a little lower and chest taller than a barbell pull — the load sits in line with you, so less shear on the low back and more quad. A-week pull; the barbell deadlift takes B weeks (your call, 21 Nov): same job, load spread differently. kg = bar + plates (hex bars are often 20–25 kg — check yours). +5 kg when all three sets reach 8.",
          cue:"Push the floor away and stand tall — handles brush the thighs, no hitching."}]},
       {label:"Eccentric hamstring", items:[
         {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–8", type:"reps", start:{r:6}, cls:"legs", grp:"hams",
@@ -741,7 +741,7 @@ B:{days:[
     ]},
 
   { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Thu morning: 3 days after Monday's posterior, 2–3 days clear of a weekend game, 4 before Monday volleyball · missed: Fri, then the weekend",
-    note:"Lunge-pattern week: tempo leg extension and TKE, reverse lunge, sumo deadlift, Nordics. ~40 min to the dashed line.",
+    note:"Lunge-pattern week: tempo leg extension and TKE, reverse lunge, barbell deadlift, Nordics. ~40 min to the dashed line.",
     blocks:[
       {label:"Warm-up", items:[
         {n:"Full-body stretch flow", rx:"~6–8 min", type:"none", cue:"Especially before lunging.", how:FLOW},
@@ -760,10 +760,10 @@ B:{days:[
          how:"Step backward into the lunge, drive back up through the front leg. kg = total load. Knee-friendlier than walking lunges.",
          cue:"Front heel heavy, torso tall. Right first."}]},
       {label:"Hinge", items:[
-        {id:"sumo-dl", n:"Sumo deadlift", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:57.5,r:8}, cls:"legs", grp:"hinge", ramp:true, seed:{from:"deadlift",p:0.8},
+        {id:"deadlift", n:"Deadlift (barbell)", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:70,r:8}, cls:"legs", grp:"hinge", ramp:true,
          gate:{k:"lb",lvl:2,act:"SKIP. 2×15 bodyweight back extensions + an extra hang. Back to the bar after two days at 0–1."},
-         how:"Feet ~1.5× shoulder width, toes out 30–45°, hands inside the knees, shins near vertical. Spread the floor so the knees track over the toes; the torso stays more upright than a conventional pull — less low-back load, more adductors, glutes and quads. The first sessions are for the groove, so the load starts light and climbs fast. Moderate stance, not ultra-wide: if the right groin pinches, narrow it or take the trap bar that day.",
-         cue:"Wedge the hips toward the bar, chest up, spread the floor — then stand."}]},
+         how:"Conventional pull from the floor, back on the B weeks at your call on 21 Nov 2026 (sumo was never run; your back is well). Bar over mid-foot, hip-width stance, hands just outside the knees, shins touch the bar. It is weekly medicine for the low back, not an ego lift: crisp reps at RIR 2, never a grind. +2.5 kg when all three sets reach 10.",
+         cue:"Pull the slack out, chest up, push the floor away; bar stays on the legs."}]},
       {label:"Eccentric hamstring", items:[
         {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–8", type:"reps", start:{r:6}, cls:"legs", grp:"hams",
          gate:{k:"rs",lvl:2,act:"Band-assisted, 2×4."},
@@ -794,7 +794,7 @@ const RETIRED = {
   calf:{name:"Standing calf raise — two feet (retired, single-leg now)", type:"wr", cls:"legs"},
   latraise:{name:"Standing DB lateral raise (retired — cable now)", type:"wr", cls:"push"},
   cablerow:{name:"Seated cable row (retired — the CS row covers rows)", type:"wr", cls:"pull"},
-  deadlift:{name:"Deadlift — barbell (to 26 Sep; trap bar / sumo now)", type:"wr", cls:"legs", grp:"hinge"},
+  "sumo-dl":{name:"Sumo deadlift (retired 21 Nov 2026, never logged; barbell on B weeks)", type:"wr", cls:"legs", grp:"hinge"},
   "walk-lunge":{name:"Walking lunge — plate overhead (off-plan)", type:"wr", cls:"legs"}
 };
 Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
@@ -803,7 +803,7 @@ Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
    State
 ===================================================================== */
 const STORE_KEY = "mikkel_training_v2";
-const APP_VER = "v13.4";
+const APP_VER = "v13.5";
 
 function blankState(){
   return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{}, prac:{}, off:[],
