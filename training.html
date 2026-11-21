@@ -449,7 +449,7 @@
   <button id="tab-more"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/></svg>More<span id="moreDot" class="hidden dot"></span></button>
 </nav>
 
-<footer>Training · 17 Nov 2026 check-in · app v13.3</footer>
+<footer>Training · 17 Nov 2026 check-in · app v13.4</footer>
 
 <script>
 "use strict";
@@ -803,7 +803,7 @@ Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
    State
 ===================================================================== */
 const STORE_KEY = "mikkel_training_v2";
-const APP_VER = "v13.3";
+const APP_VER = "v13.4";
 
 function blankState(){
   return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{}, prac:{}, off:[],
@@ -1555,9 +1555,12 @@ function fitOn(id, dstr){
   const least=weekFile.min_minutes||45, want=Math.max(least, (dw===0||dw===6) ? (lower?75:60) : 45);
   const iv=a=>(a||[]).map(b=>({s:toMin(b.start), e:toMin(b.end,1)}));
   const sport=iv(x.sport), taken=sport.concat(iv(x.busy));
-  const fits=(s,e)=>taken.every(b=>e<=b.s || s>=b.e) && (!lower || sport.every(b=>
+  const fitsDay=(s,e)=>taken.every(b=>e<=b.s || s>=b.e) && (!lower || sport.every(b=>
       e<=b.s ? (id!=="lower-strength" && b.s-e>=120)          /* before sport: 2 h clear, and never Lower · strength */
              : (b.e<=720 && s>=780)));                         /* after sport: morning sport, afternoon session */
+  /* his rule, 21 Nov: after sport that ended at 21:00 or later the evening before, no lower day before 12:00 */
+  const eve=weekDay(dateShift(1,dstr)), late=lower && !!eve && iv(eve.sport).some(b=>b.e>=1260);
+  const fits=(s,e)=>(!late || s>=720) && fitsDay(s,e);
   const out=(s,e)=>({start:toHHMM(s), end:toHHMM(e), fuel:sport.length>0});
   for(const w of iv(x.workouts)) if((now===null || now<w.e) && fits(w.s,w.e)) return out(w.s,w.e);
   const wins=iv(x.windows).filter(w=>now===null || now<w.e);
@@ -1656,7 +1659,8 @@ function planFor(dw, did, gaps, today, c, sportLabel, fits){
   if(due.indexOf("lower-strength")>=0 && left("lower-strength").length===1) pick="lower-strength";      /* its last slot of the week (Sat, or Sun in the v13 week before a free Monday) outranks the upper day */
   if(!pick){
     if(v13 && dw===3 && todo.indexOf("lower-strength")>=0)
-      return {id:null, msg:`Rest day by plan${sport}. Lower · strength is tomorrow morning.`+tail};
+      { const ls=left("lower-strength")[0];   /* v13.4: the calendar may move it past Thursday (a late game tonight, no window) */
+        return {id:null, msg:`Rest day by plan${sport}.`+(ls===undefined ? "" : " Lower · strength is "+(ls===4 ? "tomorrow morning." : `on ${["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][ls]}.`))+tail}; }
     if(!v13 && dw===4 && todo.indexOf("lower-strength")>=0)
       return {id:null, msg:`Rest day. Lower · strength is tomorrow after padel — do it today only if Friday won't happen.`+tail};
     return {id:null, msg:"Rest day by plan"+sport+"."+tail};
