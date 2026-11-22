@@ -449,7 +449,7 @@
   <button id="tab-more"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/></svg>More<span id="moreDot" class="hidden dot"></span></button>
 </nav>
 
-<footer>Training · 17 Nov 2026 check-in · app v13.5</footer>
+<footer>Training · 17 Nov 2026 check-in · app v13.6</footer>
 
 <script>
 "use strict";
@@ -803,7 +803,7 @@ Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
    State
 ===================================================================== */
 const STORE_KEY = "mikkel_training_v2";
-const APP_VER = "v13.5";
+const APP_VER = "v13.6";
 
 function blankState(){
   return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{}, prac:{}, off:[],
@@ -1499,11 +1499,12 @@ const CORE=["lower-power","upper-vert","upper-horiz","lower-strength"];
      Mon AM posterior · Wed AM vertical · Thu AM strength · Sat/Sun horizontal.
    Strength moved from Friday to Thursday so a weekend game gets legs 48–72 h clear and Monday volleyball is four
    days off, whichever day the floating game lands on: the planner needs no "game planned" input. */
-const BVB_MON_ANCHOR="2026-11-16";        /* a volleyball Monday; every second Monday from here */
+const BVB_MON_ANCHOR="2026-11-16";        /* a volleyball Monday; every second Monday from here until BVB_WEEKLY_FROM */
+const BVB_WEEKLY_FROM="2026-11-23";       /* v13.6, his word 22 Nov: volleyball every Monday 18:30 from here (to ~April) */
 const WEEK_V13_FROM="2026-11-16";
 function mondayOf(dstr){ const d=new Date(dstr+"T12:00"); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d; }
-function volleyMonday(dstr){ const w=Math.round((mondayOf(dstr)-mondayOf(BVB_MON_ANCHOR))/(7*864e5)); return ((w%2)+2)%2===0; }
-function lateWednesday(dstr){ return !volleyMonday(dstr); }   /* history only: the late Wednesday ended on 15 Nov 2026 */
+function volleyMonday(dstr){ if(ymd(mondayOf(dstr))>=BVB_WEEKLY_FROM) return true; const w=Math.round((mondayOf(dstr)-mondayOf(BVB_MON_ANCHOR))/(7*864e5)); return ((w%2)+2)%2===0; }
+function lateWednesday(dstr){ return dstr<BVB_WEEKLY_FROM && !volleyMonday(dstr); }   /* history only: the late Wednesday ended on 15 Nov 2026 */
 /* Dated exceptions to the standing week. 16 Nov – 20 Dec 2026 (W47–51): padel moves to Tuesday 07:00 and Friday
    is free. Tuesday becomes a double sport day (padel AM + squash PM), so no Tuesday gym in those weeks. */
 const SCHEDULE_WINDOWS=[{from:"2026-11-16", to:"2026-12-20", padelTue:true, note:"16 Nov – 20 Dec: padel is Tuesday 07:00, so no Tuesday gym and Friday is free all day."}];
@@ -1577,12 +1578,13 @@ function weekNote(){
 }
 function ctxOn(dstr){
   const w=windowOn(dstr), c={monFree:!volleyMonday(dstr), padelTue:!!(w&&w.padelTue), thu:dstr>=WEEK_V13_FROM};
+  if(c.thu) c.nextMonVolley=volleyMonday(dateShift(-7, ymd(mondayOf(dstr))));   /* the schedule's own answer; the calendar may override it below */
   if(!c.thu || !weekState().ok) return c;
   /* v13.3: what the calendar knows overrides the alternation and the padel window; unknown days keep them */
   const mon=ymd(mondayOf(dstr)), vm=volleyOn(mon), vn=volleyOn(dateShift(-7,mon)), vt=volleyOn(dateShift(-1,dstr));
   const sat=volleyOn(dateShift(-5,mon)), sun=volleyOn(dateShift(-6,mon)), tue=weekDay(dateShift(-1,mon));
   if(vm===null && vn===null && vt===null && sat===null && sun===null && !tue) return c;
-  c.nextMonVolley = vn!==null ? vn : c.monFree;     /* alternate Mondays: a free one means volleyball the next */
+  if(vn!==null) c.nextMonVolley=vn;
   if(vm!==null) c.monFree=!vm;
   if(tue) c.padelTue=false;                         /* the calendar covers this Tuesday: its windows decide */
   if(vt!==null) c.volTomorrow=vt;
@@ -2427,7 +2429,7 @@ function buildCheckin(){
   const weeks=Math.max(1,Math.round((Date.now()-new Date(since).getTime())/(7*864e5)));
   L.push("# Training check-in — "+ymd());
   L.push("");
-  L.push(`Block: 4 sessions, a leg lift leads each (${APP_VER}) · week from 16 Nov: Mon posterior · Wed vertical (hip thrust lead) · Thu strength · Sat/Sun horizontal (curl lead) · volleyball on alternate Mondays from ${BVB_MON_ANCHOR} plus one floating game a week · week ${curWeek} shown · app ${state.meta.app}`);
+  L.push(`Block: 4 sessions, a leg lift leads each (${APP_VER}) · week from 16 Nov: Mon posterior · Wed vertical (hip thrust lead) · Thu strength · Sat/Sun horizontal (curl lead) · volleyball every Monday from ${BVB_WEEKLY_FROM} (alternate from ${BVB_MON_ANCHOR}) plus one floating game a week · week ${curWeek} shown · app ${state.meta.app}`);
   const d28=days.filter(d=>d>=dateShift(27));
   L.push(`Adherence: ${days.length} sessions since ${since} (~${round1(days.length/weeks)}/week, target 4) · last 28 d: ${d28.length} (${round1(d28.length/4)}/week)`);
   { const from28=dateShift(27), off28=offDaysBetween(from28, ymd()), per=(state.off||[]).filter(o=>!o.to || o.to>=dateShift(89));
