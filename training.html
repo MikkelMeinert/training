@@ -314,7 +314,7 @@
       <h1 id="hTitle">Training</h1>
       <div class="seg" id="weekSeg">
         <button data-week="A">A · Strength</button>
-        <button data-week="B">B · Hypertrophy</button>
+        <button data-week="B">B · Variant</button>
       </div>
     </div>
     <div class="strip" id="statusStrip"></div>
@@ -449,7 +449,7 @@
   <button id="tab-more"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/></svg>More<span id="moreDot" class="hidden dot"></span></button>
 </nav>
 
-<footer>Training · 17 Nov 2026 check-in · app v13.7</footer>
+<footer>Training · 17 Nov 2026 check-in · app v14</footer>
 
 <script>
 "use strict";
@@ -512,7 +512,7 @@ A:{days:[
          how:"One dumbbell in the LEFT hand, RIGHT hand on the rack, right leg working (then mirror). It chases the right hamstring at long muscle length with level hips: the opposite-hand DB pulls you square, the rack hand removes the balance problem. kg = the one DB.",
          cue:"Hips square like headlights; DB slides down the shin. Right leg first."}]},
       {label:"Accessory", items:[
-        {id:"lyingcurl", n:"Lying hamstring curl — per leg", rx:"3×10–12 / leg · RIR 2", type:"wr", st:2.5, start:{w:17.5,r:10}, r:true, cls:"legs", grp:"hams",
+        {id:"lyingcurl", n:"Lying hamstring curl — per leg", rx:"3×8–10 / leg · RIR 2", type:"wr", st:2.5, start:{w:15,r:8}, r:true, cls:"legs", grp:"hams",
          gate:{k:"rs",lvl:2,act:"Right leg to 2 sets at RIR 3, no eccentric emphasis."},
          how:"One leg at a time so the left can't hide the right. Log the stack setting — that IS the per-leg load. Right first; if it lags, it gets the extra set. Almost no spinal load, so this stays in when the back is sore. Also opens the weekend horizontal day, so the hamstring gets two exposures a week.",
          cue:"Hips pinned to the pad — the right hamstring does its own work."}]},
@@ -554,7 +554,7 @@ A:{days:[
          how:"Same bar as the press — your design. The press is pulling ahead (25 vs 22.5 kg), so strip a small plate for the curl sets; it's still one station.",
          cue:"Elbows pinned to the ribs — curl it, don't swing it."}]},
       {label:"Vertical back-off", items:[
-        {id:"latpulldown", n:"Lat pulldown", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:50,r:10}, cls:"pull",
+        {id:"latpulldown", n:"Lat pulldown", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:50,r:8}, cls:"pull",
          how:"Finishes the vertical pull the pull-ups can't yet exhaust. Same lift as elsewhere — one shared history. Core moved to the posterior day: with the hip thrust in front, nothing below this line was ever going to happen here.",
          cue:"Chest tall, elbows down and back."}]}
     ]},
@@ -567,16 +567,16 @@ A:{days:[
         {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none", cue:"Full cuff prep before any pressing."},
         FACEPULL]},
       {label:"Leg lead", items:[
-        {id:"lyingcurl", n:"Lying hamstring curl — per leg", rx:"3×10–12 / leg · RIR 2", type:"wr", st:2.5, start:{w:17.5,r:10}, r:true, cls:"legs", grp:"hams",
+        {id:"lyingcurl", n:"Lying hamstring curl — per leg", rx:"3×8–10 / leg · RIR 2", type:"wr", st:2.5, start:{w:15,r:8}, r:true, cls:"legs", grp:"hams",
          gate:{k:"rs",lvl:2,act:"Right leg to 2 sets at RIR 3, no eccentric emphasis."},
          how:"Right leg first, stack setting = per-leg load. The right hamstring is the structure with the longest injury history and it was getting one exposure a fortnight; this makes it two a week. Quick, machine-based, no soreness that reaches Monday.",
          cue:"Hips pinned to the pad — the right hamstring does its own work."}]},
       {label:"Primary", main:true, items:[
-        {id:"csrow", n:"Chest-supported single-arm DB row", rx:"3×10–12 / side · RIR 2", type:"wr", st:2, start:{w:20,r:10}, r:true, cls:"pull",
+        {id:"csrow", n:"Chest-supported single-arm DB row", rx:"3×8–10 / side · RIR 2", type:"wr", st:2, start:{w:24,r:8}, r:true, cls:"pull",
          how:"Chest down on a ~30° incline bench, row one DB. Alternate arms with no rest in between — each arm rests while the other works, so it supersets itself (your find). No balance tax, no lower-back load. kg = one DB.",
          cue:"Row to the hip pocket, 1 s squeeze. Right side first."}]},
       {label:"One bench · superset", superset:true, items:[
-        {id:"incline-press", n:"Incline DB press", rx:"3×8–10 · RIR 2", type:"wr", st:2, start:{w:16,r:10}, cls:"push",
+        {id:"incline-press", n:"Incline DB press", rx:"3×6–8 · RIR 2", type:"wr", st:2, start:{w:16,r:6}, cls:"push",
          gate:{k:"sh",lvl:2,act:"Skip, or neutral-grip and light with a shorter range. No pain, ever."},
          how:"Bench at ~30° (the second notch on most benches), press from shoulder height to above the upper chest. kg = one DB. Copenhagens go on the same bench in the rest.",
          cue:"Elbows ~45° from the body; deep stretch, no bounce."},
@@ -584,15 +584,15 @@ A:{days:[
          how:"Side plank with the top leg on the bench — inside of the knee (short lever: start here) or the ankle (long lever: harder); the bottom leg hangs free. ONE REP = lift the hips until the body is a straight line, hold 1 s, lower until the hip almost touches the floor. 8 reps, then the other side — that is one set. The best-evidenced groin-injury insurance there is; use the short lever if the hip flexor pinches. Same bench as the press, so it fills the press rest.",
          cue:"Press the top inner thigh into the bench, hips tall at the top."}]},
       {label:"One cable tower · superset", superset:true, items:[
-        {id:"cable-latraise", n:"Cable lateral raise — one arm", rx:"3×12–15 / side", type:"wr", st:2.5, start:{w:5,r:12}, r:true, cls:"push",
+        {id:"cable-latraise", n:"Cable lateral raise — one arm", rx:"3×10–12 / side", type:"wr", st:2.5, start:{w:5,r:10}, r:true, cls:"push",
          gate:{k:"sh",lvl:2,act:"Half range, to shoulder height only, or skip."},
          how:"Pulley at the bottom, D-handle in the far hand so the cable crosses in front of you; raise to shoulder height. The cable keeps tension at the bottom where dumbbells go slack. Leave the pulley low — the triceps extension uses the same handle.",
          cue:"Lead with the elbow, lean slightly away, no swing."},
-        {id:"oh-triceps", n:"Overhead cable triceps extension — one arm", rx:"3×12 / side", type:"wr", st:2.5, start:{w:5,r:12}, r:true, cls:"push",
+        {id:"oh-triceps", n:"Overhead cable triceps extension — one arm", rx:"3×10–12 / side", type:"wr", st:2.5, start:{w:5,r:10}, r:true, cls:"push",
          how:"Same low pulley and D-handle: face away, handle behind the head, elbow up by the ear, extend overhead. One arm at a time — kg = the stack for one arm. The long head only gets its stretch overhead.",
          cue:"Elbow fixed by the ear — only the forearm moves."}]},
       {label:"Rear delts", opt:true, items:[
-        {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×15", type:"wr", st:2.5, start:{w:15,r:15}, cls:"pull",
+        {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×10–12", type:"wr", st:2.5, start:{w:17.5,r:10}, cls:"pull",
          how:"Sit FACING the machine, chest on the pad, handles at shoulder height; sweep the arms wide and back.",
          cue:"Arms open like saloon doors — long arms, no shoulder-blade pinch."}]}
     ]},
@@ -610,14 +610,14 @@ A:{days:[
          how:"Band round the back of the knee anchored forward at knee height; straighten the knee fully against it, one leg at a time. Your own discovery and it is NOT placebo — this is a standard patellofemoral exercise: the last 30° of extension is where joint compression is lowest, so you load the quad exactly where the knee tolerates it. One long set per leg (your preference, 16 Oct). Every session the knee is 1+, and once a fortnight even when it's quiet.",
          cue:"Squeeze the quad hard at full lockout, 1 s, then control back."}]},
       {label:"Primary", main:true, items:[
-        {id:"rfess", n:"Bulgarian split squat", rx:"3×8 / leg · 3 s down · RIR 2", type:"wr", st:2, start:{w:30,r:8}, r:true, cls:"legs", grp:"quads", ramp:true,
+        {id:"rfess", n:"Bulgarian split squat", rx:"3×6–8 / leg · 3 s down · RIR 2", type:"wr", st:2, start:{w:30,r:6}, r:true, cls:"legs", grp:"quads", ramp:true,
          gate:{k:"knee",lvl:2,act:"Cut the load 20% and shorten the range — keep the 3 s descent, that's the whole point."},
          how:"Rear foot on a bench, front leg does the work. kg = total in hands. The 3 s descent IS the exercise — adding load while the tempo shrinks is fake progress.",
          cue:"Slow elevator down; front heel heavy, knee tracking the toes. Right first."}]},
       {label:"Hinge", items:[
         {id:"deadlift", n:"Deadlift (barbell)", rx:"3×6–8 · RIR 2", type:"wr", st:2.5, start:{w:70,r:6}, cls:"legs", grp:"hinge", ramp:true,
          gate:{k:"lb",lvl:2,act:"SKIP. 2×15 bodyweight back extensions + an extra hang. Back to the bar after two days at 0–1."},
-         how:"Conventional pull from the floor, the A-week (heavier) zone. The barbell took over from the trap bar on 22 Nov 2026 at your call; the B weeks pull 3×8–10 on the same bar. Bar over mid-foot, hip-width stance, hands just outside the knees, shins touch the bar. Weekly medicine for the low back, not an ego lift: crisp reps at RIR 2, never a grind. +2.5 kg when all three sets reach 8.",
+         how:"Conventional pull from the floor. The barbell took over from the trap bar on 22 Nov 2026 at your call; both weeks pull 3×6–8 on the same bar (one strength zone since 22 Nov). Bar over mid-foot, hip-width stance, hands just outside the knees, shins touch the bar. Weekly medicine for the low back, not an ego lift: crisp reps at RIR 2, never a grind. +2.5 kg when all three sets reach 8.",
          cue:"Pull the slack out, chest up, push the floor away; bar stays on the legs."}]},
       {label:"Eccentric hamstring", items:[
         {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–8", type:"reps", start:{r:6}, cls:"legs", grp:"hams",
@@ -625,7 +625,7 @@ A:{days:[
          how:"Ankles anchored, fall forward as slowly as you can control, hands catch, push back. Band or slider to scale. Best-evidenced hamstring-injury prevention exercise in sport — weekly, low dose, forever.",
          cue:"Fight the fall the whole way down."}]},
       {label:"Same spot · superset", superset:true, opt:true, items:[
-        {id:"calf-sl", n:"Single-leg calf raise — per foot", rx:"3×12–15 / foot", type:"wr", st:2.5, start:{w:17.5,r:12}, r:true, cls:"legs",
+        {id:"calf-sl", n:"Single-leg calf raise — per foot", rx:"3×10–12 / foot", type:"wr", st:2.5, start:{w:17.5,r:10}, r:true, cls:"legs",
          how:"One foot at a time so the left can't hide the right. Log the external load for ONE foot (DB in the working-side hand, other hand on the rack). Full range, pause the bottom stretch — ankle stiffness is jump return. Not comparable with the old two-foot numbers: your whole bodyweight is now on one leg.",
          cue:"Right foot first. Drive tall onto the big toe."},
         {id:"tib", n:"Tibialis raise", rx:"2×15–20", type:"reps", start:{r:15}, cls:"legs",
@@ -640,7 +640,7 @@ A:{days:[
 ]},
 B:{days:[
   { id:"lower-power", day:"Lower · posterior", focus:"Hamstrings + hinge · concentric", sport:"Best: Mon morning, also on a volleyball Monday (concentric work, nothing to failure) · missed: Tue morning outside the padel weeks, else the weekend",
-    note:"Hypertrophy week of the hamstring day: B-stance RDL, single-leg curls, back extension. Nothing here makes DOMS.",
+    note:"Variant week of the hamstring day: B-stance RDL, single-leg curls, back extension; the same strength rep ranges as week A. Nothing here makes DOMS.",
     blocks:[
       {label:"Warm-up", items:[
         {n:"Full-body stretch flow", rx:"~6–8 min", type:"none", cue:"Flow, don't force.", how:FLOW},
@@ -651,12 +651,12 @@ B:{days:[
          how:"Half your top weight, every rep driven as fast as possible, full rest. Six minutes of intent.",
          cue:"If the bar slows, it's too heavy."}]},
       {label:"Primary", main:true, items:[
-        {id:"bstance-rdl", n:"B-stance RDL", rx:"3×10 · RIR 3", type:"wr", st:2.5, start:{w:40,r:10}, r:true, cls:"legs", grp:"hams", ramp:true,
+        {id:"bstance-rdl", n:"B-stance RDL", rx:"3×8 · RIR 2–3", type:"wr", st:2.5, start:{w:30,r:8}, seed:{from:"slrdl",p:1.5,what:"single-leg RDL (one DB)"}, r:true, cls:"legs", grp:"hams", ramp:true,
          gate:{k:"lb",lvl:2,act:"Skip — loaded hinge. Lying curls cover the hamstring today."},
          how:"An RDL with the non-working foot half a step back on tiptoe, ~70% of the load on the front (right) leg. kg = the bar or both DBs. RIR 3 on purpose: the hamstring at length is the target, the back is along for the ride, and Thursday's deadlift is three days away.",
          cue:"Hips back until the front hamstring pulls; squeeze the glute to stand."}]},
       {label:"Accessory", items:[
-        {id:"lyingcurl", n:"Lying hamstring curl — per leg", rx:"3×12 / leg · RIR 2", type:"wr", st:2.5, start:{w:17.5,r:12}, r:true, cls:"legs", grp:"hams",
+        {id:"lyingcurl", n:"Lying hamstring curl — per leg", rx:"3×8–10 / leg · RIR 2", type:"wr", st:2.5, start:{w:15,r:8}, r:true, cls:"legs", grp:"hams",
          gate:{k:"rs",lvl:2,act:"Right leg 2 sets at RIR 3."},
          how:"Single leg, right first. Stack setting = per-leg load. Spine-safe, so it stays when the back is sore.",
          cue:"Hips pinned — the right hamstring does its own work."}]},
@@ -673,54 +673,54 @@ B:{days:[
     ]},
 
   { id:"upper-vert", day:"Upper · vertical", focus:"Hip thrust lead · vertical pull + press", sport:"Best: Wed morning. Hip thrusts are concentric, so a game tonight costs nothing · missed: Thu, Fri or the weekend",
-    note:"Higher-rep week. Hip thrust opens, then pull-ups and the barbell pair. ~30 min to the dashed line.",
+    note:"Variant week, same strength rep ranges as week A (no hypertrophy week since 22 Nov 2026). Hip thrust opens, then pull-ups and the barbell pair. ~30 min to the dashed line.",
     blocks:[
       {label:"Warm-up", items:[
         HANG,
         {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none", cue:"Every upper session."},
         FACEPULL]},
       {label:"Leg lead", items:[
-        {id:"hipthrust", n:"Hip thrust", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:60,r:10}, cls:"legs", grp:"hips", ramp:true,
+        {id:"hipthrust", n:"Hip thrust", rx:"3×6–8 · RIR 2", type:"wr", st:2.5, start:{w:60,r:6}, cls:"legs", grp:"hips", ramp:true,
          gate:{k:"lb",lvl:2,act:"~60% for 2 sets, or bodyweight glute bridges."},
-         how:"Same bar path as week A, more reps. Two ramp sets, three work sets, ten minutes.",
+         how:"Same lift and rep range as week A (one strength zone since 22 Nov 2026, his call); the B week varies the rest of the day. Two ramp sets, three work sets, ten minutes.",
          cue:"1 s squeeze at the top, ribs down."}]},
       {label:"Primary", main:true, items:[
         {id:"pullup", n:"Pull-up — slow lowering", rx:"3×5–8 · 3 s down · RIR 1", type:"wradd", st:2.5, start:{w:0,r:5}, cls:"pull",
          gate:{k:"sh",lvl:2,act:"Neutral grip or assisted, stop at the first pinch."},
-         how:"Same lift, 3 s on the way down every rep — more time under tension at long lat lengths, the hypertrophy-week version. Expect a rep or two fewer than week A. Log the first set. kg = added load (0 = bodyweight, negative = assistance).",
+         how:"Same lift, 3 s on the way down every rep — more time under tension at long lat lengths, the B-week variant. Expect a rep or two fewer than week A. Log the first set. kg = added load (0 = bodyweight, negative = assistance).",
          cue:"Blades down first, pull, then lower for a slow three."}]},
       {label:"One barbell · superset", superset:true, items:[
-        {id:"ohp", n:"Overhead press (barbell)", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:20,r:10}, cls:"push",
+        {id:"ohp", n:"Overhead press (barbell)", rx:"3×6–8 · RIR 2", type:"wr", st:2.5, start:{w:25,r:6}, cls:"push",
          gate:{k:"sh",lvl:2,act:"No pressing. Extra face-pulls instead."},
          how:"Reps to the top of the range, then +2.5 kg. The shoulder has been quiet since early September and pressing feels strong — RIR 2 now.",
          cue:"Ribs down, no lean-back."},
-        {id:"bb-curl", n:"Barbell curl (same bar)", rx:"3×10–12 · RIR 2", type:"wr", st:2.5, start:{w:20,r:10}, cls:"pull",
+        {id:"bb-curl", n:"Barbell curl (same bar)", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:20,r:8}, cls:"pull",
          how:"Same bar, no re-plating.",
          cue:"Elbows pinned."}]},
       {label:"Vertical back-off", items:[
-        {id:"latpulldown", n:"Lat pulldown (wide)", rx:"3×12–15", type:"wr", st:2.5, start:{w:50,r:12}, cls:"pull",
+        {id:"latpulldown", n:"Lat pulldown (wide)", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:50,r:8}, cls:"pull",
          how:"Finishes what the pull-ups start. Core lives on the posterior day now.",
          cue:"Chest tall — elbows down and back."}]}
     ]},
 
   { id:"upper-horiz", day:"Upper · horizontal", focus:"Hamstring lead · rows + horizontal press", sport:"Best: Sat or Sun — any time, the gym is quiet",
-    note:"Single-leg curls open, then the pump-oriented horizontal work — stretch and squeeze, still row-led. ~30 min to the dashed line.",
+    note:"Single-leg curls open, then the variant horizontal work (flat chest press instead of incline), still row-led, same strength rep ranges as week A. ~30 min to the dashed line.",
     blocks:[
       {label:"Warm-up", items:[
         HANG, PULLUP_PRACTICE,
         {n:"Band shoulder prep + cuff ER", rx:"2×12", type:"none"},
         FACEPULL]},
       {label:"Leg lead", items:[
-        {id:"lyingcurl", n:"Lying hamstring curl — per leg", rx:"3×12 / leg · RIR 2", type:"wr", st:2.5, start:{w:17.5,r:12}, r:true, cls:"legs", grp:"hams",
+        {id:"lyingcurl", n:"Lying hamstring curl — per leg", rx:"3×8–10 / leg · RIR 2", type:"wr", st:2.5, start:{w:15,r:8}, r:true, cls:"legs", grp:"hams",
          gate:{k:"rs",lvl:2,act:"Right leg 2 sets at RIR 3."},
          how:"Right first, stack = per-leg load. The second hamstring exposure of the week; machine-based, no soreness that reaches Monday.",
          cue:"Hips pinned — the right hamstring does its own work."}]},
       {label:"Primary", main:true, items:[
-        {id:"csrow", n:"Chest-supported single-arm DB row", rx:"3×12–15 / side", type:"wr", st:2, start:{w:20,r:12}, r:true, cls:"pull",
+        {id:"csrow", n:"Chest-supported single-arm DB row", rx:"3×8–10 / side · RIR 2", type:"wr", st:2, start:{w:24,r:8}, r:true, cls:"pull",
          how:"Chest on the ~30° incline bench, full stretch at the bottom. Alternate arms with no rest — each arm rests while the other works.",
          cue:"Row to the hip pocket. Right first."}]},
       {label:"One bench · superset", superset:true, items:[
-        {id:"chest-press", n:"DB or machine chest press", rx:"3×10–12 · RIR 2", type:"wr", st:2, start:{w:16,r:12}, cls:"push",
+        {id:"chest-press", n:"DB or machine chest press", rx:"3×6–8 · RIR 2", type:"wr", st:2, start:{w:20,r:6}, cls:"push",
          gate:{k:"sh",lvl:2,act:"Machine, neutral grip, light — or skip."},
          how:"Flat bench, DBs (kg = one DB) — the machine is the fallback, but then the Copenhagen needs its own bench. Chase the stretch.",
          cue:"Control the negative — no bounce."},
@@ -728,20 +728,20 @@ B:{days:[
          how:"Side plank with the top leg on the bench — inside of the knee (short lever: start here) or the ankle (long lever: harder); the bottom leg hangs free. ONE REP = lift the hips until the body is a straight line, hold 1 s, lower until the hip almost touches the floor. 8 reps, then the other side — that is one set. The best-evidenced groin-injury insurance there is; use the short lever if the hip flexor pinches. Same bench as the press, so it fills the press rest.",
          cue:"Hips tall at the top — shorten the lever if the hip flexor pinches."}]},
       {label:"One cable tower · superset", superset:true, items:[
-        {id:"cable-latraise", n:"Cable lateral raise — one arm", rx:"3×15–20 / side", type:"wr", st:2.5, start:{w:5,r:15}, r:true, cls:"push",
+        {id:"cable-latraise", n:"Cable lateral raise — one arm", rx:"3×10–12 / side", type:"wr", st:2.5, start:{w:5,r:10}, r:true, cls:"push",
          gate:{k:"sh",lvl:2,act:"Half range or skip."},
          how:"Low pulley, D-handle in the far hand; raise to shoulder height. Same handle for the triceps.",
          cue:"Strict — constant tension, no swing."},
-        {id:"oh-triceps", n:"Overhead cable triceps extension — one arm", rx:"3×12–15 / side", type:"wr", st:2.5, start:{w:5,r:12}, r:true, cls:"push",
+        {id:"oh-triceps", n:"Overhead cable triceps extension — one arm", rx:"3×10–12 / side", type:"wr", st:2.5, start:{w:5,r:10}, r:true, cls:"push",
          how:"Same low pulley: face away, elbow by the ear, extend overhead. kg = one arm.",
          cue:"Elbow fixed — only the forearm moves."}]},
       {label:"Rear delts", opt:true, items:[
-        {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×15–20", type:"wr", st:2.5, start:{w:15,r:15}, cls:"pull",
+        {id:"revpecdeck", n:"Reverse pec-deck (rear delts)", rx:"3×10–12", type:"wr", st:2.5, start:{w:17.5,r:10}, cls:"pull",
          cue:"Long arms, no pinch."}]}
     ]},
 
   { id:"lower-strength", day:"Lower · strength", focus:"Quad/tendon + the weekly deadlift", sport:"Best: Thu morning: 3 days after Monday's posterior, 2–3 days clear of a weekend game, 4 before Monday volleyball · missed: Fri, then the weekend",
-    note:"Lunge-pattern week: tempo leg extension and TKE, reverse lunge, barbell deadlift, Nordics. ~40 min to the dashed line.",
+    note:"Lunge-pattern variant week, same strength rep ranges as week A: tempo leg extension and TKE, reverse lunge, barbell deadlift, Nordics. ~40 min to the dashed line.",
     blocks:[
       {label:"Warm-up", items:[
         {n:"Full-body stretch flow", rx:"~6–8 min", type:"none", cue:"Especially before lunging.", how:FLOW},
@@ -755,14 +755,14 @@ B:{days:[
          cue:"Hard quad squeeze at lockout, 1 s."},
         ]},
       {label:"Primary", main:true, items:[
-        {id:"revlunge", n:"Reverse lunge", rx:"3×8–10 / leg · RIR 2", type:"wr", st:2.5, start:{w:40,r:8}, r:true, cls:"legs", grp:"quads", ramp:true,
+        {id:"revlunge", n:"Reverse lunge", rx:"3×6–8 / leg · RIR 2", type:"wr", st:2.5, start:{w:40,r:6}, r:true, cls:"legs", grp:"quads", ramp:true,
          gate:{k:"knee",lvl:2,act:"Drop 20% and shorten the step."},
          how:"Step backward into the lunge, drive back up through the front leg. kg = total load. Knee-friendlier than walking lunges.",
          cue:"Front heel heavy, torso tall. Right first."}]},
       {label:"Hinge", items:[
-        {id:"deadlift", n:"Deadlift (barbell)", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:70,r:8}, cls:"legs", grp:"hinge", ramp:true,
+        {id:"deadlift", n:"Deadlift (barbell)", rx:"3×6–8 · RIR 2", type:"wr", st:2.5, start:{w:70,r:6}, cls:"legs", grp:"hinge", ramp:true,
          gate:{k:"lb",lvl:2,act:"SKIP. 2×15 bodyweight back extensions + an extra hang. Back to the bar after two days at 0–1."},
-         how:"Conventional pull from the floor, the B-week zone; back from 21 Nov 2026 at your call (sumo was never run; your back is well), and on the A weeks too from 22 Nov (3×6–8, no trap bar). Bar over mid-foot, hip-width stance, hands just outside the knees, shins touch the bar. It is weekly medicine for the low back, not an ego lift: crisp reps at RIR 2, never a grind. +2.5 kg when all three sets reach 10.",
+         how:"Conventional pull from the floor, 3×6–8 like week A (one strength zone since 22 Nov 2026); back from 21 Nov 2026 at your call (sumo was never run; your back is well), on both weeks from 22 Nov (no trap bar). Bar over mid-foot, hip-width stance, hands just outside the knees, shins touch the bar. It is weekly medicine for the low back, not an ego lift: crisp reps at RIR 2, never a grind. +2.5 kg when all three sets reach 8.",
          cue:"Pull the slack out, chest up, push the floor away; bar stays on the legs."}]},
       {label:"Eccentric hamstring", items:[
         {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–8", type:"reps", start:{r:6}, cls:"legs", grp:"hams",
@@ -770,7 +770,7 @@ B:{days:[
          how:"Slowest lower you can control. Weekly insurance.",
          cue:"Fight the fall."}]},
       {label:"Same spot · superset", superset:true, opt:true, items:[
-        {id:"calf-sl", n:"Single-leg calf raise — per foot", rx:"3×15 / foot", type:"wr", st:2.5, start:{w:17.5,r:15}, r:true, cls:"legs", cue:"Right foot first. Pause the stretch."},
+        {id:"calf-sl", n:"Single-leg calf raise — per foot", rx:"3×10–12 / foot", type:"wr", st:2.5, start:{w:17.5,r:10}, r:true, cls:"legs", cue:"Right foot first. Pause the stretch."},
         {id:"tib", n:"Tibialis raise", rx:"2×20", type:"reps", start:{r:20}, cls:"legs", cue:"Slow both ways."}]},
       {label:"Power (knee-gated)", opt:true, items:[
         {id:"bound", n:"Lateral bound — stick the landing", rx:"3×4 / side", type:"reps", start:{r:4}, r:true, cls:"legs",
@@ -804,7 +804,7 @@ Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
    State
 ===================================================================== */
 const STORE_KEY = "mikkel_training_v2";
-const APP_VER = "v13.7";
+const APP_VER = "v14";
 
 function blankState(){
   return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{}, prac:{}, off:[],
@@ -1183,7 +1183,11 @@ function target(it){
     }
     if(!t){
       if(ze.r>=rr.hi){
-        if(coarseAt(it,ze.w) && ze.r<rr.hi+COARSE_EXT) t={w:ze.w, r:Math.min(ze.r+2, rr.hi+COARSE_EXT), chip:"up", txt:`↑ aim ${ze.w} kg × ${Math.min(ze.r+2, rr.hi+COARSE_EXT)}`, why:"a plate here is a big jump: extend the reps first"};
+        /* v14: extend the reps only while the next plate at the bottom of the range is a real jump (more than +10% e1RM).
+           12.5 × 12 → 15 × 8 on the lying curl is +9%: take the plate (the 22 Nov switch to strength ranges left several
+           lifts above the new range, and "aim 12.5 × 14" in an 8–10 range was the wrong answer). */
+        const nx=round1((ze.w||0)+incFor(it,ze.w));
+        if(coarseAt(it,ze.w) && ze.r<rr.hi+COARSE_EXT && e1rmCap(nx,rr.lo)>1.10*e1rmCap(ze.w,ze.r)) t={w:ze.w, r:Math.min(ze.r+2, rr.hi+COARSE_EXT), chip:"up", txt:`↑ aim ${ze.w} kg × ${Math.min(ze.r+2, rr.hi+COARSE_EXT)}`, why:"a plate here is a big jump: extend the reps first"};
         else { const nxt=round1((ze.w||0)+incFor(it,ze.w)); t={w:nxt, r:rr.lo, chip:"up", txt:`↑ try ${nxt} kg × ${rr.lo}`}; }
       } else if(ze.r<rr.lo){
         const z=zoneEntries(it,rr), prev=z[z.length-2];
@@ -1240,7 +1244,7 @@ function seedFor(it){
   if(!it || !it.seed || (state.logs[it.id]||[]).length || gateFor(it)) return null;
   const src=lastEntry(it.seed.from); if(!src || !(src.w>0)) return null;
   const st=it.st||2.5, pct=Math.round(it.seed.p*100);
-  return {w:Math.floor(src.w*it.seed.p/st+1e-9)*st, pct, why:`first time · ${pct}% of your ${src.w} kg barbell pull`};
+  return {w:Math.floor(src.w*it.seed.p/st+1e-9)*st, pct, why:`first time · ${pct}% of your ${src.w} kg ${it.seed.what||"barbell pull"}`};
 }
 /* v13: interchangeable variants share a family. A lift is fully stale (85%) only when the whole family has been
    idle four weeks. When a sister variant was trained inside four weeks, the pattern is alive: nothing for six weeks,
