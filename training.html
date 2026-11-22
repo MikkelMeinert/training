@@ -449,7 +449,7 @@
   <button id="tab-more"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/></svg>More<span id="moreDot" class="hidden dot"></span></button>
 </nav>
 
-<footer>Training · 17 Nov 2026 check-in · app v13.6</footer>
+<footer>Training · 17 Nov 2026 check-in · app v13.7</footer>
 
 <script>
 "use strict";
@@ -615,10 +615,10 @@ A:{days:[
          how:"Rear foot on a bench, front leg does the work. kg = total in hands. The 3 s descent IS the exercise — adding load while the tempo shrinks is fake progress.",
          cue:"Slow elevator down; front heel heavy, knee tracking the toes. Right first."}]},
       {label:"Hinge", items:[
-        {id:"trapbar-dl", n:"Trap-bar deadlift", rx:"3×6–8 · RIR 2", type:"wr", st:5, start:{w:65,r:6}, cls:"legs", grp:"hinge", ramp:true, seed:{from:"deadlift",p:0.9},
-         gate:{k:"lb",lvl:2,act:"SKIP. Do 2×15 bodyweight back extensions and an extra 45 s hang instead. Back to the bar after two days at 0–1."},
-         how:"Stand centred in the hex bar, handles at your sides; start on the HIGH handles (shorter range). Hips a little lower and chest taller than a barbell pull — the load sits in line with you, so less shear on the low back and more quad. A-week pull; the barbell deadlift takes B weeks (your call, 21 Nov): same job, load spread differently. kg = bar + plates (hex bars are often 20–25 kg — check yours). +5 kg when all three sets reach 8.",
-         cue:"Push the floor away and stand tall — handles brush the thighs, no hitching."}]},
+        {id:"deadlift", n:"Deadlift (barbell)", rx:"3×6–8 · RIR 2", type:"wr", st:2.5, start:{w:70,r:6}, cls:"legs", grp:"hinge", ramp:true,
+         gate:{k:"lb",lvl:2,act:"SKIP. 2×15 bodyweight back extensions + an extra hang. Back to the bar after two days at 0–1."},
+         how:"Conventional pull from the floor, the A-week (heavier) zone. The barbell took over from the trap bar on 22 Nov 2026 at your call; the B weeks pull 3×8–10 on the same bar. Bar over mid-foot, hip-width stance, hands just outside the knees, shins touch the bar. Weekly medicine for the low back, not an ego lift: crisp reps at RIR 2, never a grind. +2.5 kg when all three sets reach 8.",
+         cue:"Pull the slack out, chest up, push the floor away; bar stays on the legs."}]},
       {label:"Eccentric hamstring", items:[
         {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–8", type:"reps", start:{r:6}, cls:"legs", grp:"hams",
          gate:{k:"rs",lvl:2,act:"Band-assisted, 2×4, stop well short of failure."},
@@ -762,7 +762,7 @@ B:{days:[
       {label:"Hinge", items:[
         {id:"deadlift", n:"Deadlift (barbell)", rx:"3×8–10 · RIR 2", type:"wr", st:2.5, start:{w:70,r:8}, cls:"legs", grp:"hinge", ramp:true,
          gate:{k:"lb",lvl:2,act:"SKIP. 2×15 bodyweight back extensions + an extra hang. Back to the bar after two days at 0–1."},
-         how:"Conventional pull from the floor, back on the B weeks at your call on 21 Nov 2026 (sumo was never run; your back is well). Bar over mid-foot, hip-width stance, hands just outside the knees, shins touch the bar. It is weekly medicine for the low back, not an ego lift: crisp reps at RIR 2, never a grind. +2.5 kg when all three sets reach 10.",
+         how:"Conventional pull from the floor, the B-week zone; back from 21 Nov 2026 at your call (sumo was never run; your back is well), and on the A weeks too from 22 Nov (3×6–8, no trap bar). Bar over mid-foot, hip-width stance, hands just outside the knees, shins touch the bar. It is weekly medicine for the low back, not an ego lift: crisp reps at RIR 2, never a grind. +2.5 kg when all three sets reach 10.",
          cue:"Pull the slack out, chest up, push the floor away; bar stays on the legs."}]},
       {label:"Eccentric hamstring", items:[
         {id:"nordic", n:"Nordic hamstring curl", rx:"3×4–8", type:"reps", start:{r:6}, cls:"legs", grp:"hams",
@@ -795,6 +795,7 @@ const RETIRED = {
   latraise:{name:"Standing DB lateral raise (retired — cable now)", type:"wr", cls:"push"},
   cablerow:{name:"Seated cable row (retired — the CS row covers rows)", type:"wr", cls:"pull"},
   "sumo-dl":{name:"Sumo deadlift (retired 21 Nov 2026, never logged; barbell on B weeks)", type:"wr", cls:"legs", grp:"hinge"},
+  "trapbar-dl":{name:"Trap-bar deadlift (retired 22 Nov 2026; barbell both weeks)", type:"wr", cls:"legs", grp:"hinge"},
   "walk-lunge":{name:"Walking lunge — plate overhead (off-plan)", type:"wr", cls:"legs"}
 };
 Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
@@ -803,7 +804,7 @@ Object.keys(RETIRED).forEach(k => { if(!EXMETA[k]) EXMETA[k] = RETIRED[k]; });
    State
 ===================================================================== */
 const STORE_KEY = "mikkel_training_v2";
-const APP_VER = "v13.6";
+const APP_VER = "v13.7";
 
 function blankState(){
   return {logs:{}, bw:[], done:{}, notesArr:[], ready:{}, sessions:{}, acts:[], extra:{}, prac:{}, off:[],
@@ -1564,7 +1565,8 @@ function fitOn(id, dstr){
   const fits=(s,e)=>(!late || s>=720) && fitsDay(s,e);
   const out=(s,e)=>({start:toHHMM(s), end:toHHMM(e), fuel:sport.length>0});
   for(const w of iv(x.workouts)) if((now===null || now<w.e) && fits(w.s,w.e)) return out(w.s,w.e);
-  const wins=iv(x.windows).filter(w=>now===null || now<w.e);
+  const floor=(dw===0||dw===6) ? 600 : 0;   /* his word, 22 Nov: weekend sessions from 10:00; he moves them as he likes */
+  const wins=iv(x.windows).filter(w=>now===null || now<w.e).map(w=>({s:Math.max(w.s,floor), e:w.e})).filter(w=>w.s<w.e);
   for(const full of [true,false]) for(const w of wins)
     for(let s=w.s; s+(full?want:least)<=w.e; s+=15){ const e=Math.min(s+want, w.e); if(fits(s,e)) return out(s,e); }
   return null;
